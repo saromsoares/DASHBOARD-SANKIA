@@ -1,0 +1,383 @@
+🔐 Authenticating and fetching orders for CNPJ: 30409112000161...
+✅ Found 34 orders. Fetching details for the NEXT 5 (6-10)...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Pedido 1911 (NUNOTA: 20584)
+   Data: 30/10/2025 | Valor: R$ 3157.80 | Status: Liberada
+   Fetching items...
+   📋 Itens (21):
+     1. VOLTIMETRO DIGITAL - 2 USB - BIVOLT - ASX8232 (Cód: 552)
+        Qtd: 4 | Unit: R$ 25.00 | Total: R$ 100.00
+     2. LATERNA CARRETINHA CRISTAL STANDARD 12V - ASX5313 (Cód: 1074)
+        Qtd: 6 | Unit: R$ 25.00 | Total: R$ 150.00
+     3. LAMPADA T5 1 LED COM SOQUETE VERMELHO 12V - ASX3414 (Cód: 1132)
+        Qtd: 10 | Unit: R$ 1.50 | Total: R$ 15.00
+     4. PLACA ADAPTAVEL 54 LED - 12V - ASX3533 (Cód: 7094)
+        Qtd: 20 | Unit: R$ 6.00 | Total: R$ 120.00
+     5. LED COB H1 30W 3500 LUMENS 12V ASX1501 (Cód: 4651)
+        Qtd: 5 | Unit: R$ 29.00 | Total: R$ 145.00
+     6. LED COB H4 30W 3500L 12V ASX1504 (Cód: 4647)
+        Qtd: 6 | Unit: R$ 39.00 | Total: R$ 234.00
+     7. LED COB H7 30W 3500 LUMENS 12V ASX1507 (Cód: 4715)
+        Qtd: 3 | Unit: R$ 29.00 | Total: R$ 87.00
+     8. LED COB H11/H8/H16 30W 3500L 12V ASX1511 (Cód: 4714)
+        Qtd: 6 | Unit: R$ 29.00 | Total: R$ 174.00
+     9. LED COB HB3/HB4 30W 3500L 12V ASX1506 (Cód: 4712)
+        Qtd: 3 | Unit: R$ 29.00 | Total: R$ 87.00
+     10. SUPER LED CSP H1 40W 5.500 LUM BI ASX1101 (Cód: 4558)
+        Qtd: 3 | Unit: R$ 58.00 | Total: R$ 174.00
+     11. SUPER LED CSP H3 40W 5.500 LUM BIVASX1103 (Cód: 4559)
+        Qtd: 2 | Unit: R$ 58.00 | Total: R$ 116.00
+     12. SUPER LED CSP H4 40W 5.500L BV ASX1104 (Cód: 4555)
+        Qtd: 2 | Unit: R$ 68.00 | Total: R$ 136.00
+     13. SUPER LED CSP H7 40W 5.500 LUM BIV ASX1107 (Cód: 4556)
+        Qtd: 8 | Unit: R$ 58.00 | Total: R$ 464.00
+     14. SUPER LED CSP H27   40W   5.500 LUMENS   BIVOLT (Cód: 4577)
+        Qtd: 3 | Unit: R$ 58.00 | Total: R$ 174.00
+     15. SUPER LED CSP HB3/HB4 40W 5.500L BV ASX1106 (Cód: 4575)
+        Qtd: 1 | Unit: R$ 58.00 | Total: R$ 58.00
+     16. ULTRA LED CSP H1 70W 10.000 L BV ASX1001 (Cód: 4586)
+        Qtd: 3 | Unit: R$ 105.00 | Total: R$ 315.00
+     17. ULTRA LED CSP H3   70W   10.000 LUMENS   BIVOLT (Cód: 4587)
+        Qtd: 1 | Unit: R$ 105.00 | Total: R$ 105.00
+     18. ULTRA LED CSP H4 70W 10.000L BV ASX1004 (Cód: 4584)
+        Qtd: 3 | Unit: R$ 105.00 | Total: R$ 315.00
+     19. ULTRA LED CSP H7 70W 10.000L BV ASX1007 (Cód: 4603)
+        Qtd: 1 | Unit: R$ 105.00 | Total: R$ 105.00
+     20. LAMPADA TORPEDO 10 LED CSP CAMBUS 41MM - BIVOLT - ASX3123 (Cód: 615)
+        Qtd: 10 | Unit: R$ 7.00 | Total: R$ 70.00
+     21. LAMPADA T10 42 LED BRANCA 12V - ASX3042 (Cód: 226)
+        Qtd: 30 | Unit: R$ 6.00 | Total: R$ 180.00
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Pedido 37297 (NUNOTA: 20735)
+   Data: 30/10/2025 | Valor: R$ 3157.80 | Status: Liberada
+   Fetching items...
+   📋 Itens (21):
+     1. LAMPADA T10 42 LED BRANCA 12V - ASX3042 (Cód: 226)
+        Qtd: 30 | Unit: R$ 6.00 | Total: R$ 180.00
+     2. VOLTIMETRO DIGITAL - 2 USB - BIVOLT - ASX8232 (Cód: 552)
+        Qtd: 4 | Unit: R$ 25.00 | Total: R$ 100.00
+     3. LAMPADA TORPEDO 10 LED CSP CAMBUS 41MM - BIVOLT - ASX3123 (Cód: 615)
+        Qtd: 10 | Unit: R$ 7.00 | Total: R$ 70.00
+     4. LATERNA CARRETINHA CRISTAL STANDARD 12V - ASX5313 (Cód: 1074)
+        Qtd: 6 | Unit: R$ 25.00 | Total: R$ 150.00
+     5. LAMPADA T5 1 LED COM SOQUETE VERMELHO 12V - ASX3414 (Cód: 1132)
+        Qtd: 10 | Unit: R$ 1.50 | Total: R$ 15.00
+     6. SUPER LED CSP H4 40W 5.500L BV ASX1104 (Cód: 4555)
+        Qtd: 2 | Unit: R$ 68.00 | Total: R$ 136.00
+     7. SUPER LED CSP H7 40W 5.500 LUM BIV ASX1107 (Cód: 4556)
+        Qtd: 8 | Unit: R$ 58.00 | Total: R$ 464.00
+     8. SUPER LED CSP H1 40W 5.500 LUM BI ASX1101 (Cód: 4558)
+        Qtd: 3 | Unit: R$ 58.00 | Total: R$ 174.00
+     9. SUPER LED CSP H3 40W 5.500 LUM BIVASX1103 (Cód: 4559)
+        Qtd: 2 | Unit: R$ 58.00 | Total: R$ 116.00
+     10. SUPER LED CSP HB3/HB4 40W 5.500L BV ASX1106 (Cód: 4575)
+        Qtd: 1 | Unit: R$ 58.00 | Total: R$ 58.00
+     11. SUPER LED CSP H27   40W   5.500 LUMENS   BIVOLT (Cód: 4577)
+        Qtd: 3 | Unit: R$ 58.00 | Total: R$ 174.00
+     12. ULTRA LED CSP H4 70W 10.000L BV ASX1004 (Cód: 4584)
+        Qtd: 3 | Unit: R$ 105.00 | Total: R$ 315.00
+     13. ULTRA LED CSP H1 70W 10.000 L BV ASX1001 (Cód: 4586)
+        Qtd: 3 | Unit: R$ 105.00 | Total: R$ 315.00
+     14. ULTRA LED CSP H3   70W   10.000 LUMENS   BIVOLT (Cód: 4587)
+        Qtd: 1 | Unit: R$ 105.00 | Total: R$ 105.00
+     15. ULTRA LED CSP H7 70W 10.000L BV ASX1007 (Cód: 4603)
+        Qtd: 1 | Unit: R$ 105.00 | Total: R$ 105.00
+     16. LED COB H4 30W 3500L 12V ASX1504 (Cód: 4647)
+        Qtd: 6 | Unit: R$ 39.00 | Total: R$ 234.00
+     17. LED COB H1 30W 3500 LUMENS 12V ASX1501 (Cód: 4651)
+        Qtd: 5 | Unit: R$ 29.00 | Total: R$ 145.00
+     18. LED COB HB3/HB4 30W 3500L 12V ASX1506 (Cód: 4712)
+        Qtd: 3 | Unit: R$ 29.00 | Total: R$ 87.00
+     19. LED COB H11/H8/H16 30W 3500L 12V ASX1511 (Cód: 4714)
+        Qtd: 6 | Unit: R$ 29.00 | Total: R$ 174.00
+     20. LED COB H7 30W 3500 LUMENS 12V ASX1507 (Cód: 4715)
+        Qtd: 3 | Unit: R$ 29.00 | Total: R$ 87.00
+     21. PLACA ADAPTAVEL 54 LED - 12V - ASX3533 (Cód: 7094)
+        Qtd: 20 | Unit: R$ 6.00 | Total: R$ 120.00
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Pedido 36331 (NUNOTA: 3914)
+   Data: 17/09/2025 | Valor: R$ 8583.26 | Status: Liberada
+   Fetching items...
+   📋 Itens (50):
+     1. LAMPADA 67 COB 1 POLO 12V - ASX3201 (Cód: 17)
+        Qtd: 10 | Unit: R$ 2.65 | Total: R$ 26.50
+     2. LAMPADA H7 SUPER BRANCA - 12V 55W - ASX2307 (Cód: 39)
+        Qtd: 30 | Unit: R$ 8.00 | Total: R$ 240.00
+     3. LAMPADA H11 SUPER BRANCA 55W - 12V - ASX2311 (Cód: 48)
+        Qtd: 10 | Unit: R$ 9.20 | Total: R$ 92.00
+     4. LAMPADA 1141 CLEAR 1 POLO P21W 12V - ASX2541 (Cód: 51)
+        Qtd: 50 | Unit: R$ 1.00 | Total: R$ 50.00
+     5. KIT FAROL DE MILHA LED DIVERSOS 12V - ASX4403 (Cód: 54)
+        Qtd: 1 | Unit: R$ 140.00 | Total: R$ 140.00
+     6. MEGA FONE 7 TONS 12V - ASX6201 (Cód: 93)
+        Qtd: 2 | Unit: R$ 60.00 | Total: R$ 120.00
+     7. WORKLIGHT QUADRADO 16 LED 48W BIVOLT - ASX4148 (Cód: 96)
+        Qtd: 2 | Unit: R$ 23.00 | Total: R$ 46.00
+     8. LAMPADA HB4 CLEAR 55W 12V - ASX2106 (Cód: 99)
+        Qtd: 30 | Unit: R$ 7.50 | Total: R$ 225.00
+     9. LAMPADA H4 SUPER BRANCA - 12V 60/55W - ASX2304 (Cód: 115)
+        Qtd: 30 | Unit: R$ 9.20 | Total: R$ 276.00
+     10. LAMPADA HB4 SUPER BRANCA - 55W - 12V - ASX2306 (Cód: 116)
+        Qtd: 10 | Unit: R$ 9.20 | Total: R$ 92.00
+     11. SIRENE - 1 TOM - BIVOLT - ASX5105 (Cód: 126)
+        Qtd: 6 | Unit: R$ 16.00 | Total: R$ 96.00
+     12. MP3 PLAYER COM BLUETOOTH - 12V - ASX8003 (Cód: 128)
+        Qtd: 4 | Unit: R$ 69.00 | Total: R$ 276.00
+     13. LAMPADA 1141 AMBAR 1 POLO - PY21W 12V - ASX2542 (Cód: 131)
+        Qtd: 80 | Unit: R$ 1.25 | Total: R$ 100.00
+     14. LAMPADA 69 4 LED 12V - ASX3341 (Cód: 137)
+        Qtd: 20 | Unit: R$ 1.70 | Total: R$ 34.00
+     15. LAMPADA H7 CLEAR 12V 55W - ASX2107 (Cód: 146)
+        Qtd: 10 | Unit: R$ 6.50 | Total: R$ 65.00
+     16. LAMPADA T10 8 LED BRANCA 12V - ASX3008 (Cód: 150)
+        Qtd: 50 | Unit: R$ 1.70 | Total: R$ 85.00
+     17. LAMPADA T10 8 LED BRANCA 12V - ASX3008 (Cód: 150)
+        Qtd: 10 | Unit: R$ 1.70 | Total: R$ 17.00
+     18. LAMPADA T10 24 LED SMD CAMBUS 6000K 12V - ASX3024 (Cód: 151)
+        Qtd: 20 | Unit: R$ 6.00 | Total: R$ 120.00
+     19. LANTERNA DELIMITADORA LED BIVOLT VERMELHO - ASX5273 (Cód: 170)
+        Qtd: 5 | Unit: R$ 7.50 | Total: R$ 37.50
+     20. WORKLIGTH RETANGULAR 8 LED 24W BIVOLT - ASX4201 (Cód: 182)
+        Qtd: 2 | Unit: R$ 39.00 | Total: R$ 78.00
+     21. WORKLIGTH RETANGULAR 8 LED 24W BIVOLT - ASX4201 (Cód: 182)
+        Qtd: 4 | Unit: R$ 39.00 | Total: R$ 156.00
+     22. LAMPADA H4 CLEAR 24V 75/70W - ASX2204 (Cód: 183)
+        Qtd: 10 | Unit: R$ 7.50 | Total: R$ 75.00
+     23. LAMPADA T10 42 LED BRANCA 12V - ASX3042 (Cód: 226)
+        Qtd: 30 | Unit: R$ 6.00 | Total: R$ 180.00
+     24. LAMPADA 69 5 LED 12V - ASX3351 (Cód: 230)
+        Qtd: 20 | Unit: R$ 2.40 | Total: R$ 48.00
+     25. LAMPADA 67 COB 2 POLOS BRANCA 12V - ASX3202 (Cód: 271)
+        Qtd: 20 | Unit: R$ 2.65 | Total: R$ 53.00
+     26. LAMPADA T5 1 LED COM SOQUETE - BRANCA 12V - ASX3410 (Cód: 273)
+        Qtd: 40 | Unit: R$ 1.50 | Total: R$ 60.00
+     27. LAMPADA TORPEDO COB 36MM 12V - ASX3102 (Cód: 274)
+        Qtd: 20 | Unit: R$ 3.20 | Total: R$ 64.00
+     28. LAMPADA TORPEDO COB 41MM 12V - ASX3103 (Cód: 275)
+        Qtd: 20 | Unit: R$ 3.20 | Total: R$ 64.00
+     29. LAMPADA T5 PINGO CLEAR 2721 - 1,5W 12V - ASX2506 (Cód: 346)
+        Qtd: 80 | Unit: R$ 0.50 | Total: R$ 40.00
+     30. LAMPADA T5 1 LED PINGO BRANCA 12V - ASX3401 (Cód: 363)
+        Qtd: 40 | Unit: R$ 0.90 | Total: R$ 36.00
+     31. SIRENE COM LED 6 TONS BIVOLT - ASX5106 (Cód: 369)
+        Qtd: 6 | Unit: R$ 12.00 | Total: R$ 72.00
+     32. LANTERNA DELIMITADORA LED BIVOLT AMBAR - ASX5271 (Cód: 399)
+        Qtd: 8 | Unit: R$ 7.50 | Total: R$ 60.00
+     33. LAMPADA T10 ESMAGADA W5W - 12V BLUE - ASX2511 (Cód: 413)
+        Qtd: 10 | Unit: R$ 0.32 | Total: R$ 3.20
+     34. LAMPADA T5 1 LED COM SOQUETE AZUL 12V - ASX3412 (Cód: 414)
+        Qtd: 10 | Unit: R$ 1.50 | Total: R$ 15.00
+     35. LAMPADA T10 12 LED SMD SILICONE BRANCA 24V - ASX3022 (Cód: 437)
+        Qtd: 20 | Unit: R$ 2.50 | Total: R$ 50.00
+     36. LAMPADA H11 CLEAR STANDARD - 55W - 12V - ASX2811 (Cód: 558)
+        Qtd: 20 | Unit: R$ 6.20 | Total: R$ 124.00
+     37. LAMPADA TORPEDO CLEAR 36 MM 12V - ASX2502 (Cód: 581)
+        Qtd: 40 | Unit: R$ 0.70 | Total: R$ 28.00
+     38. LAMPADA T20 3157 2 POLOS 12V 27W BASE PLASTICO - ASX2524 (Cód: 583)
+        Qtd: 10 | Unit: R$ 3.20 | Total: R$ 32.00
+     39. LAMPADA TORPEDO CLEAR 41 MM 12V - ASX2503 (Cód: 634)
+        Qtd: 70 | Unit: R$ 0.70 | Total: R$ 49.00
+     40. WORKLIGHT QUADRADO MINI PREMIUM 16 LED 48W 13CM BIVOLT - ASX4142 (Cód: 638)
+        Qtd: 2 | Unit: R$ 75.00 | Total: R$ 150.00
+     41. LAMPADA H1 CLEAR 12V 55W - ASX2101 (Cód: 645)
+        Qtd: 30 | Unit: R$ 3.50 | Total: R$ 105.00
+     42. GIROLED 24 LED BIVOLT VERMELHO - ASX6052 (Cód: 663)
+        Qtd: 1 | Unit: R$ 55.00 | Total: R$ 55.00
+     43. LAMPADA T10 CLEAR ESMAGADA - W5W - 12V - ASX2510 (Cód: 822)
+        Qtd: 200 | Unit: R$ 0.35 | Total: R$ 70.00
+     44. LAMPADA H27 881 CLEAR 27W 12V - ASX2127 (Cód: 1081)
+        Qtd: 20 | Unit: R$ 7.50 | Total: R$ 150.00
+     45. LANTERNA DE PLACA 6 LED BIVOLT - ASX5201 (Cód: 1114)
+        Qtd: 8 | Unit: R$ 11.00 | Total: R$ 88.00
+     46. LAMPADA 67 CLEAR - R5W 12V - ASX2567 (Cód: 1118)
+        Qtd: 80 | Unit: R$ 0.75 | Total: R$ 60.00
+     47. LAMPADA 69 CLEAR - T4W - 12V - ASX2569 (Cód: 1119)
+        Qtd: 30 | Unit: R$ 0.60 | Total: R$ 18.00
+     48. LANTERNA DELIMITADORA LED BIVOLT BRANCO - ASX5272 (Cód: 1493)
+        Qtd: 8 | Unit: R$ 7.50 | Total: R$ 60.00
+     49. LAMPADA T15 CLEAR - W16W - 12V - ASX2515 (Cód: 1746)
+        Qtd: 20 | Unit: R$ 1.10 | Total: R$ 22.00
+     50. LAMPADA T20 COB 2 POLOS AMBAR 12V - ASX3521 (Cód: 1904)
+        Qtd: 20 | Unit: R$ 2.80 | Total: R$ 56.00
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Pedido 692 (NUNOTA: 3357)
+   Data: 16/09/2025 | Valor: R$ 8600.96 | Status: Liberada
+   Fetching items...
+   📋 Itens (50):
+     1. LAMPADA H1 CLEAR 12V 55W - ASX2101 (Cód: 645)
+        Qtd: 30 | Unit: R$ 3.50 | Total: R$ 105.00
+     2. LAMPADA H7 CLEAR 12V 55W - ASX2107 (Cód: 146)
+        Qtd: 10 | Unit: R$ 6.50 | Total: R$ 65.00
+     3. LAMPADA H11 CLEAR STANDARD - 55W - 12V - ASX2811 (Cód: 558)
+        Qtd: 20 | Unit: R$ 6.20 | Total: R$ 124.00
+     4. LAMPADA HB4 CLEAR 55W 12V - ASX2106 (Cód: 99)
+        Qtd: 30 | Unit: R$ 7.50 | Total: R$ 225.00
+     5. LAMPADA H27 881 CLEAR 27W 12V - ASX2127 (Cód: 1081)
+        Qtd: 20 | Unit: R$ 7.50 | Total: R$ 150.00
+     6. LAMPADA H4 SUPER BRANCA - 12V 60/55W - ASX2304 (Cód: 115)
+        Qtd: 30 | Unit: R$ 9.20 | Total: R$ 276.00
+     7. LAMPADA H7 SUPER BRANCA - 12V 55W - ASX2307 (Cód: 39)
+        Qtd: 30 | Unit: R$ 8.00 | Total: R$ 240.00
+     8. LAMPADA H11 SUPER BRANCA 55W - 12V - ASX2311 (Cód: 48)
+        Qtd: 10 | Unit: R$ 9.20 | Total: R$ 92.00
+     9. LAMPADA HB4 SUPER BRANCA - 55W - 12V - ASX2306 (Cód: 116)
+        Qtd: 10 | Unit: R$ 9.20 | Total: R$ 92.00
+     10. LED COB H11/H8/H16 30W 3500L 12V ASX1511 (Cód: 4714)
+        Qtd: 8 | Unit: R$ 29.00 | Total: R$ 232.00
+     11. LED COB HB3/HB4 30W 3500L 12V ASX1506 (Cód: 4712)
+        Qtd: 6 | Unit: R$ 29.00 | Total: R$ 174.00
+     12. SUPER LED CSP H1 40W 5.500 LUM BI ASX1101 (Cód: 4558)
+        Qtd: 2 | Unit: R$ 58.00 | Total: R$ 116.00
+     13. SUPER LED CSP H3 40W 5.500 LUM BIVASX1103 (Cód: 4559)
+        Qtd: 2 | Unit: R$ 58.00 | Total: R$ 116.00
+     14. SUPER LED CSP H4 40W 5.500L BV ASX1104 (Cód: 4555)
+        Qtd: 6 | Unit: R$ 68.00 | Total: R$ 408.00
+     15. SUPER LED CSP H7 40W 5.500 LUM BIV ASX1107 (Cód: 4556)
+        Qtd: 5 | Unit: R$ 58.00 | Total: R$ 290.00
+     16. SUPER LED CSP H11 40W 5.500L BV ASX1111 (Cód: 4576)
+        Qtd: 8 | Unit: R$ 58.00 | Total: R$ 464.00
+     17. SUPER LED CSP H16   40W   5.500 LUMENS   BIVOLT (Cód: 4574)
+        Qtd: 2 | Unit: R$ 58.00 | Total: R$ 116.00
+     18. SUPER LED CSP HB3/HB4 40W 5.500L BV ASX1106 (Cód: 4575)
+        Qtd: 2 | Unit: R$ 58.00 | Total: R$ 116.00
+     19. SUPER LED CSP H16   40W   5.500 LUMENS   BIVOLT (Cód: 4574)
+        Qtd: 2 | Unit: R$ 58.00 | Total: R$ 116.00
+     20. ULTRA LED CSP H1 70W 10.000 L BV ASX1001 (Cód: 4586)
+        Qtd: 3 | Unit: R$ 105.00 | Total: R$ 315.00
+     21. ULTRA LED CSP H4 70W 10.000L BV ASX1004 (Cód: 4584)
+        Qtd: 6 | Unit: R$ 105.00 | Total: R$ 630.00
+     22. ULTRA LED CSP H7 70W 10.000L BV ASX1007 (Cód: 4603)
+        Qtd: 6 | Unit: R$ 105.00 | Total: R$ 630.00
+     23. ULTRA LED CSP H11 70W 10.000L BV ASX 1011 (Cód: 4602)
+        Qtd: 1 | Unit: R$ 105.00 | Total: R$ 105.00
+     24. LED PREMIUM CSP H7 100W 15.000L BV ASX1207 (Cód: 4580)
+        Qtd: 2 | Unit: R$ 190.00 | Total: R$ 380.00
+     25. LED PREMIUM CSP HB3 /HB4 100W 15.000L BV ASX1206 (Cód: 4579)
+        Qtd: 1 | Unit: R$ 190.00 | Total: R$ 190.00
+     26. LAMPADA T10 42 LED BRANCA 12V - ASX3042 (Cód: 226)
+        Qtd: 30 | Unit: R$ 6.00 | Total: R$ 180.00
+     27. LAMPADA T10 24 LED SMD CAMBUS 6000K 12V - ASX3024 (Cód: 151)
+        Qtd: 20 | Unit: R$ 6.00 | Total: R$ 120.00
+     28. LAMPADA T10 8 LED BRANCA 12V - ASX3008 (Cód: 150)
+        Qtd: 50 | Unit: R$ 1.70 | Total: R$ 85.00
+     29. LAMPADA 67 COB 1 POLO 12V - ASX3201 (Cód: 17)
+        Qtd: 10 | Unit: R$ 2.65 | Total: R$ 26.50
+     30. LAMPADA 67 COB 2 POLOS BRANCA 12V - ASX3202 (Cód: 271)
+        Qtd: 20 | Unit: R$ 2.65 | Total: R$ 53.00
+     31. LAMPADA 69 4 LED 12V - ASX3341 (Cód: 137)
+        Qtd: 20 | Unit: R$ 1.70 | Total: R$ 34.00
+     32. LAMPADA 69 5 LED 12V - ASX3351 (Cód: 230)
+        Qtd: 20 | Unit: R$ 2.40 | Total: R$ 48.00
+     33. LAMPADA TORPEDO COB 36MM 12V - ASX3102 (Cód: 274)
+        Qtd: 20 | Unit: R$ 3.20 | Total: R$ 64.00
+     34. LAMPADA TORPEDO COB 41MM 12V - ASX3103 (Cód: 275)
+        Qtd: 20 | Unit: R$ 3.20 | Total: R$ 64.00
+     35. LAMPADA T5 1 LED PINGO BRANCA 12V - ASX3401 (Cód: 363)
+        Qtd: 40 | Unit: R$ 0.90 | Total: R$ 36.00
+     36. LAMPADA T5 1 LED COM SOQUETE - BRANCA 12V - ASX3410 (Cód: 273)
+        Qtd: 40 | Unit: R$ 1.50 | Total: R$ 60.00
+     37. LAMPADA T5 1 LED COM SOQUETE AZUL 12V - ASX3412 (Cód: 414)
+        Qtd: 10 | Unit: R$ 1.50 | Total: R$ 15.00
+     38. LAMPADA T5 PINGO CLEAR 2721 - 1,5W 12V - ASX2506 (Cód: 346)
+        Qtd: 80 | Unit: R$ 0.50 | Total: R$ 40.00
+     39. LAMPADA T10 CLEAR ESMAGADA - W5W - 12V - ASX2510 (Cód: 822)
+        Qtd: 200 | Unit: R$ 0.35 | Total: R$ 70.00
+     40. LAMPADA T15 CLEAR - W16W - 12V - ASX2515 (Cód: 1746)
+        Qtd: 20 | Unit: R$ 1.10 | Total: R$ 22.00
+     41. LAMPADA 67 CLEAR - R5W 12V - ASX2567 (Cód: 1118)
+        Qtd: 80 | Unit: R$ 0.75 | Total: R$ 60.00
+     42. LAMPADA 69 CLEAR - T4W - 12V - ASX2569 (Cód: 1119)
+        Qtd: 30 | Unit: R$ 0.60 | Total: R$ 18.00
+     43. LAMPADA TORPEDO CLEAR 36 MM 12V - ASX2502 (Cód: 581)
+        Qtd: 40 | Unit: R$ 0.70 | Total: R$ 28.00
+     44. LAMPADA TORPEDO CLEAR 41 MM 12V - ASX2503 (Cód: 634)
+        Qtd: 70 | Unit: R$ 0.70 | Total: R$ 49.00
+     45. LAMPADA 1141 CLEAR 1 POLO P21W 12V - ASX2541 (Cód: 51)
+        Qtd: 50 | Unit: R$ 1.00 | Total: R$ 50.00
+     46. LAMPADA 1141 AMBAR 1 POLO - PY21W 12V - ASX2542 (Cód: 131)
+        Qtd: 80 | Unit: R$ 1.25 | Total: R$ 100.00
+     47. MP3 PLAYER COM BLUETOOTH - 12V - ASX8003 (Cód: 128)
+        Qtd: 4 | Unit: R$ 69.00 | Total: R$ 276.00
+     48. GIROLED 24 LED BIVOLT VERMELHO - ASX6052 (Cód: 663)
+        Qtd: 1 | Unit: R$ 55.00 | Total: R$ 55.00
+     49. LANTERNA DE PLACA 6 LED BIVOLT - ASX5201 (Cód: 1114)
+        Qtd: 8 | Unit: R$ 11.00 | Total: R$ 88.00
+     50. LANTERNA DELIMITADORA LED BIVOLT VERMELHO - ASX5273 (Cód: 170)
+        Qtd: 5 | Unit: R$ 7.50 | Total: R$ 37.50
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Pedido 12599 (NUNOTA: 16287)
+   Data: 22/07/2025 | Valor: R$ 8352.00 | Status: Liberada
+   Fetching items...
+   📋 Itens (32):
+     1. LED COB H11/H8/H16 30W 3500L 12V ASX1511 (Cód: 4714)
+        Qtd: 12 | Unit: R$ 27.55 | Total: R$ 330.60
+     2. LED COB H1 30W 3500 LUMENS 12V ASX1501 (Cód: 4651)
+        Qtd: 10 | Unit: R$ 27.55 | Total: R$ 275.50
+     3. LED COB H3 30W 3500 LUMENS 12V ASX1503 (Cód: 4652)
+        Qtd: 12 | Unit: R$ 27.55 | Total: R$ 330.60
+     4. LED COB H27 30W 3500 L 12V ASX1527 (Cód: 4711)
+        Qtd: 8 | Unit: R$ 27.55 | Total: R$ 220.40
+     5. LED COB H7 30W 3500 LUMENS 12V ASX1507 (Cód: 4715)
+        Qtd: 10 | Unit: R$ 27.55 | Total: R$ 275.50
+     6. ULTRA LED CSP H3   70W   10.000 LUMENS   BIVOLT (Cód: 4587)
+        Qtd: 3 | Unit: R$ 99.75 | Total: R$ 299.25
+     7. ULTRA LED CSP H4 70W 10.000L BV ASX1004 (Cód: 4584)
+        Qtd: 8 | Unit: R$ 99.75 | Total: R$ 798.00
+     8. ULTRA LED CSP H11 70W 10.000L BV ASX 1011 (Cód: 4602)
+        Qtd: 8 | Unit: R$ 99.75 | Total: R$ 798.00
+     9. ULTRA LED CSP H27 70W 10.000 LUM  BIV ASX1027 (Cód: 4538)
+        Qtd: 4 | Unit: R$ 99.75 | Total: R$ 399.00
+     10. SUPER LED CSP H3 40W 5.500 LUM BIVASX1103 (Cód: 4559)
+        Qtd: 4 | Unit: R$ 55.10 | Total: R$ 220.40
+     11. SUPER LED CSP H4 40W 5.500L BV ASX1104 (Cód: 4555)
+        Qtd: 10 | Unit: R$ 64.60 | Total: R$ 646.00
+     12. SUPER LED CSP H11 40W 5.500L BV ASX1111 (Cód: 4576)
+        Qtd: 8 | Unit: R$ 55.10 | Total: R$ 440.80
+     13. SUPER LED CSP H27   40W   5.500 LUMENS   BIVOLT (Cód: 4577)
+        Qtd: 8 | Unit: R$ 55.10 | Total: R$ 440.80
+     14. SUPER LED CSP HB3/HB4 40W 5.500L BV ASX1106 (Cód: 4575)
+        Qtd: 4 | Unit: R$ 55.10 | Total: R$ 220.40
+     15. SUPER LED CSP H16   40W   5.500 LUMENS   BIVOLT (Cód: 4574)
+        Qtd: 2 | Unit: R$ 55.10 | Total: R$ 110.20
+     16. ULTRA LED CSP H4 DUAL COLOR   70W   8.000 LUMENS   BIVOLT (Cód: 4607)
+        Qtd: 2 | Unit: R$ 123.50 | Total: R$ 247.00
+     17. SUPER LED CSP H7 40W 5.500 LUM BIV ASX1107 (Cód: 4556)
+        Qtd: 10 | Unit: R$ 55.10 | Total: R$ 551.00
+     18. WORKLIGHT REDONDO MINI 14 LED 42W 9 CM BIVOLT - ASX4019 (Cód: 26)
+        Qtd: 8 | Unit: R$ 21.85 | Total: R$ 174.80
+     19. MP3 PLAYER COM BLUETOOTH - 12V - ASX8003 (Cód: 128)
+        Qtd: 3 | Unit: R$ 65.55 | Total: R$ 196.65
+     20. LAMPADA H11 CLEAR 12V 55W - ASX2111 (Cód: 185)
+        Qtd: 10 | Unit: R$ 7.12 | Total: R$ 71.25
+     21. LAMPADA HB4 CLEAR 55W 12V - ASX2106 (Cód: 99)
+        Qtd: 10 | Unit: R$ 7.12 | Total: R$ 71.25
+     22. LAMPADA HB3 CLEAR 65W 12V - ASX2105 (Cód: 148)
+        Qtd: 10 | Unit: R$ 7.12 | Total: R$ 71.25
+     23. LAMPADA T10 8 LED BRANCA 12V - ASX3008 (Cód: 150)
+        Qtd: 100 | Unit: R$ 1.61 | Total: R$ 161.50
+     24. LAMPADA T10 8 LED BRANCA 12V - ASX3008 (Cód: 150)
+        Qtd: 200 | Unit: R$ 1.61 | Total: R$ 323.00
+     25. LAMPADA T10 20 LED BRANCA 12V - ASX3020 (Cód: 227)
+        Qtd: 20 | Unit: R$ 3.99 | Total: R$ 79.80
+     26. LAMPADA T10 24 LED SMD CAMBUS 6000K 12V - ASX3024 (Cód: 151)
+        Qtd: 80 | Unit: R$ 5.70 | Total: R$ 456.00
+     27. LAMPADA TORPEDO COB 31MM 12V - ASX3101 (Cód: 231)
+        Qtd: 20 | Unit: R$ 3.04 | Total: R$ 60.80
+     28. LAMPADA TORPEDO COB 36MM 12V - ASX3102 (Cód: 274)
+        Qtd: 10 | Unit: R$ 3.04 | Total: R$ 30.40
+     29. LAMPADA TORPEDO COB 41MM 12V - ASX3103 (Cód: 275)
+        Qtd: 30 | Unit: R$ 3.04 | Total: R$ 91.20
+     30. ULTRA LED CSP D1S D4S  70W   10.000 LUMENS   BIVOLT (Cód: 4536)
+        Qtd: 1 | Unit: R$ 99.75 | Total: R$ 99.75
+     31. ULTRA LED CSP HB3/HB4 DUAL COLOR   70W   10.000 LUMENS   BIVOLT (Cód: 4567)
+        Qtd: 1 | Unit: R$ 123.50 | Total: R$ 123.50
+     32. MP3 PLAYER STANDARD COM 1 USB BLUETOOTH - 12V - ASX8002 (Cód: 347)
+        Qtd: 4 | Unit: R$ 50.35 | Total: R$ 201.40
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Done.

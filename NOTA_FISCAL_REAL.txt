@@ -1,0 +1,28 @@
+
+CNPJ: 30.409.112/0001-61
+Nome: O COROA ACESSORIOS AUTOMOTIVO EIRELI
+--------------------------------------------------------------
+CÓDIGO   DESCRIÇÃO                                             QTD   UN    VLR.UNIT    VLR.TOTAL
+--------------------------------------------------------------
+832      SUPER LED H1 ASX 3500                                 3,5000 PAR   29,00       101,50
+829      SUPER LED H3 ASX 3500                                 0,5000 UN    29,00       14,50
+835      SUPER LED H27 ASX 3500                                2,5000 PAR   29,00       72,50
+830      SUPER LED H8 H11 H16 ASX 3500                         0,5000 PAR   29,00       14,50
+3646     SUPER LED H3 6000 ASX                                 1,0000 UN    55,10       55,10
+3653     SUPER LED H4 6000 ASX                                 0,5000 PAR   64,59       32,30
+3647     SUPER LED H7 6000 ASX                                 5,5000 PAR   55,10       303,05
+3649     SUPER LED H8 H11 6000 ASX                             2,0000 UN    55,10       110,20
+3648     SUPER LED HB4 HB3 6000 ASX                            1,0000 PAR   55,10       55,10
+3650     SUPER LED H27 6000 ASX                                0,5000 UN    55,10       27,55
+3418     SUPER LED H1 10000 ASX                                2,5000 PAR   99,75       249,38
+4900     SUPER LED H3 10000 ASX                                1,0000 PAR   99,75       99,75
+3171     SUPER LED H4 10000 ASX                                2,0000 PAR   99,75       199,50
+3467     SUPER LED H7 10000 ASX                                0,5000 PAR   99,75       49,88
+3652     SUPER LED H8 H11 H16 CAXIMBO 10000 ASX                3,0000 PAR   99,75       299,25
+1174     SUPER LED HB4 ASX 10000                               0,5000 PAR   99,75       49,88
+3748     SUPER LED H27 10000 ASX                               1,5000 PAR   99,75       149,63
+4902     SUPER LED H4 CSP PREMIUM 18000 ASX                    0,5000 PAR   199,50      99,75
+5681     SUPER LED PREMIUM CSP HB3 HB4 100W 15.000 LUM         1,0000 PAR   180,50      180,50
+4902     SUPER LED H4 CSP PREMIUM 15000 ASX                    0,5000 PAR   199,50      99,75
+1160     LAMPADA H4 60 55W SUPER BRANCA IMPORTADA              1,0000 UND   9,17        9,17
+828      LAMPADA HB4 55W AMARELA IMPORTADA                     1,0000 UND   9,13        9,13

@@ -1,0 +1,439 @@
+🔐 Authenticating and fetching orders for CNPJ: 30409112000161...
+✅ Found 34 orders. Fetching details for the last 5...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Pedido 38827 (NUNOTA: 27012)
+   Data: 21/01/2026 | Valor: R$ 8754.72 | Status: Liberada
+   Fetching items...
+   📋 Itens (44):
+     1. LAMPADA H4 CLEAR 12V 60/55W - ASX2104 (Cód: 47)
+        Qtd: 40 | Unit: R$ 7.50 | Total: R$ 300.00
+     2. WORKLIGHT QUADRADO 16 LED 48W BIVOLT - ASX4148 (Cód: 96)
+        Qtd: 2 | Unit: R$ 23.00 | Total: R$ 46.00
+     3. WORKLIGHT MINI BARRA 20 LED 20W BIVOLT - ASX4306 (Cód: 106)
+        Qtd: 6 | Unit: R$ 27.00 | Total: R$ 162.00
+     4. MP3 PLAYER COM BLUETOOTH - 12V - ASX8003 (Cód: 128)
+        Qtd: 2 | Unit: R$ 69.00 | Total: R$ 138.00
+     5. LAMPADA 1141 AMBAR 1 POLO - PY21W 12V - ASX2542 (Cód: 131)
+        Qtd: 40 | Unit: R$ 1.25 | Total: R$ 50.00
+     6. LAMPADA H7 CLEAR 12V 55W - ASX2107 (Cód: 146)
+        Qtd: 30 | Unit: R$ 6.50 | Total: R$ 195.00
+     7. LAMPADA H16 CLEAR 24W PRESILHA 12V - ASX2116 (Cód: 147)
+        Qtd: 20 | Unit: R$ 19.00 | Total: R$ 380.00
+     8. LAMPADA T10 24 LED SMD CAMBUS 6000K 12V - ASX3024 (Cód: 151)
+        Qtd: 80 | Unit: R$ 6.00 | Total: R$ 480.00
+     9. LANTERNA DELIMITADORA LED BIVOLT VERMELHO - ASX5273 (Cód: 170)
+        Qtd: 10 | Unit: R$ 7.50 | Total: R$ 75.00
+     10. LUMINARIA 72 LED 12W BIVOLT - ASX5030 (Cód: 173)
+        Qtd: 5 | Unit: R$ 26.00 | Total: R$ 130.00
+     11. WORKLIGHT REDONDO MINI 4 LED 13W BIVOLT - ASX4003 (Cód: 186)
+        Qtd: 4 | Unit: R$ 27.00 | Total: R$ 108.00
+     12. CHICOTE REPARO 2V PORTA FEMEA 7799 - CX02.7799 (Cód: 245)
+        Qtd: 15 | Unit: R$ 7.20 | Total: R$ 108.00
+     13. SIRENE COM LED 6 TONS BIVOLT - ASX5106 (Cód: 369)
+        Qtd: 10 | Unit: R$ 12.00 | Total: R$ 120.00
+     14. LANTERNA DELIMITADORA LED BIVOLT AMBAR - ASX5271 (Cód: 399)
+        Qtd: 10 | Unit: R$ 7.50 | Total: R$ 75.00
+     15. LUMINARIA 48 LED 8W BIVOLT - ASX5015 (Cód: 551)
+        Qtd: 5 | Unit: R$ 18.00 | Total: R$ 90.00
+     16. LAMPADA H11 CLEAR STANDARD - 55W - 12V - ASX2811 (Cód: 558)
+        Qtd: 10 | Unit: R$ 6.20 | Total: R$ 62.00
+     17. LAMPADA T10 CLEAR ESMAGADA - W5W - 12V - ASX2510 (Cód: 822)
+        Qtd: 100 | Unit: R$ 0.35 | Total: R$ 35.00
+     18. LAMPADA T10 2 LED CSP CAMBUS - 6000K - BIVOLT - ASX3060 (Cód: 878)
+        Qtd: 20 | Unit: R$ 9.00 | Total: R$ 180.00
+     19. LAMPADA 67 CLEAR - R5W 12V - ASX2567 (Cód: 1118)
+        Qtd: 30 | Unit: R$ 0.75 | Total: R$ 22.50
+     20. LAMPADA T10 12 LED SMD CAMBUS - 6000K - BIVOLT - ASX3023 (Cód: 1178)
+        Qtd: 20 | Unit: R$ 8.00 | Total: R$ 160.00
+     21. FITA LED 5050 5 METROS - AZUL - 12V - ASX8115 (Cód: 1510)
+        Qtd: 2 | Unit: R$ 35.00 | Total: R$ 70.00
+     22. LAMPADA T15 CLEAR - W16W - 12V - ASX2515 (Cód: 1746)
+        Qtd: 20 | Unit: R$ 1.10 | Total: R$ 22.00
+     23. LAMPADA T10 27 LED SMD CAMBUS - 6000K - BIVOLT - ASX3027 (Cód: 1834)
+        Qtd: 20 | Unit: R$ 8.00 | Total: R$ 160.00
+     24. DRL SETA COM PISCA INTEGRADO   BIVOLT (Cód: 4522)
+        Qtd: 1 | Unit: R$ 90.00 | Total: R$ 90.00
+     25. ULTRA LED CSP H16 70W 10.000 LUM BIV ASX1016 (Cód: 4535)
+        Qtd: 2 | Unit: R$ 105.00 | Total: R$ 210.00
+     26. ULTRA LED CSP H27 70W 10.000 LUM  BIV ASX1027 (Cód: 4538)
+        Qtd: 3 | Unit: R$ 105.00 | Total: R$ 315.00
+     27. ULTRA LED CSP HB3/HB4 70W 10.000L BV ASX1006 (Cód: 4539)
+        Qtd: 4 | Unit: R$ 105.00 | Total: R$ 420.00
+     28. SUPER LED CSP H4 40W 5.500L BV ASX1104 (Cód: 4555)
+        Qtd: 10 | Unit: R$ 68.00 | Total: R$ 680.00
+     29. SUPER LED CSP H7 40W 5.500 LUM BIV ASX1107 (Cód: 4556)
+        Qtd: 12 | Unit: R$ 58.00 | Total: R$ 696.00
+     30. SUPER LED CSP H1 40W 5.500 LUM BI ASX1101 (Cód: 4558)
+        Qtd: 4 | Unit: R$ 58.00 | Total: R$ 232.00
+     31. SUPER LED CSP H3 40W 5.500 LUM BIVASX1103 (Cód: 4559)
+        Qtd: 4 | Unit: R$ 58.00 | Total: R$ 232.00
+     32. LED PREMIUM CSP H4 100W 15.000L BV ASX1204 (Cód: 4561)
+        Qtd: 2 | Unit: R$ 210.00 | Total: R$ 420.00
+     33. SUPER LED CSP H27   40W   5.500 LUMENS   BIVOLT (Cód: 4577)
+        Qtd: 1 | Unit: R$ 58.00 | Total: R$ 58.00
+     34. LED PREMIUM CSP HB3 /HB4 100W 15.000L BV ASX1206 (Cód: 4579)
+        Qtd: 1 | Unit: R$ 190.00 | Total: R$ 190.00
+     35. LED PREMIUM CSP H7 100W 15.000L BV ASX1207 (Cód: 4580)
+        Qtd: 1 | Unit: R$ 190.00 | Total: R$ 190.00
+     36. ULTRA LED CSP H4 70W 10.000L BV ASX1004 (Cód: 4584)
+        Qtd: 8 | Unit: R$ 105.00 | Total: R$ 840.00
+     37. ULTRA LED CSP H1 70W 10.000 L BV ASX1001 (Cód: 4586)
+        Qtd: 4 | Unit: R$ 105.00 | Total: R$ 420.00
+     38. ULTRA LED CSP H11 70W 10.000L BV ASX 1011 (Cód: 4602)
+        Qtd: 4 | Unit: R$ 105.00 | Total: R$ 420.00
+     39. LED COB H1 30W 3500 LUMENS 12V ASX1501 (Cód: 4651)
+        Qtd: 4 | Unit: R$ 29.00 | Total: R$ 116.00
+     40. LED COB H27 30W 3500 L 12V ASX1527 (Cód: 4711)
+        Qtd: 2 | Unit: R$ 29.00 | Total: R$ 58.00
+     41. KIT FAROL DE MILHA LED VW G5 12V ASX4410 (Cód: 6837)
+        Qtd: 1 | Unit: R$ 140.00 | Total: R$ 140.00
+     42. KIT FAROL DE MILHA LED GM 12V ASX4411 (Cód: 6838)
+        Qtd: 1 | Unit: R$ 140.00 | Total: R$ 140.00
+     43. LAMPADA T10 24 LED SMD HI-TECH CAMBUS - 6000K - 12V (Cód: 7073)
+        Qtd: 20 | Unit: R$ 6.00 | Total: R$ 120.00
+     44. LAMPADA T10 15 LED SMD CAMBUS - 6000K - 12V (Cód: 7075)
+        Qtd: 10 | Unit: R$ 6.00 | Total: R$ 60.00
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Pedido 3676 (NUNOTA: 26656)
+   Data: 20/01/2026 | Valor: R$ 8754.72 | Status: Liberada
+   Fetching items...
+   📋 Itens (44):
+     1. WORKLIGHT QUADRADO 16 LED 48W BIVOLT - ASX4148 (Cód: 96)
+        Qtd: 2 | Unit: R$ 23.00 | Total: R$ 46.00
+     2. LANTERNA DELIMITADORA LED BIVOLT AMBAR - ASX5271 (Cód: 399)
+        Qtd: 10 | Unit: R$ 7.50 | Total: R$ 75.00
+     3. LANTERNA DELIMITADORA LED BIVOLT VERMELHO - ASX5273 (Cód: 170)
+        Qtd: 10 | Unit: R$ 7.50 | Total: R$ 75.00
+     4. SUPER LED CSP H1 40W 5.500 LUM BI ASX1101 (Cód: 4558)
+        Qtd: 4 | Unit: R$ 58.00 | Total: R$ 232.00
+     5. SUPER LED CSP H3 40W 5.500 LUM BIVASX1103 (Cód: 4559)
+        Qtd: 4 | Unit: R$ 58.00 | Total: R$ 232.00
+     6. SUPER LED CSP H27   40W   5.500 LUMENS   BIVOLT (Cód: 4577)
+        Qtd: 1 | Unit: R$ 58.00 | Total: R$ 58.00
+     7. ULTRA LED CSP H1 70W 10.000 L BV ASX1001 (Cód: 4586)
+        Qtd: 4 | Unit: R$ 105.00 | Total: R$ 420.00
+     8. ULTRA LED CSP H4 70W 10.000L BV ASX1004 (Cód: 4584)
+        Qtd: 8 | Unit: R$ 105.00 | Total: R$ 840.00
+     9. ULTRA LED CSP H11 70W 10.000L BV ASX 1011 (Cód: 4602)
+        Qtd: 4 | Unit: R$ 105.00 | Total: R$ 420.00
+     10. ULTRA LED CSP H16 70W 10.000 LUM BIV ASX1016 (Cód: 4535)
+        Qtd: 2 | Unit: R$ 105.00 | Total: R$ 210.00
+     11. ULTRA LED CSP H27 70W 10.000 LUM  BIV ASX1027 (Cód: 4538)
+        Qtd: 3 | Unit: R$ 105.00 | Total: R$ 315.00
+     12. ULTRA LED CSP HB3/HB4 70W 10.000L BV ASX1006 (Cód: 4539)
+        Qtd: 4 | Unit: R$ 105.00 | Total: R$ 420.00
+     13. SUPER LED CSP H4 40W 5.500L BV ASX1104 (Cód: 4555)
+        Qtd: 10 | Unit: R$ 68.00 | Total: R$ 680.00
+     14. SUPER LED CSP H7 40W 5.500 LUM BIV ASX1107 (Cód: 4556)
+        Qtd: 12 | Unit: R$ 58.00 | Total: R$ 696.00
+     15. LED COB H1 30W 3500 LUMENS 12V ASX1501 (Cód: 4651)
+        Qtd: 4 | Unit: R$ 29.00 | Total: R$ 116.00
+     16. LED COB H27 30W 3500 L 12V ASX1527 (Cód: 4711)
+        Qtd: 2 | Unit: R$ 29.00 | Total: R$ 58.00
+     17. LED PREMIUM CSP H7 100W 15.000L BV ASX1207 (Cód: 4580)
+        Qtd: 1 | Unit: R$ 190.00 | Total: R$ 190.00
+     18. LED PREMIUM CSP H4 100W 15.000L BV ASX1204 (Cód: 4561)
+        Qtd: 2 | Unit: R$ 210.00 | Total: R$ 420.00
+     19. LED PREMIUM CSP HB3 /HB4 100W 15.000L BV ASX1206 (Cód: 4579)
+        Qtd: 1 | Unit: R$ 190.00 | Total: R$ 190.00
+     20. LAMPADA T10 24 LED SMD CAMBUS 6000K 12V - ASX3024 (Cód: 151)
+        Qtd: 80 | Unit: R$ 6.00 | Total: R$ 480.00
+     21. SIRENE COM LED 6 TONS BIVOLT - ASX5106 (Cód: 369)
+        Qtd: 10 | Unit: R$ 12.00 | Total: R$ 120.00
+     22. CHICOTE REPARO 2V PORTA FEMEA 7799 - CX02.7799 (Cód: 245)
+        Qtd: 15 | Unit: R$ 7.20 | Total: R$ 108.00
+     23. WORKLIGHT REDONDO MINI 4 LED 13W BIVOLT - ASX4003 (Cód: 186)
+        Qtd: 4 | Unit: R$ 27.00 | Total: R$ 108.00
+     24. LAMPADA T10 2 LED CSP CAMBUS - 6000K - BIVOLT - ASX3060 (Cód: 878)
+        Qtd: 20 | Unit: R$ 9.00 | Total: R$ 180.00
+     25. LAMPADA T10 12 LED SMD CAMBUS - 6000K - BIVOLT - ASX3023 (Cód: 1178)
+        Qtd: 20 | Unit: R$ 8.00 | Total: R$ 160.00
+     26. LAMPADA T10 15 LED SMD CAMBUS - 6000K - 12V (Cód: 7075)
+        Qtd: 10 | Unit: R$ 6.00 | Total: R$ 60.00
+     27. LAMPADA T10 24 LED SMD HI-TECH CAMBUS - 6000K - 12V (Cód: 7073)
+        Qtd: 20 | Unit: R$ 6.00 | Total: R$ 120.00
+     28. LAMPADA T10 27 LED SMD CAMBUS - 6000K - BIVOLT - ASX3027 (Cód: 1834)
+        Qtd: 20 | Unit: R$ 8.00 | Total: R$ 160.00
+     29. LAMPADA H4 CLEAR 12V 60/55W - ASX2104 (Cód: 47)
+        Qtd: 40 | Unit: R$ 7.50 | Total: R$ 300.00
+     30. LAMPADA H7 CLEAR 12V 55W - ASX2107 (Cód: 146)
+        Qtd: 30 | Unit: R$ 6.50 | Total: R$ 195.00
+     31. LAMPADA 1141 AMBAR 1 POLO - PY21W 12V - ASX2542 (Cód: 131)
+        Qtd: 40 | Unit: R$ 1.25 | Total: R$ 50.00
+     32. LUMINARIA 48 LED 8W BIVOLT - ASX5015 (Cód: 551)
+        Qtd: 5 | Unit: R$ 18.00 | Total: R$ 90.00
+     33. LUMINARIA 72 LED 12W BIVOLT - ASX5030 (Cód: 173)
+        Qtd: 5 | Unit: R$ 26.00 | Total: R$ 130.00
+     34. MP3 PLAYER COM BLUETOOTH - 12V - ASX8003 (Cód: 128)
+        Qtd: 2 | Unit: R$ 69.00 | Total: R$ 138.00
+     35. WORKLIGHT MINI BARRA 20 LED 20W BIVOLT - ASX4306 (Cód: 106)
+        Qtd: 6 | Unit: R$ 27.00 | Total: R$ 162.00
+     36. LAMPADA T15 CLEAR - W16W - 12V - ASX2515 (Cód: 1746)
+        Qtd: 20 | Unit: R$ 1.10 | Total: R$ 22.00
+     37. LAMPADA 67 CLEAR - R5W 12V - ASX2567 (Cód: 1118)
+        Qtd: 30 | Unit: R$ 0.75 | Total: R$ 22.50
+     38. LAMPADA H16 CLEAR 24W PRESILHA 12V - ASX2116 (Cód: 147)
+        Qtd: 20 | Unit: R$ 19.00 | Total: R$ 380.00
+     39. LAMPADA H11 CLEAR STANDARD - 55W - 12V - ASX2811 (Cód: 558)
+        Qtd: 10 | Unit: R$ 6.20 | Total: R$ 62.00
+     40. LAMPADA T10 CLEAR ESMAGADA - W5W - 12V - ASX2510 (Cód: 822)
+        Qtd: 100 | Unit: R$ 0.35 | Total: R$ 35.00
+     41. KIT FAROL DE MILHA LED GM 12V ASX4411 (Cód: 6838)
+        Qtd: 1 | Unit: R$ 140.00 | Total: R$ 140.00
+     42. KIT FAROL DE MILHA LED VW G5 12V ASX4410 (Cód: 6837)
+        Qtd: 1 | Unit: R$ 140.00 | Total: R$ 140.00
+     43. DRL SETA COM PISCA INTEGRADO   BIVOLT (Cód: 4522)
+        Qtd: 1 | Unit: R$ 90.00 | Total: R$ 90.00
+     44. FITA LED 5050 5 METROS - AZUL - 12V - ASX8115 (Cód: 1510)
+        Qtd: 2 | Unit: R$ 35.00 | Total: R$ 70.00
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Pedido 37656 (NUNOTA: 20814)
+   Data: 17/11/2025 | Valor: R$ 1434.11 | Status: Liberada
+   Fetching items...
+   📋 Itens (14):
+     1. WORKLIGHT REDONDO 21 LED 63W BIVOLT - ASX4063 (Cód: 97)
+        Qtd: 1 | Unit: R$ 99.00 | Total: R$ 99.00
+     2. LAMPADA H4 SUPER BRANCA - 12V 60/55W - ASX2304 (Cód: 115)
+        Qtd: 1 | Unit: R$ 9.17 | Total: R$ 9.17
+     3. GIROLED 24 LED BIVOLT AMARELO - ASX6051 (Cód: 127)
+        Qtd: 2 | Unit: R$ 99.75 | Total: R$ 199.50
+     4. SUPER LED M3 3D MOTO 18W 4.000 LUMENS BIVOLT - ASX7003 (Cód: 350)
+        Qtd: 1 | Unit: R$ 47.50 | Total: R$ 47.50
+     5. SUPER LED CSP H4 40W 5.500L BV ASX1104 (Cód: 4555)
+        Qtd: 1 | Unit: R$ 64.55 | Total: R$ 64.55
+     6. SUPER LED CSP H7 40W 5.500 LUM BIV ASX1107 (Cód: 4556)
+        Qtd: 2.5 | Unit: R$ 55.10 | Total: R$ 137.75
+     7. SUPER LED CSP H1 40W 5.500 LUM BI ASX1101 (Cód: 4558)
+        Qtd: 0.5 | Unit: R$ 55.09 | Total: R$ 27.55
+     8. SUPER LED CSP H11 40W 5.500L BV ASX1111 (Cód: 4576)
+        Qtd: 1 | Unit: R$ 55.10 | Total: R$ 55.10
+     9. SUPER LED CSP H27   40W   5.500 LUMENS   BIVOLT (Cód: 4577)
+        Qtd: 1 | Unit: R$ 55.10 | Total: R$ 55.10
+     10. ULTRA LED CSP H4 70W 10.000L BV ASX1004 (Cód: 4584)
+        Qtd: 1.5 | Unit: R$ 99.75 | Total: R$ 149.63
+     11. ULTRA LED CSP H1 70W 10.000 L BV ASX1001 (Cód: 4586)
+        Qtd: 1.5 | Unit: R$ 99.75 | Total: R$ 149.63
+     12. ULTRA LED CSP H7 70W 10.000L BV ASX1007 (Cód: 4603)
+        Qtd: 1.5 | Unit: R$ 99.75 | Total: R$ 149.63
+     13. LED COB H1 30W 3500 LUMENS 12V ASX1501 (Cód: 4651)
+        Qtd: 4 | Unit: R$ 29.00 | Total: R$ 116.00
+     14. LED COB H11/H8/H16 30W 3500L 12V ASX1511 (Cód: 4714)
+        Qtd: 6 | Unit: R$ 29.00 | Total: R$ 174.00
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Pedido 37594 (NUNOTA: 21987)
+   Data: 14/11/2025 | Valor: R$ 12508.81 | Status: Liberada
+   Fetching items...
+   📋 Itens (50):
+     1. LAMPADA 67 COB 1 POLO 12V - ASX3201 (Cód: 17)
+        Qtd: 30 | Unit: R$ 2.65 | Total: R$ 79.50
+     2. LAMPADA H7 SUPER BRANCA - 12V 55W - ASX2307 (Cód: 39)
+        Qtd: 10 | Unit: R$ 8.00 | Total: R$ 80.00
+     3. LAMPADA 1034 CLEAR 2 POLOS P21/5W 12V - ASX2534 (Cód: 41)
+        Qtd: 150 | Unit: R$ 1.00 | Total: R$ 150.00
+     4. LAMPADA H4 CLEAR 12V 60/55W - ASX2104 (Cód: 47)
+        Qtd: 50 | Unit: R$ 7.50 | Total: R$ 375.00
+     5. LAMPADA H16 CLEAR 19W TOYOTA 12V - ASX2119 (Cód: 49)
+        Qtd: 10 | Unit: R$ 14.00 | Total: R$ 140.00
+     6. LAMPADA 1141 CLEAR 1 POLO P21W 12V - ASX2541 (Cód: 51)
+        Qtd: 150 | Unit: R$ 1.00 | Total: R$ 150.00
+     7. LAMPADA H4 SUPER BRANCA - 12V 60/55W - ASX2304 (Cód: 115)
+        Qtd: 20 | Unit: R$ 9.20 | Total: R$ 184.00
+     8. LAMPADA 1141 AMBAR 1 POLO - PY21W 12V - ASX2542 (Cód: 131)
+        Qtd: 30 | Unit: R$ 1.25 | Total: R$ 37.50
+     9. LAMPADA 1034 AMBAR 2 POLOS - P21/5W - 12V - ASX2535 (Cód: 133)
+        Qtd: 20 | Unit: R$ 1.25 | Total: R$ 25.00
+     10. LAMPADA 67 8 LED 1 POLO 12V - ASX3231 (Cód: 139)
+        Qtd: 10 | Unit: R$ 4.10 | Total: R$ 41.00
+     11. LAMPADA H7 CLEAR 12V 55W - ASX2107 (Cód: 146)
+        Qtd: 20 | Unit: R$ 6.50 | Total: R$ 130.00
+     12. LAMPADA H1 SUPER BRANCA - 12V 55W - ASX2301 (Cód: 149)
+        Qtd: 10 | Unit: R$ 4.80 | Total: R$ 48.00
+     13. LUMINARIA 72 LED 12W BIVOLT - ASX5030 (Cód: 173)
+        Qtd: 2 | Unit: R$ 26.00 | Total: R$ 52.00
+     14. LAMPADA H4 CLEAR 24V 75/70W - ASX2204 (Cód: 183)
+        Qtd: 10 | Unit: R$ 7.50 | Total: R$ 75.00
+     15. LAMPADA H11 CLEAR 12V 55W - ASX2111 (Cód: 185)
+        Qtd: 30 | Unit: R$ 7.50 | Total: R$ 225.00
+     16. LAMPADA T10 42 LED BRANCA 12V - ASX3042 (Cód: 226)
+        Qtd: 20 | Unit: R$ 6.00 | Total: R$ 120.00
+     17. LAMPADA T10 5 LED BRANCA 12V - ASX3005 (Cód: 228)
+        Qtd: 20 | Unit: R$ 2.00 | Total: R$ 40.00
+     18. LAMPADA T10 26 LED SMD CAMBUS 6000K 12V - ASX3026 (Cód: 233)
+        Qtd: 20 | Unit: R$ 8.00 | Total: R$ 160.00
+     19. LAMPADA T5 1 LED COM SOQUETE - BRANCA 12V - ASX3410 (Cód: 273)
+        Qtd: 30 | Unit: R$ 1.50 | Total: R$ 45.00
+     20. LAMPADA TORPEDO COB 41MM 12V - ASX3103 (Cód: 275)
+        Qtd: 20 | Unit: R$ 3.20 | Total: R$ 64.00
+     21. CABO Y  2 MACHOS X 1 FEMEA  SILICONADO - ASX8030 (Cód: 278)
+        Qtd: 8 | Unit: R$ 4.00 | Total: R$ 32.00
+     22. MP3 PLAYER STANDARD COM 1 USB BLUETOOTH - 12V - ASX8002 (Cód: 347)
+        Qtd: 2 | Unit: R$ 53.00 | Total: R$ 106.00
+     23. LAMPADA H3 CLEAR 12V 55W - ASX2103 (Cód: 362)
+        Qtd: 10 | Unit: R$ 3.50 | Total: R$ 35.00
+     24. LAMPADA T5 1 LED PINGO BRANCA 12V - ASX3401 (Cód: 363)
+        Qtd: 20 | Unit: R$ 0.90 | Total: R$ 18.00
+     25. LAMPADA T15 45 LED SMD CAMBUS 6000K BIVOLT - ASX3515 (Cód: 403)
+        Qtd: 20 | Unit: R$ 12.00 | Total: R$ 240.00
+     26. LAMPADA H3 SUPER BRANCA - 12V 55W - ASX2303 (Cód: 441)
+        Qtd: 10 | Unit: R$ 4.80 | Total: R$ 48.00
+     27. LUMINARIA 48 LED 8W BIVOLT - ASX5015 (Cód: 551)
+        Qtd: 2 | Unit: R$ 18.00 | Total: R$ 36.00
+     28. LAMPADA H7 CLEAR 24V 70W - ASX2207 (Cód: 568)
+        Qtd: 10 | Unit: R$ 6.50 | Total: R$ 65.00
+     29. LAMPADA T20 3157 2 POLOS 12V 27W BASE PLASTICO - ASX2524 (Cód: 583)
+        Qtd: 20 | Unit: R$ 3.20 | Total: R$ 64.00
+     30. WORKLIGHT QUADRADO MINI PREMIUM 16 LED 48W 13CM BIVOLT - ASX4142 (Cód: 638)
+        Qtd: 2 | Unit: R$ 75.00 | Total: R$ 150.00
+     31. LAMPADA H1 CLEAR 12V 55W - ASX2101 (Cód: 645)
+        Qtd: 20 | Unit: R$ 3.50 | Total: R$ 70.00
+     32. LAMPADA H8 CLEAR 12V 35W - ASX2108 (Cód: 755)
+        Qtd: 20 | Unit: R$ 7.50 | Total: R$ 150.00
+     33. LAMPADA H27 881 CLEAR 27W 12V - ASX2127 (Cód: 1081)
+        Qtd: 10 | Unit: R$ 7.50 | Total: R$ 75.00
+     34. LAMPADA H27 881 SUPER BRANCA - 27W - 12V - ASX2327 (Cód: 1105)
+        Qtd: 10 | Unit: R$ 9.20 | Total: R$ 92.00
+     35. LAMPADA 67 CLEAR R5W 24V - ASX2667 (Cód: 1642)
+        Qtd: 20 | Unit: R$ 0.75 | Total: R$ 15.00
+     36. FITA DRL LED DUAL COLOR   12V (Cód: 4518)
+        Qtd: 2 | Unit: R$ 70.00 | Total: R$ 140.00
+     37. ULTRA LED CSP H27 70W 10.000 LUM  BIV ASX1027 (Cód: 4538)
+        Qtd: 2 | Unit: R$ 105.00 | Total: R$ 210.00
+     38. ULTRA LED CSP HB3/HB4 70W 10.000L BV ASX1006 (Cód: 4539)
+        Qtd: 1 | Unit: R$ 105.00 | Total: R$ 105.00
+     39. KIT LED H4 PROJETOR ELIPTICO 50W 12 80V ASX1604 (Cód: 4545)
+        Qtd: 2 | Unit: R$ 190.00 | Total: R$ 380.00
+     40. SUPER LED CSP H4 40W 5.500L BV ASX1104 (Cód: 4555)
+        Qtd: 8 | Unit: R$ 68.00 | Total: R$ 544.00
+     41. SUPER LED CSP H7 40W 5.500 LUM BIV ASX1107 (Cód: 4556)
+        Qtd: 10 | Unit: R$ 58.00 | Total: R$ 580.00
+     42. SUPER LED CSP H1 40W 5.500 LUM BI ASX1101 (Cód: 4558)
+        Qtd: 4 | Unit: R$ 58.00 | Total: R$ 232.00
+     43. SUPER LED CSP H3 40W 5.500 LUM BIVASX1103 (Cód: 4559)
+        Qtd: 4 | Unit: R$ 58.00 | Total: R$ 232.00
+     44. LED PREMIUM CSP H4 100W 15.000L BV ASX1204 (Cód: 4561)
+        Qtd: 2 | Unit: R$ 210.00 | Total: R$ 420.00
+     45. LED PREMIUM CSP H1 100W  15.000 LUM BIV ASX1201 (Cód: 4562)
+        Qtd: 1 | Unit: R$ 190.00 | Total: R$ 190.00
+     46. SUPER LED CSP HB3/HB4 40W 5.500L BV ASX1106 (Cód: 4575)
+        Qtd: 10 | Unit: R$ 58.00 | Total: R$ 580.00
+     47. SUPER LED CSP H11 40W 5.500L BV ASX1111 (Cód: 4576)
+        Qtd: 8 | Unit: R$ 58.00 | Total: R$ 464.00
+     48. SUPER LED CSP H27   40W   5.500 LUMENS   BIVOLT (Cód: 4577)
+        Qtd: 6 | Unit: R$ 58.00 | Total: R$ 348.00
+     49. ULTRA LED CSP H4 70W 10.000L BV ASX1004 (Cód: 4584)
+        Qtd: 12 | Unit: R$ 105.00 | Total: R$ 1260.00
+     50. ULTRA LED CSP H1 70W 10.000 L BV ASX1001 (Cód: 4586)
+        Qtd: 2 | Unit: R$ 105.00 | Total: R$ 210.00
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 Pedido 2268 (NUNOTA: 21668)
+   Data: 12/11/2025 | Valor: R$ 12508.81 | Status: Liberada
+   Fetching items...
+   📋 Itens (50):
+     1. LED COB H1 30W 3500 LUMENS 12V ASX1501 (Cód: 4651)
+        Qtd: 5 | Unit: R$ 29.00 | Total: R$ 145.00
+     2. LED COB H7 30W 3500 LUMENS 12V ASX1507 (Cód: 4715)
+        Qtd: 8 | Unit: R$ 29.00 | Total: R$ 232.00
+     3. LED COB H11/H8/H16 30W 3500L 12V ASX1511 (Cód: 4714)
+        Qtd: 6 | Unit: R$ 29.00 | Total: R$ 174.00
+     4. LED COB H27 30W 3500 L 12V ASX1527 (Cód: 4711)
+        Qtd: 4 | Unit: R$ 29.00 | Total: R$ 116.00
+     5. LED COB HB3/HB4 30W 3500L 12V ASX1506 (Cód: 4712)
+        Qtd: 12 | Unit: R$ 29.00 | Total: R$ 348.00
+     6. SUPER LED CSP H1 40W 5.500 LUM BI ASX1101 (Cód: 4558)
+        Qtd: 4 | Unit: R$ 58.00 | Total: R$ 232.00
+     7. SUPER LED CSP H3 40W 5.500 LUM BIVASX1103 (Cód: 4559)
+        Qtd: 4 | Unit: R$ 58.00 | Total: R$ 232.00
+     8. SUPER LED CSP H4 40W 5.500L BV ASX1104 (Cód: 4555)
+        Qtd: 8 | Unit: R$ 68.00 | Total: R$ 544.00
+     9. SUPER LED CSP HB3/HB4 40W 5.500L BV ASX1106 (Cód: 4575)
+        Qtd: 10 | Unit: R$ 58.00 | Total: R$ 580.00
+     10. SUPER LED CSP H7 40W 5.500 LUM BIV ASX1107 (Cód: 4556)
+        Qtd: 10 | Unit: R$ 58.00 | Total: R$ 580.00
+     11. SUPER LED CSP H11 40W 5.500L BV ASX1111 (Cód: 4576)
+        Qtd: 8 | Unit: R$ 58.00 | Total: R$ 464.00
+     12. SUPER LED CSP H27   40W   5.500 LUMENS   BIVOLT (Cód: 4577)
+        Qtd: 6 | Unit: R$ 58.00 | Total: R$ 348.00
+     13. ULTRA LED CSP H1 70W 10.000 L BV ASX1001 (Cód: 4586)
+        Qtd: 2 | Unit: R$ 105.00 | Total: R$ 210.00
+     14. ULTRA LED CSP H3   70W   10.000 LUMENS   BIVOLT (Cód: 4587)
+        Qtd: 2 | Unit: R$ 105.00 | Total: R$ 210.00
+     15. ULTRA LED CSP H4 70W 10.000L BV ASX1004 (Cód: 4584)
+        Qtd: 12 | Unit: R$ 105.00 | Total: R$ 1260.00
+     16. ULTRA LED CSP H7 70W 10.000L BV ASX1007 (Cód: 4603)
+        Qtd: 12 | Unit: R$ 105.00 | Total: R$ 1260.00
+     17. ULTRA LED CSP H11 70W 10.000L BV ASX 1011 (Cód: 4602)
+        Qtd: 10 | Unit: R$ 105.00 | Total: R$ 1050.00
+     18. ULTRA LED CSP H27 70W 10.000 LUM  BIV ASX1027 (Cód: 4538)
+        Qtd: 2 | Unit: R$ 105.00 | Total: R$ 210.00
+     19. ULTRA LED CSP HB3/HB4 70W 10.000L BV ASX1006 (Cód: 4539)
+        Qtd: 1 | Unit: R$ 105.00 | Total: R$ 105.00
+     20. LED PREMIUM CSP H1 100W  15.000 LUM BIV ASX1201 (Cód: 4562)
+        Qtd: 1 | Unit: R$ 190.00 | Total: R$ 190.00
+     21. LED PREMIUM CSP H4 100W 15.000L BV ASX1204 (Cód: 4561)
+        Qtd: 2 | Unit: R$ 210.00 | Total: R$ 420.00
+     22. KIT LED H4 PROJETOR ELIPTICO 50W 12 80V ASX1604 (Cód: 4545)
+        Qtd: 2 | Unit: R$ 190.00 | Total: R$ 380.00
+     23. KIT LED H11 PROJETOR ELIPTICO 50W 12 80V ASX1611 (Cód: 4605)
+        Qtd: 1 | Unit: R$ 160.00 | Total: R$ 160.00
+     24. KIT LED HB3/HB4 PROJETOR ELIPTICO 50W 12 80V ASX1606 (Cód: 4608)
+        Qtd: 1 | Unit: R$ 160.00 | Total: R$ 160.00
+     25. LAMPADA 67 COB 1 POLO 12V - ASX3201 (Cód: 17)
+        Qtd: 30 | Unit: R$ 2.65 | Total: R$ 79.50
+     26. LAMPADA 67 8 LED 1 POLO 12V - ASX3231 (Cód: 139)
+        Qtd: 10 | Unit: R$ 4.10 | Total: R$ 41.00
+     27. LAMPADA T5 1 LED PINGO BRANCA 12V - ASX3401 (Cód: 363)
+        Qtd: 20 | Unit: R$ 0.90 | Total: R$ 18.00
+     28. LAMPADA T5 1 LED COM SOQUETE - BRANCA 12V - ASX3410 (Cód: 273)
+        Qtd: 30 | Unit: R$ 1.50 | Total: R$ 45.00
+     29. LAMPADA T10 5 LED BRANCA 12V - ASX3005 (Cód: 228)
+        Qtd: 20 | Unit: R$ 2.00 | Total: R$ 40.00
+     30. LAMPADA T10 26 LED SMD CAMBUS 6000K 12V - ASX3026 (Cód: 233)
+        Qtd: 20 | Unit: R$ 8.00 | Total: R$ 160.00
+     31. LAMPADA T10 42 LED BRANCA 12V - ASX3042 (Cód: 226)
+        Qtd: 20 | Unit: R$ 6.00 | Total: R$ 120.00
+     32. LAMPADA T15 45 LED SMD CAMBUS 6000K BIVOLT - ASX3515 (Cód: 403)
+        Qtd: 20 | Unit: R$ 12.00 | Total: R$ 240.00
+     33. LAMPADA TORPEDO COB 41MM 12V - ASX3103 (Cód: 275)
+        Qtd: 20 | Unit: R$ 3.20 | Total: R$ 64.00
+     34. CABO Y  2 MACHOS X 1 FEMEA  SILICONADO - ASX8030 (Cód: 278)
+        Qtd: 8 | Unit: R$ 4.00 | Total: R$ 32.00
+     35. MP3 PLAYER STANDARD COM 1 USB BLUETOOTH - 12V - ASX8002 (Cód: 347)
+        Qtd: 2 | Unit: R$ 53.00 | Total: R$ 106.00
+     36. WORKLIGHT QUADRADO MINI PREMIUM 16 LED 48W 13CM BIVOLT - ASX4142 (Cód: 638)
+        Qtd: 2 | Unit: R$ 75.00 | Total: R$ 150.00
+     37. LUMINARIA 48 LED 8W BIVOLT - ASX5015 (Cód: 551)
+        Qtd: 2 | Unit: R$ 18.00 | Total: R$ 36.00
+     38. LUMINARIA 72 LED 12W BIVOLT - ASX5030 (Cód: 173)
+        Qtd: 2 | Unit: R$ 26.00 | Total: R$ 52.00
+     39. FITA DRL LED DUAL COLOR   12V (Cód: 4518)
+        Qtd: 2 | Unit: R$ 70.00 | Total: R$ 140.00
+     40. LAMPADA H4 CLEAR 24V 75/70W - ASX2204 (Cód: 183)
+        Qtd: 10 | Unit: R$ 7.50 | Total: R$ 75.00
+     41. LAMPADA H7 CLEAR 24V 70W - ASX2207 (Cód: 568)
+        Qtd: 10 | Unit: R$ 6.50 | Total: R$ 65.00
+     42. LAMPADA 67 CLEAR R5W 24V - ASX2667 (Cód: 1642)
+        Qtd: 20 | Unit: R$ 0.75 | Total: R$ 15.00
+     43. LAMPADA H1 SUPER BRANCA - 12V 55W - ASX2301 (Cód: 149)
+        Qtd: 10 | Unit: R$ 4.80 | Total: R$ 48.00
+     44. LAMPADA H3 SUPER BRANCA - 12V 55W - ASX2303 (Cód: 441)
+        Qtd: 10 | Unit: R$ 4.80 | Total: R$ 48.00
+     45. LAMPADA H4 SUPER BRANCA - 12V 60/55W - ASX2304 (Cód: 115)
+        Qtd: 20 | Unit: R$ 9.20 | Total: R$ 184.00
+     46. LAMPADA H7 SUPER BRANCA - 12V 55W - ASX2307 (Cód: 39)
+        Qtd: 10 | Unit: R$ 8.00 | Total: R$ 80.00
+     47. LAMPADA H27 881 SUPER BRANCA - 27W - 12V - ASX2327 (Cód: 1105)
+        Qtd: 10 | Unit: R$ 9.20 | Total: R$ 92.00
+     48. LAMPADA H1 CLEAR 12V 55W - ASX2101 (Cód: 645)
+        Qtd: 20 | Unit: R$ 3.50 | Total: R$ 70.00
+     49. LAMPADA H3 CLEAR 12V 55W - ASX2103 (Cód: 362)
+        Qtd: 10 | Unit: R$ 3.50 | Total: R$ 35.00
+     50. LAMPADA H4 CLEAR 12V 60/55W - ASX2104 (Cód: 47)
+        Qtd: 50 | Unit: R$ 7.50 | Total: R$ 375.00
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Done.

@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  sankhya-api:
+    build: .
+    container_name: sankhya-api
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    # Optional: Log rotation to avoid disk fill
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
