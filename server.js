@@ -438,8 +438,8 @@ app.get('/api/dashboard/sales-data', async (req, res) => {
         cache.set(cacheKey, result, CACHE_15M);
         res.json(result);
     } catch (error) {
-        console.error('Dashboard sales-data error:', error.message);
-        res.status(500).json({ error: 'Erro ao buscar dados de vendas.' });
+        console.error('Dashboard sales-data error:', error.message, error.stack);
+        res.status(500).json({ error: 'Erro ao buscar dados de vendas.', detail: error.message });
     }
 });
 
