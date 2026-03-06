@@ -135,9 +135,11 @@ class SankhyaService {
       return response.data;
     } catch (error) {
       if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-        console.log('HTTP 401/403. Re-authenticating...');
+        console.log(`HTTP ${error.response.status}. Re-authenticating... (current token: ${this.bearerToken ? 'exists' : 'null'})`);
+        console.log('401 response data:', JSON.stringify(error.response.data));
         this.bearerToken = null;
         await this.login();
+        console.log(`Re-auth done. New token: ${this.bearerToken ? 'exists' : 'null'}`);
         const retryResponse = await this.api.post(url, payload);
         return retryResponse.data;
       }
