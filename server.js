@@ -329,7 +329,9 @@ app.get('/api/dashboard/sales-data', async (req, res) => {
         if (cached) return res.json(cached);
 
         // Single call for invoices, then vendor list
+        console.log(`[sales-data] Fetching invoices from ${start} to ${end}...`);
         const invoices = await sankhyaService.getSalesInvoices(start, end);
+        console.log(`[sales-data] Got ${invoices.length} invoices`);
         const vendors = await sankhyaService.getVendorList();
 
         // Period totals
