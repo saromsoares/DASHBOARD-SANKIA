@@ -48,17 +48,20 @@ class SankhyaService {
 
   async _doLogin() {
     try {
-      console.log('Authenticating with Sankhya (OAuth2)...');
+      const clientId = (process.env.SANKHYA_CLIENT_ID || '').trim();
+      const clientSecret = (process.env.SANKHYA_CLIENT_SECRET || '').trim();
+      const xToken = (process.env.SANKHYA_TOKEN || '').trim();
+      console.log(`Authenticating with Sankhya (OAuth2)... base=${this.baseURL} client_id=${clientId.substring(0,8)}... secret=${clientSecret.substring(0,4)}... token=${xToken.substring(0,8)}...`);
 
       const authData = new URLSearchParams();
-      authData.append('client_id', process.env.SANKHYA_CLIENT_ID);
-      authData.append('client_secret', process.env.SANKHYA_CLIENT_SECRET);
+      authData.append('client_id', clientId);
+      authData.append('client_secret', clientSecret);
       authData.append('grant_type', 'client_credentials');
 
       const response = await this.api.post('/authenticate', authData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'X-Token': process.env.SANKHYA_TOKEN
+          'X-Token': xToken
         }
       });
 
