@@ -13,5 +13,5 @@ COPY package*.json ./
 RUN npm install --production
 COPY server.js sankhyaService.js cache.js ./
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
-EXPOSE 3000
+EXPOSE 8080
 CMD ["node", "server.js"]
