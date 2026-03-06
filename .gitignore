@@ -6,3 +6,64 @@ coverage/
 logs/
 *.log
 npm-debug.log*
+
+# Environment & Secrets (AIOS)
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# Dependencies (AIOS)
+node_modules
+
+# Build & Logs (AIOS)
+build/
+
+# IDE & OS (AIOS)
+Thumbs.db
+.idea/
+*.swp
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# AIOS Local (AIOS)
+.aios-core/local/
+.claude/settings.local.json
+.aios/install-log.txt
+
+# AIOS framework & agent files
+.aios-core/
+.agent/
+.antigravity/
+.codex/
+.cursor/
+.gemini/
+.github/
+.claude/
+squads/
+AGENTS.md
+
+# Debug & temp files
+debug_*.js
+search_*.js
+test_*.js
+check_*.js
+create_*.js
+list_*.js
+match_*.js
+get_*.js
+update_*.js
+output_match*.txt
+*_output.txt
+*_log.txt
+all_h1_*.txt
+h1_*.txt
+products_*.txt
+search_*.txt
+final_check_*.txt
+*.pdf
+*.xlsx
+pro-installed-manifest.yaml
+pro-version.json

@@ -1,18 +1,17 @@
-# Use Node.js LTS (Alpine for smaller size)
+# Stage 1: Build Frontend
+FROM node:18-alpine AS frontend-build
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
+# Stage 2: Production
 FROM node:18-alpine
-
-# Create app directory
 WORKDIR /usr/src/app
-
-# Install dependencies FIRST (caching layer)
 COPY package*.json ./
 RUN npm install --production
-
-# Bundle app source
-COPY . .
-
-# Expose port
+COPY server.js sankhyaService.js cache.js ./
+COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 EXPOSE 3000
-
-# Start command
-CMD [ "node", "server.js" ]
+CMD ["node", "server.js"]

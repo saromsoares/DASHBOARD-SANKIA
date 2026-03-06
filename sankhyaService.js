@@ -5,6 +5,10 @@ class SankhyaService {
   constructor() {
     this.baseURL = process.env.SANKHYA_BASE_URL || 'https://api.sankhya.com.br';
     this.bearerToken = null;
+    this._loginPromise = null; // mutex: only one login at a time
+    this._queue = [];          // request queue
+    this._activeRequests = 0;
+    this._maxConcurrent = 3;   // max simultaneous Sankhya API calls
     this.api = axios.create({
       baseURL: this.baseURL,
       headers: {
@@ -29,11 +33,23 @@ class SankhyaService {
    * Performs authentication using OAuth2 Client Credentials.
    */
   async login() {
+    // Mutex: if a login is already in progress, wait for it instead of starting another
+    if (this._loginPromise) {
+      return this._loginPromise;
+    }
+
+    this._loginPromise = this._doLogin();
+    try {
+      await this._loginPromise;
+    } finally {
+      this._loginPromise = null;
+    }
+  }
+
+  async _doLogin() {
     try {
       console.log('Authenticating with Sankhya (OAuth2)...');
 
-      // OAuth2 Client Credentials Flow
-      // Content-Type must be application/x-www-form-urlencoded
       const authData = new URLSearchParams();
       authData.append('client_id', process.env.SANKHYA_CLIENT_ID);
       authData.append('client_secret', process.env.SANKHYA_CLIENT_SECRET);
@@ -46,7 +62,6 @@ class SankhyaService {
         }
       });
 
-      // Based on the user screenshot, the response contains "access_token"
       const token = response.data.access_token;
 
       if (!token) {
@@ -62,9 +77,32 @@ class SankhyaService {
   }
 
   /**
+   * Semaphore: wait until a slot is available.
+   */
+  _acquireSlot() {
+    return new Promise(resolve => {
+      if (this._activeRequests < this._maxConcurrent) {
+        this._activeRequests++;
+        resolve();
+      } else {
+        this._queue.push(resolve);
+      }
+    });
+  }
+
+  _releaseSlot() {
+    if (this._queue.length > 0) {
+      const next = this._queue.shift();
+      next();
+    } else {
+      this._activeRequests--;
+    }
+  }
+
+  /**
    * Generic request wrapper with Auto-Retry logic.
-   * @param {string} serviceName 
-   * @param {object} requestBody 
+   * @param {string} serviceName
+   * @param {object} requestBody
    * @param {string} module - The Sankhya module to use (e.g., 'mge', 'mgecom'). Defaults to 'mge'.
    */
   async callService(serviceName, requestBody, module = 'mge') {
@@ -77,10 +115,10 @@ class SankhyaService {
       requestBody: requestBody
     };
 
+    const url = `/gateway/v1/${module}/service.sbr?serviceName=${serviceName}&outputType=json`;
+
     try {
-      // Dynamic module selection based on documentation
-      // https://api.sankhya.com.br/gateway/v1/[modulo]/service.sbr
-      const response = await this.api.post(`/gateway/v1/${module}/service.sbr?serviceName=${serviceName}&outputType=json`, payload);
+      const response = await this.api.post(url, payload);
 
       if (response.data.status === '0' || response.data.status === 0) {
         const statusMessage = response.data.statusMessage || '';
@@ -88,8 +126,7 @@ class SankhyaService {
           console.log('Session expired. Re-authenticating...');
           this.bearerToken = null;
           await this.login();
-          // Retry
-          const retryResponse = await this.api.post(`/gateway/v1/${module}/service.sbr?serviceName=${serviceName}&outputType=json`, payload);
+          const retryResponse = await this.api.post(url, payload);
           return retryResponse.data;
         }
         throw new Error(`Sankhya Error: ${statusMessage}`);
@@ -101,8 +138,7 @@ class SankhyaService {
         console.log('HTTP 401/403. Re-authenticating...');
         this.bearerToken = null;
         await this.login();
-        // Retry
-        const retryResponse = await this.api.post(`/gateway/v1/${module}/service.sbr?serviceName=${serviceName}&outputType=json`, payload);
+        const retryResponse = await this.api.post(url, payload);
         return retryResponse.data;
       }
       throw error;
@@ -841,8 +877,103 @@ class SankhyaService {
   }
 
   /**
+   * Get partner names in bulk by CODPARC list.
+   * @param {Array<string>} codParcList - List of partner codes
+   * @returns {Object} Map of CODPARC -> NOMEPARC
+   */
+  async getPartnerNamesBulk(codParcList) {
+    if (!codParcList || codParcList.length === 0) return {};
+    const map = {};
+    const BATCH_SIZE = 200;
+
+    for (let i = 0; i < codParcList.length; i += BATCH_SIZE) {
+      const batch = codParcList.slice(i, i + BATCH_SIZE);
+      const inClause = batch.join(',');
+
+      try {
+        const body = {
+          dataSet: {
+            rootEntity: "Parceiro",
+            includePresentationFields: "S",
+            offsetPage: "0",
+            criteria: {
+              expression: { "$": `CODPARC IN (${inClause})` }
+            },
+            entity: {
+              fieldset: { list: "CODPARC,NOMEPARC" }
+            }
+          }
+        };
+
+        const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
+        const entities = response.responseBody?.entities?.entity;
+        if (!entities) continue;
+
+        const list = Array.isArray(entities) ? entities : [entities];
+        list.forEach(p => {
+          const cod = String(p.f0?.['$'] || p.CODPARC?.['$'] || p.CODPARC);
+          const nome = p.f1?.['$'] || p.NOMEPARC?.['$'] || p.NOMEPARC || '';
+          map[cod] = nome;
+        });
+      } catch (err) {
+        console.error(`Error fetching partner names batch ${i}:`, err.message);
+      }
+    }
+
+    return map;
+  }
+
+  /**
+   * Search partners by name, razao social or code (for autocomplete).
+   * Uses direct SQL for reliable results.
+   * @param {string} term - Search term
+   * @returns {Array} List of { codparc, nomeparc }
+   */
+  async searchPartners(term) {
+    if (!term || term.length < 2) return [];
+
+    try {
+      const safeTerm = term.replace(/'/g, "''").toUpperCase();
+      const isNumeric = /^\d+$/.test(term.trim());
+
+      const where = isNumeric
+        ? `CODPARC = ${term.trim()}`
+        : `UPPER(NOMEPARC) LIKE '%${safeTerm}%' OR UPPER(RAZAOSOCIAL) LIKE '%${safeTerm}%'`;
+
+      const sql = `SELECT CODPARC, NOMEPARC, RAZAOSOCIAL FROM TGFPAR WHERE (${where}) AND ROWNUM <= 20 ORDER BY NOMEPARC`;
+
+      const result = await this.executeSQL(sql);
+      return (result.rows || []).map(row => ({
+        codparc: String(row[0]),
+        nomeparc: row[1] || row[2] || '',
+      }));
+    } catch (err) {
+      console.error('Error searching partners:', err.message);
+      return [];
+    }
+  }
+
+  /**
+   * Get product codes linked to a supplier via CODPARCFORN field on TGFPRO.
+   * @param {string} codparc - Partner/supplier code
+   * @returns {Array<string>} List of CODPROD
+   */
+  async getProductCodesByPartner(codparc) {
+    if (!codparc) return [];
+
+    try {
+      const sql = `SELECT CODPROD FROM TGFPRO WHERE CODPARCFORN = ${codparc} AND ATIVO = 'S'`;
+      const result = await this.executeSQL(sql);
+      return (result.rows || []).map(row => String(row[0]));
+    } catch (err) {
+      console.error('Error getting products by partner:', err.message);
+      return [];
+    }
+  }
+
+  /**
    * Get descriptions for a list of product codes
-   * @param {Array<number>} codProdList 
+   * @param {Array<number>} codProdList
    * @returns {Object} Map of CODPROD -> DESCRPROD
    */
   async getProductDescriptions(codProdList) {
@@ -883,6 +1014,452 @@ class SankhyaService {
     } catch (err) {
       console.error('Error fetching product descriptions:', err.message);
       return {};
+    }
+  }
+
+  /**
+   * Get all child group codes under a parent group (recursive).
+   * @param {string} parentGroupCode - e.g. '9901' for ASX, '9902' for ABSOLUX
+   * @returns {Set<string>} Set of all group codes under this parent (including parent itself)
+   */
+  async getGroupChildren(parentGroupCode) {
+    const allGroups = new Set();
+    allGroups.add(String(parentGroupCode));
+
+    // Fetch all groups and build tree
+    let page = 0;
+    const groupList = [];
+    while (true) {
+      const body = {
+        dataSet: {
+          rootEntity: "GrupoProduto",
+          includePresentationFields: "S",
+          offsetPage: String(page),
+          criteria: {
+            expression: { "$": "1=1" }
+          },
+          entity: {
+            fieldset: { list: "CODGRUPOPROD,CODGRUPOPAI" }
+          }
+        }
+      };
+
+      try {
+        const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
+        const entities = response.responseBody?.entities?.entity;
+        if (!entities) break;
+
+        const list = Array.isArray(entities) ? entities : [entities];
+        if (list.length === 0) break;
+
+        list.forEach(g => {
+          const cod = String(g.f0?.['$'] || g.CODGRUPOPROD?.['$'] || g.CODGRUPOPROD || '');
+          const pai = String(g.f1?.['$'] || g.CODGRUPOPAI?.['$'] || g.CODGRUPOPAI || '');
+          groupList.push({ cod, pai });
+        });
+
+        page++;
+      } catch (err) {
+        console.error('Error fetching groups:', err.message);
+        break;
+      }
+    }
+
+    console.log(`[Groups] Fetched ${groupList.length} groups total`);
+
+    // BFS to find all children recursively
+    const queue = [String(parentGroupCode)];
+    while (queue.length > 0) {
+      const current = queue.shift();
+      groupList.forEach(g => {
+        if (g.pai === current && !allGroups.has(g.cod)) {
+          allGroups.add(g.cod);
+          queue.push(g.cod);
+        }
+      });
+    }
+
+    console.log(`[Groups] Parent ${parentGroupCode} has ${allGroups.size} groups (including children)`);
+    return allGroups;
+  }
+
+  /**
+   * Get descriptions, reference, brand and group for a list of product codes (batch).
+   * @param {Array<string>} codProdList
+   * @returns {Object} Map of CODPROD -> { descrprod, referencia, marca, codgrupoprod }
+   */
+  async getProductDescriptionsFull(codProdList) {
+    if (!codProdList || codProdList.length === 0) return {};
+
+    const map = {};
+    const BATCH_SIZE = 200;
+
+    for (let i = 0; i < codProdList.length; i += BATCH_SIZE) {
+      const batch = codProdList.slice(i, i + BATCH_SIZE);
+      const inClause = batch.join(',');
+
+      let page = 0;
+      while (true) {
+        const body = {
+          dataSet: {
+            rootEntity: "Produto",
+            includePresentationFields: "S",
+            offsetPage: String(page),
+            criteria: {
+              expression: { "$": `CODPROD IN (${inClause})` }
+            },
+            entity: {
+              fieldset: { list: "CODPROD,DESCRPROD,REFERENCIA,MARCA,CODGRUPOPROD,CODPARCFORN" }
+            }
+          }
+        };
+
+        try {
+          const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
+          const entities = response.responseBody?.entities?.entity;
+          if (!entities) break;
+
+          const list = Array.isArray(entities) ? entities : [entities];
+          if (list.length === 0) break;
+
+          list.forEach(p => {
+            const cod = String(p.f0?.['$'] || p.CODPROD?.['$'] || p.CODPROD);
+            map[cod] = {
+              descrprod: p.f1?.['$'] || p.DESCRPROD?.['$'] || p.DESCRPROD || '',
+              referencia: p.f2?.['$'] || p.REFERENCIA?.['$'] || p.REFERENCIA || '',
+              marca: p.f3?.['$'] || p.MARCA?.['$'] || p.MARCA || '',
+              codgrupoprod: String(p.f4?.['$'] || p.CODGRUPOPROD?.['$'] || p.CODGRUPOPROD || ''),
+              codparcforn: String(p.f5?.['$'] || p.CODPARCFORN?.['$'] || p.CODPARCFORN || '0'),
+            };
+          });
+
+          page++;
+        } catch (err) {
+          console.error(`Error fetching product descriptions batch ${i}, page ${page}:`, err.message);
+          break;
+        }
+      }
+    }
+
+    return map;
+  }
+
+  // =============================================
+  // Dashboard Methods
+  // =============================================
+
+  /**
+   * Get all active products, paginated.
+   * @param {number} page - Page number (0-based)
+   * @param {number} pageSize - Items per page
+   */
+  async getAllActiveProducts(page = 0, pageSize = 50) {
+    const body = {
+      dataSet: {
+        rootEntity: "Produto",
+        includePresentationFields: "S",
+        offsetPage: String(page),
+        criteria: {
+          expression: { "$": "ATIVO = 'S'" }
+        },
+        entity: {
+          fieldset: {
+            list: "CODPROD,DESCRPROD,REFERENCIA,MARCA,CODGRUPOPROD,USOPROD"
+          }
+        },
+        dataRow: {
+          pageSize: String(pageSize)
+        }
+      }
+    };
+
+    const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
+    const entities = response.responseBody?.entities?.entity;
+    if (!entities) return [];
+
+    const list = Array.isArray(entities) ? entities : [entities];
+    return list.map(p => ({
+      codprod: p.f0?.['$'] || p.CODPROD?.['$'] || p.CODPROD,
+      descrprod: p.f1?.['$'] || p.DESCRPROD?.['$'] || p.DESCRPROD,
+      referencia: p.f2?.['$'] || p.REFERENCIA?.['$'] || p.REFERENCIA || '',
+      marca: p.f3?.['$'] || p.MARCA?.['$'] || p.MARCA || '',
+      codgrupoprod: p.f4?.['$'] || p.CODGRUPOPROD?.['$'] || p.CODGRUPOPROD || '',
+      usoprod: p.f5?.['$'] || p.USOPROD?.['$'] || p.USOPROD || '',
+    }));
+  }
+
+  /**
+   * Get ALL active products by looping through all pages.
+   * Sankhya API paginates, so we fetch page by page until empty.
+   */
+  async getAllActiveProductsFull() {
+    // Sankhya API always returns max 50 per page regardless of dataRow.pageSize
+    const PAGE_SIZE = 50;
+    let allProducts = [];
+    let page = 0;
+
+    while (true) {
+      console.log(`Fetching products page ${page}...`);
+      const batch = await this.getAllActiveProducts(page, PAGE_SIZE);
+
+      if (batch.length === 0) break;
+      allProducts = allProducts.concat(batch);
+      page++;
+    }
+
+    console.log(`Total active products fetched: ${allProducts.length} (${page} pages)`);
+    return allProducts;
+  }
+
+  /**
+   * Get stock locations for a product via REST API.
+   * Returns raw array of locations (caller filters).
+   */
+  async getProductStockLocations(codProd) {
+    try {
+      if (!this.bearerToken) await this.login();
+
+      const response = await this.api.get(`/v1/estoque/produtos/${codProd}`, {
+        headers: { appkey: process.env.SANKHYA_CLIENT_ID }
+      });
+
+      const data = response.data;
+      if (!data || !data.estoque) return [];
+      return Array.isArray(data.estoque) ? data.estoque : [data.estoque];
+    } catch (err) {
+      if (err.response && err.response.status === 404) return [];
+      console.error(`Error fetching stock locations for ${codProd}:`, err.message);
+      return [];
+    }
+  }
+
+  /**
+   * Get stock for multiple products in parallel (pool of 10).
+   * Returns Map<codprod, filteredStockTotal>.
+   */
+  async getBulkStock(codProdList) {
+    const POOL_SIZE = 20;
+    const results = new Map();
+    const EXCLUDED_LOCALS = [9901001, 9901002, 9901003, 9901007, 9902002];
+
+    for (let i = 0; i < codProdList.length; i += POOL_SIZE) {
+      const batch = codProdList.slice(i, i + POOL_SIZE);
+      const promises = batch.map(async (codProd) => {
+        const locations = await this.getProductStockLocations(codProd);
+        const filtered = locations
+          .filter(loc => !EXCLUDED_LOCALS.includes(loc.codigoLocal))
+          .reduce((sum, loc) => sum + (loc.estoque || 0), 0);
+        return { codProd, stock: filtered };
+      });
+
+      const batchResults = await Promise.all(promises);
+      batchResults.forEach(({ codProd, stock }) => results.set(String(codProd), stock));
+    }
+
+    return results;
+  }
+
+  /**
+   * Get stock for ALL products at once via CRUD (TGFEST).
+   * Much faster than individual REST calls.
+   * Returns Map<codprod, filteredStockTotal> excluding specified locals.
+   */
+  async getBulkStockCRUD(codProdList) {
+    const EXCLUDED_LOCALS = [9901001, 9901002, 9901003, 9901007, 9902002];
+    const results = new Map();
+    const BATCH_SIZE = 200; // IN clause limit
+
+    for (let i = 0; i < codProdList.length; i += BATCH_SIZE) {
+      const batch = codProdList.slice(i, i + BATCH_SIZE);
+      const inClause = batch.join(',');
+      const excludeClause = EXCLUDED_LOCALS.join(',');
+
+      let page = 0;
+      while (true) {
+        const body = {
+          dataSet: {
+            rootEntity: "Estoque",
+            includePresentationFields: "S",
+            offsetPage: String(page),
+            criteria: {
+              expression: { "$": `CODPROD IN (${inClause}) AND CODLOCAL NOT IN (${excludeClause})` }
+            },
+            entity: {
+              fieldset: {
+                list: "CODPROD,ESTOQUE"
+              }
+            }
+          }
+        };
+
+        try {
+          const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
+          const entities = response.responseBody?.entities?.entity;
+          if (!entities) break;
+
+          const list = Array.isArray(entities) ? entities : [entities];
+          if (list.length === 0) break;
+
+          list.forEach(item => {
+            const cod = String(item.f0?.['$'] || item.CODPROD?.['$'] || item.CODPROD);
+            const est = parseFloat(item.f1?.['$'] || item.ESTOQUE?.['$'] || item.ESTOQUE || 0);
+            results.set(cod, (results.get(cod) || 0) + est);
+          });
+
+          page++;
+        } catch (err) {
+          console.error(`Error fetching bulk stock CRUD batch ${i}, page ${page}:`, err.message);
+          break;
+        }
+      }
+    }
+
+    console.log(`[BulkStockCRUD] Got stock for ${results.size} products`);
+    return results;
+  }
+
+  /**
+   * Get sales invoices (Vendas Liberadas) in a date range.
+   * @param {string} startDate - dd/MM/yyyy
+   * @param {string} endDate - dd/MM/yyyy
+   */
+  async getSalesInvoices(startDate, endDate) {
+    const where = `TIPMOV = 'V' AND STATUSNOTA = 'L' AND DTNEG BETWEEN '${startDate}' AND '${endDate}'`;
+    let allInvoices = [];
+    let page = 0;
+
+    while (true) {
+      const body = {
+        dataSet: {
+          rootEntity: "CabecalhoNota",
+          includePresentationFields: "S",
+          offsetPage: String(page),
+          criteria: {
+            expression: { "$": where }
+          },
+          entity: {
+            fieldset: {
+              list: "NUNOTA,DTNEG,VLRNOTA,CODVEND,CODPARC"
+            }
+          }
+        }
+      };
+
+      const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
+      const entities = response.responseBody?.entities?.entity;
+      if (!entities) {
+        if (page === 0) console.log(`[Sales] Page 0 empty for [${startDate} - ${endDate}]. Response totalRecords: ${response.responseBody?.entities?.totalRecords || 'N/A'}`);
+        break;
+      }
+
+      const list = Array.isArray(entities) ? entities : [entities];
+      const mapped = list.map(n => ({
+        nunota: n.f0?.['$'] || n.NUNOTA?.['$'] || n.NUNOTA,
+        dtneg: n.f1?.['$'] || n.DTNEG?.['$'] || n.DTNEG,
+        vlrnota: parseFloat(n.f2?.['$'] || n.VLRNOTA?.['$'] || n.VLRNOTA || 0),
+        codvend: n.f3?.['$'] || n.CODVEND?.['$'] || n.CODVEND || '0',
+        codparc: n.f4?.['$'] || n.CODPARC?.['$'] || n.CODPARC || '0',
+        nomeparc: n.f6?.['$'] || '',
+      }));
+
+      allInvoices = allInvoices.concat(mapped);
+      if (list.length === 0) break;
+      page++;
+    }
+
+    console.log(`Sales invoices fetched: ${allInvoices.length} (${page + 1} pages) [${startDate} - ${endDate}]`);
+    return allInvoices;
+  }
+
+  /**
+   * Get sales items by list of NUNOTAs (batched in groups of 200).
+   */
+  async getSalesItemsByNunotas(nunotas) {
+    const BATCH_SIZE = 100; // IN clause batch size
+    let allItems = [];
+
+    for (let i = 0; i < nunotas.length; i += BATCH_SIZE) {
+      const batch = nunotas.slice(i, i + BATCH_SIZE);
+      const inClause = batch.join(',');
+
+      // Paginate within each IN clause batch
+      let page = 0;
+      while (true) {
+        const body = {
+          dataSet: {
+            rootEntity: "ItemNota",
+            includePresentationFields: "S",
+            offsetPage: String(page),
+            criteria: {
+              expression: { "$": `NUNOTA IN (${inClause})` }
+            },
+            entity: {
+              fieldset: {
+                list: "NUNOTA,CODPROD,QTDNEG,VLRTOT"
+              }
+            }
+          }
+        };
+
+        try {
+          const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
+          const entities = response.responseBody?.entities?.entity;
+          if (!entities) break;
+
+          const list = Array.isArray(entities) ? entities : [entities];
+          if (list.length === 0) break;
+
+          const mapped = list.map(item => ({
+            nunota: item.f0?.['$'] || item.NUNOTA?.['$'] || item.NUNOTA,
+            codprod: item.f1?.['$'] || item.CODPROD?.['$'] || item.CODPROD,
+            qtdneg: parseFloat(item.f2?.['$'] || item.QTDNEG?.['$'] || item.QTDNEG || 0),
+            vlrtot: parseFloat(item.f3?.['$'] || item.VLRTOT?.['$'] || item.VLRTOT || 0),
+          }));
+          allItems = allItems.concat(mapped);
+          page++;
+        } catch (err) {
+          console.error(`Error fetching items for batch starting at ${i}, page ${page}:`, err.message);
+          break;
+        }
+      }
+    }
+
+    return allItems;
+  }
+
+  /**
+   * Get list of active vendors.
+   */
+  async getVendorList() {
+    try {
+      const body = {
+        dataSet: {
+          rootEntity: "Vendedor",
+          includePresentationFields: "S",
+          offsetPage: "0",
+          criteria: {
+            expression: { "$": "ATIVO = 'S'" }
+          },
+          entity: {
+            fieldset: {
+              list: "CODVEND,APELIDO"
+            }
+          }
+        }
+      };
+
+      const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
+      const entities = response.responseBody?.entities?.entity;
+      if (!entities) return [];
+
+      const list = Array.isArray(entities) ? entities : [entities];
+      return list.map(v => ({
+        codvend: v.f0?.['$'] || v.CODVEND?.['$'] || v.CODVEND,
+        apelido: v.f1?.['$'] || v.APELIDO?.['$'] || v.APELIDO || `Vendedor ${v.f0?.['$'] || v.CODVEND?.['$']}`,
+      }));
+    } catch (err) {
+      console.error('Error fetching vendor list:', err.message);
+      return [];
     }
   }
 
@@ -940,6 +1517,71 @@ class SankhyaService {
       console.error(`Error resolving product for term "${term}":`, err.message);
       return null;
     }
+  }
+  /**
+   * Execute raw SQL via DbExplorerSP.executeQuery.
+   * Returns array of row arrays + fieldsMetadata.
+   */
+  async executeSQL(sql) {
+    const resp = await this.callService('DbExplorerSP.executeQuery', { sql }, 'mge');
+    return {
+      fields: resp.responseBody?.fieldsMetadata || [],
+      rows: resp.responseBody?.rows || [],
+    };
+  }
+
+  /**
+   * Get top 10 most sold and least sold ASX products (last 6 months) with stock.
+   */
+  async getTopProductsASX() {
+    const topSoldSQL = `SELECT * FROM (
+      SELECT ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA,
+        SUM(ITE.QTDNEG) AS QTDTOTAL,
+        ROUND(SUM(ITE.QTDNEG) / 6, 2) AS AVGMES,
+        NVL((SELECT SUM(EST.ESTOQUE) FROM TGFEST EST WHERE EST.CODPROD = ITE.CODPROD AND EST.CODLOCAL NOT IN (9901001, 9901002, 9901003, 9901007, 9902002)), 0) AS ESTOQUE
+      FROM TGFITE ITE
+      INNER JOIN TGFCAB CAB ON CAB.NUNOTA = ITE.NUNOTA
+      INNER JOIN TGFPRO PRO ON PRO.CODPROD = ITE.CODPROD
+      WHERE CAB.TIPMOV = 'V' AND CAB.STATUSNOTA = 'L'
+        AND CAB.DTNEG >= ADD_MONTHS(SYSDATE, -6)
+        AND PRO.CODGRUPOPROD LIKE '9901%'
+      GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA
+      ORDER BY QTDTOTAL DESC
+    ) WHERE ROWNUM <= 10`;
+
+    const leastSoldSQL = `SELECT * FROM (
+      SELECT ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA,
+        SUM(ITE.QTDNEG) AS QTDTOTAL,
+        ROUND(SUM(ITE.QTDNEG) / 6, 2) AS AVGMES,
+        NVL((SELECT SUM(EST.ESTOQUE) FROM TGFEST EST WHERE EST.CODPROD = ITE.CODPROD AND EST.CODLOCAL NOT IN (9901001, 9901002, 9901003, 9901007, 9902002)), 0) AS ESTOQUE
+      FROM TGFITE ITE
+      INNER JOIN TGFCAB CAB ON CAB.NUNOTA = ITE.NUNOTA
+      INNER JOIN TGFPRO PRO ON PRO.CODPROD = ITE.CODPROD
+      WHERE CAB.TIPMOV = 'V' AND CAB.STATUSNOTA = 'L'
+        AND CAB.DTNEG >= ADD_MONTHS(SYSDATE, -6)
+        AND PRO.CODGRUPOPROD LIKE '9901%'
+      GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA
+      ORDER BY QTDTOTAL ASC
+    ) WHERE ROWNUM <= 10`;
+
+    const [topResult, leastResult] = await Promise.all([
+      this.executeSQL(topSoldSQL),
+      this.executeSQL(leastSoldSQL),
+    ]);
+
+    const mapRow = (row) => ({
+      codprod: String(row[0]),
+      descrprod: row[1] || '',
+      referencia: row[2] || '',
+      qtdTotal: row[3] || 0,
+      avg6m: row[4] || 0,
+      stock: row[5] || 0,
+    });
+
+    return {
+      topSold: topResult.rows.map(mapRow),
+      leastSold: leastResult.rows.map(mapRow),
+    };
   }
 }
 
