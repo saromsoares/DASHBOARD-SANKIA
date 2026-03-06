@@ -1,6 +1,6 @@
-import { formatNumber } from '../../lib/formatters'
+import { formatNumber, formatBRL } from '../../lib/formatters'
 
-function ProductRankTable({ title, subtitle, data, emptyMsg }) {
+function ProductRankTable({ title, subtitle, data, emptyMsg, rankBy }) {
   if (!data || data.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow p-4">
@@ -21,17 +21,13 @@ function ProductRankTable({ title, subtitle, data, emptyMsg }) {
           <tr>
             <th className="px-2 py-1.5 text-left font-medium text-gray-500 w-6">#</th>
             <th className="px-2 py-1.5 text-left font-medium text-gray-500">Produto</th>
-            <th className="px-2 py-1.5 text-right font-medium text-gray-500 whitespace-nowrap">Venda/Mes</th>
+            <th className="px-2 py-1.5 text-right font-medium text-gray-500 whitespace-nowrap">Qtd</th>
+            <th className="px-2 py-1.5 text-right font-medium text-gray-500 whitespace-nowrap">Valor</th>
             <th className="px-2 py-1.5 text-right font-medium text-gray-500">Estoque</th>
           </tr>
         </thead>
         <tbody>
           {data.map((p, i) => {
-            const stockMonths = p.avg6m > 0 ? p.stock / p.avg6m : null
-            const stockCls = stockMonths === null ? 'text-gray-400'
-              : stockMonths < 1 ? 'text-red-600 font-bold'
-              : stockMonths < 3 ? 'text-yellow-600 font-semibold'
-              : 'text-green-600'
             return (
               <tr key={p.codprod} className="border-b last:border-0 hover:bg-gray-50">
                 <td className="px-2 py-1">
@@ -47,14 +43,14 @@ function ProductRankTable({ title, subtitle, data, emptyMsg }) {
                 <td className="px-2 py-1 truncate max-w-[200px] text-gray-800" title={p.descrprod}>
                   {p.descrprod}
                 </td>
-                <td className="px-2 py-1 text-right font-semibold text-gray-800 whitespace-nowrap">
-                  {formatNumber(p.avg6m, 1)}
+                <td className={`px-2 py-1 text-right whitespace-nowrap ${rankBy === 'qty' ? 'font-semibold text-gray-800' : 'text-gray-600'}`}>
+                  {formatNumber(p.qtdTotal)}
+                </td>
+                <td className={`px-2 py-1 text-right whitespace-nowrap ${rankBy === 'value' ? 'font-semibold text-gray-800' : 'text-gray-600'}`}>
+                  {formatBRL(p.vlrTotal)}
                 </td>
                 <td className="px-2 py-1 text-right whitespace-nowrap">
-                  <span className={stockCls}>{formatNumber(p.stock)}</span>
-                  {stockMonths !== null && (
-                    <span className="text-gray-400 text-[9px] ml-1">({formatNumber(stockMonths, 1)}m)</span>
-                  )}
+                  <span className="text-gray-600">{formatNumber(p.stock)}</span>
                 </td>
               </tr>
             )
@@ -82,16 +78,18 @@ export default function TopProductsASX({ data, isLoading }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
       <ProductRankTable
-        title="Top 10 Mais Vendidos - ASX"
-        subtitle="Media mensal (6 meses) x Estoque atual"
-        data={data?.topSold || []}
+        title="Top 10 Mais Vendidos (por Quantidade)"
+        subtitle="Mes atual - ordenado por quantidade de itens vendidos"
+        data={data?.topByQty || []}
         emptyMsg="Sem dados de vendas."
+        rankBy="qty"
       />
       <ProductRankTable
-        title="Top 10 Menos Vendidos - ASX"
-        subtitle="Media mensal (6 meses) x Estoque atual"
-        data={data?.leastSold || []}
+        title="Top 10 Mais Vendidos (por Valor)"
+        subtitle="Mes atual - ordenado por valor total vendido"
+        data={data?.topByValue || []}
         emptyMsg="Sem dados de vendas."
+        rankBy="value"
       />
     </div>
   )

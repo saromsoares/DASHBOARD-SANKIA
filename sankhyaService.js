@@ -1539,39 +1539,41 @@ class SankhyaService {
    * Get top 10 most sold and least sold ASX products (last 6 months) with stock.
    */
   async getTopProductsASX() {
-    const topSoldSQL = `SELECT * FROM (
+    // Top por quantidade vendida no mes atual
+    const topByQtySQL = `SELECT * FROM (
       SELECT ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA,
         SUM(ITE.QTDNEG) AS QTDTOTAL,
-        ROUND(SUM(ITE.QTDNEG) / 6, 2) AS AVGMES,
+        ROUND(SUM(ITE.VLRTOT), 2) AS VLRTOTAL,
         NVL((SELECT SUM(EST.ESTOQUE) FROM TGFEST EST WHERE EST.CODPROD = ITE.CODPROD AND EST.CODLOCAL NOT IN (9901001, 9901002, 9901003, 9901007, 9902002)), 0) AS ESTOQUE
       FROM TGFITE ITE
       INNER JOIN TGFCAB CAB ON CAB.NUNOTA = ITE.NUNOTA
       INNER JOIN TGFPRO PRO ON PRO.CODPROD = ITE.CODPROD
       WHERE CAB.TIPMOV = 'V' AND CAB.STATUSNOTA = 'L'
-        AND CAB.DTNEG >= ADD_MONTHS(SYSDATE, -6)
+        AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
         AND PRO.CODGRUPOPROD LIKE '9901%'
       GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA
       ORDER BY QTDTOTAL DESC
     ) WHERE ROWNUM <= 10`;
 
-    const leastSoldSQL = `SELECT * FROM (
+    // Top por valor vendido no mes atual
+    const topByValueSQL = `SELECT * FROM (
       SELECT ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA,
         SUM(ITE.QTDNEG) AS QTDTOTAL,
-        ROUND(SUM(ITE.QTDNEG) / 6, 2) AS AVGMES,
+        ROUND(SUM(ITE.VLRTOT), 2) AS VLRTOTAL,
         NVL((SELECT SUM(EST.ESTOQUE) FROM TGFEST EST WHERE EST.CODPROD = ITE.CODPROD AND EST.CODLOCAL NOT IN (9901001, 9901002, 9901003, 9901007, 9902002)), 0) AS ESTOQUE
       FROM TGFITE ITE
       INNER JOIN TGFCAB CAB ON CAB.NUNOTA = ITE.NUNOTA
       INNER JOIN TGFPRO PRO ON PRO.CODPROD = ITE.CODPROD
       WHERE CAB.TIPMOV = 'V' AND CAB.STATUSNOTA = 'L'
-        AND CAB.DTNEG >= ADD_MONTHS(SYSDATE, -6)
+        AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
         AND PRO.CODGRUPOPROD LIKE '9901%'
       GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA
-      ORDER BY QTDTOTAL ASC
+      ORDER BY VLRTOTAL DESC
     ) WHERE ROWNUM <= 10`;
 
-    const [topResult, leastResult] = await Promise.all([
-      this.executeSQL(topSoldSQL),
-      this.executeSQL(leastSoldSQL),
+    const [topQtyResult, topValueResult] = await Promise.all([
+      this.executeSQL(topByQtySQL),
+      this.executeSQL(topByValueSQL),
     ]);
 
     const mapRow = (row) => ({
@@ -1579,13 +1581,13 @@ class SankhyaService {
       descrprod: row[1] || '',
       referencia: row[2] || '',
       qtdTotal: row[3] || 0,
-      avg6m: row[4] || 0,
+      vlrTotal: row[4] || 0,
       stock: row[5] || 0,
     });
 
     return {
-      topSold: topResult.rows.map(mapRow),
-      leastSold: leastResult.rows.map(mapRow),
+      topByQty: topQtyResult.rows.map(mapRow),
+      topByValue: topValueResult.rows.map(mapRow),
     };
   }
 }
