@@ -9,8 +9,8 @@ dotenv.config();
 
 const app = express();
 
-// CORS - allow Vite dev server
-app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
+// CORS - allow Vite dev server and production
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
