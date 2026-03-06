@@ -369,7 +369,9 @@ app.get('/api/dashboard/sales-data', async (req, res) => {
             }
         });
 
-        const vendorSales = Object.values(byVendor)
+        const ASX_VENDORS = ['VISAC', 'TIAGO LEAL', 'REP ATITUDE', 'QUEILA', 'J OLIVEIRA', 'ASX COMER', 'MARA ELAIN'];
+
+        const allVendorSales = Object.values(byVendor)
             .filter(v => !/^sem\s+vendedor$/i.test(v.nome))
             .map(v => ({
                 ...v,
@@ -379,6 +381,14 @@ app.get('/api/dashboard/sales-data', async (req, res) => {
                 ),
             }))
             .sort((a, b) => b.totalValue - a.totalValue);
+
+        const vendorSalesAsx = allVendorSales.filter(v =>
+            ASX_VENDORS.some(name => v.nome.toUpperCase().includes(name))
+        );
+        const vendorSalesAbsolux = allVendorSales.filter(v =>
+            !ASX_VENDORS.some(name => v.nome.toUpperCase().includes(name))
+        );
+        const vendorSales = allVendorSales;
 
         // Collect all months in the period for column headers
         const allMonths = [...new Set(invoices.map(inv => {
@@ -432,6 +442,8 @@ app.get('/api/dashboard/sales-data', async (req, res) => {
             totalValue: Math.round(totalValue * 100) / 100,
             totalInvoices: invoices.length,
             vendorSales,
+            vendorSalesAsx,
+            vendorSalesAbsolux,
             topBuyers,
             months: allMonths,
             startDate: start,
