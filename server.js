@@ -372,7 +372,7 @@ app.get('/api/dashboard/sales-data', async (req, res) => {
         const ASX_VENDORS = ['VISAC', 'TIAGO LEAL', 'REP ATITUDE', 'QUEILA', 'J OLIVEIRA', 'ASX COMER', 'MARA ELAIN', 'MARA ELIANE', 'FB PROMOTO', 'F B PROMOTO'];
 
         const allVendorSales = Object.values(byVendor)
-            .filter(v => !/^sem\s+vendedor$/i.test(v.nome))
+            .filter(v => !/sem\s*vendedor/i.test(v.nome))
             .map(v => ({
                 ...v,
                 totalValue: Math.round(v.totalValue * 100) / 100,
