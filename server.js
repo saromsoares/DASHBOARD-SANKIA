@@ -562,6 +562,7 @@ app.get('/api/dashboard/purchase-management', async (req, res) => {
                 descrprod: prod.descrprod || `Produto ${cod}`,
                 referencia: prod.referencia || '',
                 marca: prod.marca || '',
+                refforn: prod.refforn || '',
                 stock,
                 avg6m,
                 need3m,
@@ -746,7 +747,7 @@ async function warmUpPurchaseManagement() {
             const codparcforn = prod.codparcforn || '0';
             const nomeforn = partnerMap[codparcforn] || '';
 
-            const item = { codprod: cod, descrprod: prod.descrprod || `Produto ${cod}`, referencia: prod.referencia || '', marca: prod.marca || '', stock, avg6m, need3m, need6m, duracao, status, codparcforn, nomeforn };
+            const item = { codprod: cod, descrprod: prod.descrprod || `Produto ${cod}`, referencia: prod.referencia || '', marca: prod.marca || '', refforn: prod.refforn || '', stock, avg6m, need3m, need6m, duracao, status, codparcforn, nomeforn };
             if (isAsx) asx.push(item);
             if (isAbsolux) absolux.push(item);
         });

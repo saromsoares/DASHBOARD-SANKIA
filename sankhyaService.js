@@ -1114,7 +1114,7 @@ class SankhyaService {
               expression: { "$": `CODPROD IN (${inClause})` }
             },
             entity: {
-              fieldset: { list: "CODPROD,DESCRPROD,REFERENCIA,MARCA,CODGRUPOPROD,CODPARCFORN" }
+              fieldset: { list: "CODPROD,DESCRPROD,REFERENCIA,MARCA,CODGRUPOPROD,CODPARCFORN,REFFORN" }
             }
           }
         };
@@ -1135,6 +1135,7 @@ class SankhyaService {
               marca: p.f3?.['$'] || p.MARCA?.['$'] || p.MARCA || '',
               codgrupoprod: String(p.f4?.['$'] || p.CODGRUPOPROD?.['$'] || p.CODGRUPOPROD || ''),
               codparcforn: String(p.f5?.['$'] || p.CODPARCFORN?.['$'] || p.CODPARCFORN || '0'),
+              refforn: p.f6?.['$'] || p.REFFORN?.['$'] || p.REFFORN || '',
             };
           });
 
@@ -1273,49 +1274,28 @@ class SankhyaService {
     const EXCLUDED_LOCALS = [9901001, 9901002, 9901003, 9901007, 9902002];
     const results = new Map();
     const BATCH_SIZE = 200; // IN clause limit
+    const excludeClause = EXCLUDED_LOCALS.join(',');
 
     for (let i = 0; i < codProdList.length; i += BATCH_SIZE) {
       const batch = codProdList.slice(i, i + BATCH_SIZE);
       const inClause = batch.join(',');
-      const excludeClause = EXCLUDED_LOCALS.join(',');
 
-      let page = 0;
-      while (true) {
-        const body = {
-          dataSet: {
-            rootEntity: "Estoque",
-            includePresentationFields: "S",
-            offsetPage: String(page),
-            criteria: {
-              expression: { "$": `CODPROD IN (${inClause}) AND CODLOCAL NOT IN (${excludeClause})` }
-            },
-            entity: {
-              fieldset: {
-                list: "CODPROD,ESTOQUE"
-              }
-            }
-          }
-        };
+      const sql = `SELECT EST.CODPROD, SUM(EST.ESTOQUE) AS TOTAL_ESTOQUE
+        FROM TGFEST EST
+        WHERE EST.CODPROD IN (${inClause})
+          AND EST.CODLOCAL NOT IN (${excludeClause})
+        GROUP BY EST.CODPROD`;
 
-        try {
-          const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
-          const entities = response.responseBody?.entities?.entity;
-          if (!entities) break;
-
-          const list = Array.isArray(entities) ? entities : [entities];
-          if (list.length === 0) break;
-
-          list.forEach(item => {
-            const cod = String(item.f0?.['$'] || item.CODPROD?.['$'] || item.CODPROD);
-            const est = parseFloat(item.f1?.['$'] || item.ESTOQUE?.['$'] || item.ESTOQUE || 0);
-            results.set(cod, (results.get(cod) || 0) + est);
-          });
-
-          page++;
-        } catch (err) {
-          console.error(`Error fetching bulk stock CRUD batch ${i}, page ${page}:`, err.message);
-          break;
-        }
+      try {
+        const response = await this.executeSQL(sql);
+        const rows = response.rows || [];
+        rows.forEach(row => {
+          const cod = String(row[0]);
+          const est = parseFloat(row[1] || 0);
+          if (est !== 0) results.set(cod, est);
+        });
+      } catch (err) {
+        console.error(`Error fetching bulk stock SQL batch ${i}:`, err.message);
       }
     }
 
@@ -1544,14 +1524,15 @@ class SankhyaService {
       SELECT ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA,
         SUM(ITE.QTDNEG) AS QTDTOTAL,
         ROUND(SUM(ITE.VLRTOT), 2) AS VLRTOTAL,
-        NVL((SELECT SUM(EST.ESTOQUE) FROM TGFEST EST WHERE EST.CODPROD = ITE.CODPROD AND EST.CODLOCAL NOT IN (9901001, 9901002, 9901003, 9901007, 9902002)), 0) AS ESTOQUE
+        NVL((SELECT SUM(EST.ESTOQUE) FROM TGFEST EST WHERE EST.CODPROD = ITE.CODPROD AND EST.CODLOCAL NOT IN (9901001, 9901002, 9901003, 9901007, 9902002)), 0) AS ESTOQUE,
+        PRO.REFFORN
       FROM TGFITE ITE
       INNER JOIN TGFCAB CAB ON CAB.NUNOTA = ITE.NUNOTA
       INNER JOIN TGFPRO PRO ON PRO.CODPROD = ITE.CODPROD
       WHERE CAB.TIPMOV = 'V' AND CAB.STATUSNOTA = 'L'
         AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
         AND PRO.CODGRUPOPROD LIKE '9901%'
-      GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA
+      GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA, PRO.REFFORN
       ORDER BY QTDTOTAL DESC
     ) WHERE ROWNUM <= 10`;
 
@@ -1560,14 +1541,15 @@ class SankhyaService {
       SELECT ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA,
         SUM(ITE.QTDNEG) AS QTDTOTAL,
         ROUND(SUM(ITE.VLRTOT), 2) AS VLRTOTAL,
-        NVL((SELECT SUM(EST.ESTOQUE) FROM TGFEST EST WHERE EST.CODPROD = ITE.CODPROD AND EST.CODLOCAL NOT IN (9901001, 9901002, 9901003, 9901007, 9902002)), 0) AS ESTOQUE
+        NVL((SELECT SUM(EST.ESTOQUE) FROM TGFEST EST WHERE EST.CODPROD = ITE.CODPROD AND EST.CODLOCAL NOT IN (9901001, 9901002, 9901003, 9901007, 9902002)), 0) AS ESTOQUE,
+        PRO.REFFORN
       FROM TGFITE ITE
       INNER JOIN TGFCAB CAB ON CAB.NUNOTA = ITE.NUNOTA
       INNER JOIN TGFPRO PRO ON PRO.CODPROD = ITE.CODPROD
       WHERE CAB.TIPMOV = 'V' AND CAB.STATUSNOTA = 'L'
         AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
         AND PRO.CODGRUPOPROD LIKE '9901%'
-      GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA
+      GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA, PRO.REFFORN
       ORDER BY VLRTOTAL DESC
     ) WHERE ROWNUM <= 10`;
 
@@ -1583,6 +1565,7 @@ class SankhyaService {
       qtdTotal: row[3] || 0,
       vlrTotal: row[4] || 0,
       stock: row[5] || 0,
+      refforn: row[6] || '',
     });
 
     return {

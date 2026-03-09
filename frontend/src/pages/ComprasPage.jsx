@@ -35,6 +35,15 @@ const BASE_COLUMNS = [
   { accessorKey: 'codprod', header: 'Codigo', size: 70 },
   { accessorKey: 'descrprod', header: 'Produto', size: 280 },
   { accessorKey: 'referencia', header: 'Ref', size: 100 },
+  {
+    accessorKey: 'refforn',
+    header: 'Ref Fornecedor',
+    size: 120,
+    cell: ({ getValue }) => {
+      const v = getValue()
+      return v ? <span className="text-gray-600">{v}</span> : <span className="text-gray-300">-</span>
+    },
+  },
 ]
 
 const FORNECEDOR_COLUMN = {
@@ -180,7 +189,7 @@ function ComprasTable({ data = [], columns, fornecedorFilter }) {
         <div className="p-4 border-b flex flex-wrap items-center gap-3">
           <input
             type="text"
-            placeholder="Buscar produto, codigo, referencia..."
+            placeholder="Buscar produto, codigo, referencia, ref fornecedor..."
             value={globalFilter}
             onChange={e => setGlobalFilter(e.target.value)}
             className="flex-1 min-w-[200px] max-w-sm px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

@@ -21,6 +21,7 @@ function ProductRankTable({ title, subtitle, data, emptyMsg, rankBy }) {
           <tr>
             <th className="px-2 py-1.5 text-left font-medium text-gray-500 w-6">#</th>
             <th className="px-2 py-1.5 text-left font-medium text-gray-500">Produto</th>
+            <th className="px-2 py-1.5 text-left font-medium text-gray-500">Ref Forn</th>
             <th className="px-2 py-1.5 text-right font-medium text-gray-500 whitespace-nowrap">Qtd</th>
             <th className="px-2 py-1.5 text-right font-medium text-gray-500 whitespace-nowrap">Valor</th>
             <th className="px-2 py-1.5 text-right font-medium text-gray-500">Estoque</th>
@@ -42,6 +43,9 @@ function ProductRankTable({ title, subtitle, data, emptyMsg, rankBy }) {
                 </td>
                 <td className="px-2 py-1 truncate max-w-[200px] text-gray-800" title={p.descrprod}>
                   {p.descrprod}
+                </td>
+                <td className="px-2 py-1 truncate max-w-[100px] text-gray-500 text-[10px]" title={p.refforn || '-'}>
+                  {p.refforn || '-'}
                 </td>
                 <td className={`px-2 py-1 text-right whitespace-nowrap ${rankBy === 'qty' ? 'font-semibold text-gray-800' : 'text-gray-600'}`}>
                   {formatNumber(p.qtdTotal)}
