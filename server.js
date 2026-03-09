@@ -812,6 +812,13 @@ function scheduleWarmUp() {
     }
 }
 
+// Force warm-up refresh (manual trigger)
+app.get('/api/dashboard/refresh', async (req, res) => {
+    console.log('[Refresh] Manual warm-up triggered');
+    res.json({ status: 'refreshing', message: 'Warm-up iniciado em background' });
+    warmUpPurchaseManagement();
+});
+
 // Start Server
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
