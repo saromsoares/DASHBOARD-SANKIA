@@ -180,7 +180,7 @@ app.get('/api/dashboard/stock', async (req, res) => {
         if (codprods.length === 0) {
             return res.status(400).json({ error: 'Parâmetro codprods obrigatório.' });
         }
-        const stockMap = await sankhyaService.getBulkStock(codprods);
+        const stockMap = await sankhyaService.getBulkStockCRUD(codprods);
         const stock = {};
         stockMap.forEach((val, key) => { stock[key] = val; });
         res.json({ stock });
@@ -274,7 +274,7 @@ app.get('/api/dashboard/purchase-suggestions', async (req, res) => {
         // 3. Only fetch stock for products that had sales (optimization: ~1500 instead of ~6900)
         const productsWithSales = Object.keys(salesSummaryRes);
         console.log(`Fetching stock for ${productsWithSales.length} products with sales...`);
-        const stockMap = await sankhyaService.getBulkStock(productsWithSales);
+        const stockMap = await sankhyaService.getBulkStockCRUD(productsWithSales);
 
         // 3. Build suggestions
         const suggestions = products.map(p => {
@@ -468,125 +468,8 @@ app.get('/api/dashboard/purchase-management', async (req, res) => {
         const cached = cache.get(cacheKey);
         if (cached) return res.json(cached);
 
-        // If no cache yet, return loading status (warm-up is running in background)
+        // No cache yet - return loading status (warm-up runs in background)
         return res.json({ asx: [], absolux: [], totalAsx: 0, totalAbsolux: 0, loading: true });
-
-        /* The code below is kept as fallback but warm-up handles the heavy work */
-        const t0 = Date.now();
-        const endDate = todaySankhya();
-        const start6m = monthsAgo(6);
-        const start3m = monthsAgo(3);
-
-        // 1. Fetch 6m invoices (single call, contains 3m data too)
-        const invoices6m = await sankhyaService.getSalesInvoices(start6m, endDate);
-        console.log(`[Compras] ${invoices6m.length} invoices in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
-
-        if (invoices6m.length === 0) {
-            const result = { items: [], total: 0 };
-            cache.set(cacheKey, result, CACHE_30M);
-            return res.json(result);
-        }
-
-        // 2. Get items ONCE
-        const t1 = Date.now();
-        const nunotas = invoices6m.map(inv => inv.nunota);
-        const allItems = await sankhyaService.getSalesItemsByNunotas(nunotas);
-        console.log(`[Compras] ${allItems.length} items in ${((Date.now() - t1) / 1000).toFixed(1)}s`);
-
-        // 3. Map invoice dates
-        const invoiceDateMap = {};
-        invoices6m.forEach(inv => { invoiceDateMap[inv.nunota] = inv.dtneg; });
-
-        function parseSankhyaDate(str) {
-            if (!str) return null;
-            const [d, m, y] = str.split('/').map(Number);
-            return new Date(y, m - 1, d);
-        }
-        const cutoff3m = parseSankhyaDate(start3m);
-
-        // 4. Aggregate qty per product: 3m and 6m
-        const qty3m = {}, qty6m = {};
-        allItems.forEach(item => {
-            const cod = String(item.codprod);
-            qty6m[cod] = (qty6m[cod] || 0) + item.qtdneg;
-            const invDate = parseSankhyaDate(invoiceDateMap[item.nunota]);
-            if (invDate && invDate >= cutoff3m) {
-                qty3m[cod] = (qty3m[cod] || 0) + item.qtdneg;
-            }
-        });
-
-        // 5. Get stock for products with sales via CRUD
-        const t2 = Date.now();
-        const soldCods = Object.keys(qty6m);
-        console.log(`[Compras] Fetching stock for ${soldCods.length} products...`);
-        const stockMap = await sankhyaService.getBulkStockCRUD(soldCods);
-        console.log(`[Compras] Stock in ${((Date.now() - t2) / 1000).toFixed(1)}s`);
-
-        // 6. Get product descriptions + group info for sold products
-        const t3 = Date.now();
-        const productMap = await sankhyaService.getProductDescriptionsFull(soldCods);
-        console.log(`[Compras] Descriptions in ${((Date.now() - t3) / 1000).toFixed(1)}s`);
-
-        // 7. Build result - ALL products with sales, split by group prefix
-        // ASX = CODGRUPOPROD starts with 9901, ABSOLUX = starts with 9902
-        const asx = [];
-        const absolux = [];
-
-        soldCods.forEach(cod => {
-            const prod = productMap[cod] || {};
-            const grupo = String(prod.codgrupoprod || '');
-
-            const isAsx = grupo.startsWith('9901');
-            const isAbsolux = grupo.startsWith('9902');
-            if (!isAsx && !isAbsolux) return;
-
-            const stock = stockMap.get(cod) || 0;
-            const avg6m = Math.round(((qty6m[cod] || 0) / 6) * 100) / 100;
-
-            // Duracao: quantos meses o estoque atual dura baseado na media 6m
-            const duracao = avg6m > 0 ? Math.round((stock / avg6m) * 100) / 100 : null;
-
-            // Comprar para abastecer 3m e 6m
-            const need3m = avg6m > 0 ? Math.max(0, Math.ceil(avg6m * 3 - stock)) : 0;
-            const need6m = avg6m > 0 ? Math.max(0, Math.ceil(avg6m * 6 - stock)) : 0;
-
-            let status;
-            if (duracao === null) status = 'sem_media';
-            else if (duracao < 1) status = 'critico';
-            else if (duracao < 3) status = 'atencao';
-            else if (duracao < 6) status = 'repor';
-            else status = 'ok';
-
-            const item = {
-                codprod: cod,
-                descrprod: prod.descrprod || `Produto ${cod}`,
-                referencia: prod.referencia || '',
-                marca: prod.marca || '',
-                refforn: prod.refforn || '',
-                stock,
-                avg6m,
-                need3m,
-                need6m,
-                duracao,
-                status,
-            };
-
-            if (isAsx) asx.push(item);
-            if (isAbsolux) absolux.push(item);
-        });
-
-        // Sort: critico > atencao > repor > ok > sem_media
-        const statusOrder = { critico: 0, atencao: 1, repor: 2, ok: 3, sem_media: 4 };
-        const sortFn = (a, b) => statusOrder[a.status] - statusOrder[b.status] || (a.duracao ?? 999) - (b.duracao ?? 999);
-        asx.sort(sortFn);
-        absolux.sort(sortFn);
-
-        const totalTime = ((Date.now() - t0) / 1000).toFixed(1);
-        console.log(`[Compras] DONE in ${totalTime}s - ASX: ${asx.length}, ABSOLUX: ${absolux.length}`);
-
-        const result = { asx, absolux, totalAsx: asx.length, totalAbsolux: absolux.length };
-        cache.set(cacheKey, result, CACHE_30M);
-        res.json(result);
     } catch (error) {
         console.error('Dashboard purchase-management error:', error.message);
         res.status(500).json({ error: 'Erro ao calcular gestao de compras.' });
@@ -702,35 +585,56 @@ async function warmUpPurchaseManagement() {
             }
         });
 
-        console.log('[WarmUp] Step 3/4: Fetching stock...');
+        console.log('[WarmUp] Step 3-4: Fetching stock + descriptions in parallel...');
         const t2 = Date.now();
         const soldCods = Object.keys(qty6m);
-        const stockMap = await sankhyaService.getBulkStockCRUD(soldCods);
-        console.log(`[WarmUp] Stock for ${soldCods.length} products in ${((Date.now() - t2) / 1000).toFixed(1)}s`);
-
-        console.log('[WarmUp] Step 4/5: Fetching descriptions...');
-        const t3 = Date.now();
-        const productMap = await sankhyaService.getProductDescriptionsFull(soldCods);
-        console.log(`[WarmUp] Descriptions in ${((Date.now() - t3) / 1000).toFixed(1)}s`);
+        const [stockMap, productMap] = await Promise.all([
+            sankhyaService.getBulkStockCRUD(soldCods),
+            sankhyaService.getProductDescriptionsFull(soldCods),
+        ]);
+        console.log(`[WarmUp] Stock + Descriptions for ${soldCods.length} products in ${((Date.now() - t2) / 1000).toFixed(1)}s`);
 
         // Step 5: Fetch supplier names
-        console.log('[WarmUp] Step 5/5: Fetching supplier names...');
+        // Step 5: Fetch ALL active ASX/ABSOLUX products (including those without sales)
+        console.log('[WarmUp] Step 5/6: Fetching all active resale products...');
         const t4 = Date.now();
-        const uniqueParcs = [...new Set(Object.values(productMap).map(p => p.codparcforn).filter(c => c && c !== '0'))];
-        const partnerMap = await sankhyaService.getPartnerNamesBulk(uniqueParcs);
-        console.log(`[WarmUp] Supplier names for ${uniqueParcs.length} partners in ${((Date.now() - t4) / 1000).toFixed(1)}s`);
+        const allResaleProducts = await sankhyaService.getAllActiveResaleProducts();
+        console.log(`[WarmUp] ${allResaleProducts.length} active resale products in ${((Date.now() - t4) / 1000).toFixed(1)}s`);
+
+        // Step 6: Fetch supplier names
+        console.log('[WarmUp] Step 6/6: Fetching supplier names...');
+        const t5 = Date.now();
+        // Collect supplier codes from both sold products and all resale products
+        const allParcCodes = new Set();
+        Object.values(productMap).forEach(p => { if (p.codparcforn && p.codparcforn !== '0') allParcCodes.add(p.codparcforn); });
+        allResaleProducts.forEach(p => { if (p.codparcforn && p.codparcforn !== '0') allParcCodes.add(p.codparcforn); });
+        const partnerMap = await sankhyaService.getPartnerNamesBulk([...allParcCodes]);
+        console.log(`[WarmUp] Supplier names for ${allParcCodes.size} partners in ${((Date.now() - t5) / 1000).toFixed(1)}s`);
 
         const asx = [];
         const absolux = [];
+        const includedCods = new Set();
 
+        // ASX = groups 9901* or 70* (resale products), ABSOLUX = 9902*
+        function classifyGroup(grupo, referencia) {
+            if (grupo.startsWith('9902')) return 'absolux';
+            if (grupo.startsWith('9901') || grupo.startsWith('70')) return 'asx';
+            // Fallback: products with ASX reference are ASX products
+            if (referencia && referencia.toUpperCase().startsWith('ASX')) return 'asx';
+            return null;
+        }
+
+        // First: add products that had sales (with full metrics)
         soldCods.forEach(cod => {
             const prod = productMap[cod] || {};
             const grupo = String(prod.codgrupoprod || '');
 
-            const isAsx = grupo.startsWith('9901');
-            const isAbsolux = grupo.startsWith('9902');
+            const classification = classifyGroup(grupo, prod.referencia);
+            const isAsx = classification === 'asx';
+            const isAbsolux = classification === 'absolux';
             if (!isAsx && !isAbsolux) return;
 
+            includedCods.add(cod);
             const stock = stockMap.get(cod) || 0;
             const avg6m = Math.round(((qty6m[cod] || 0) / 6) * 100) / 100;
             const duracao = avg6m > 0 ? Math.round((stock / avg6m) * 100) / 100 : null;
@@ -752,7 +656,39 @@ async function warmUpPurchaseManagement() {
             if (isAbsolux) absolux.push(item);
         });
 
-        const statusOrder = { critico: 0, atencao: 1, repor: 2, ok: 3, sem_media: 4 };
+        // Second: add active products WITHOUT sales (sem_giro) - these were missing before
+        allResaleProducts.forEach(prod => {
+            const cod = prod.codprod;
+            if (includedCods.has(cod)) return; // already included from sales
+
+            const classification = classifyGroup(prod.codgrupoprod, prod.referencia);
+            const isAsx = classification === 'asx';
+            const isAbsolux = classification === 'absolux';
+            if (!isAsx && !isAbsolux) return;
+
+            const nomeforn = partnerMap[prod.codparcforn] || '';
+
+            const item = {
+                codprod: cod,
+                descrprod: prod.descrprod,
+                referencia: prod.referencia,
+                marca: prod.marca,
+                refforn: prod.refforn,
+                stock: prod.stock,
+                avg6m: 0,
+                need3m: 0,
+                need6m: 0,
+                duracao: null,
+                status: prod.stock > 0 ? 'sem_media' : 'critico',
+                codparcforn: prod.codparcforn,
+                nomeforn,
+            };
+
+            if (isAsx) asx.push(item);
+            if (isAbsolux) absolux.push(item);
+        });
+
+        const statusOrder = { critico: 0, sem_giro: 1, atencao: 2, repor: 3, ok: 4, sem_media: 5 };
         const sortFn = (a, b) => statusOrder[a.status] - statusOrder[b.status] || (a.duracao ?? 999) - (b.duracao ?? 999);
         asx.sort(sortFn);
         absolux.sort(sortFn);

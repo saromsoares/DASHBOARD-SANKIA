@@ -17,6 +17,7 @@ const STATUS_FILTERS = [
   { key: 'atencao', label: 'Atencao' },
   { key: 'repor', label: 'Repor' },
   { key: 'ok', label: 'OK' },
+  { key: 'sem_giro', label: 'Sem Giro' },
 ]
 
 const STATUS_MAP = {
@@ -25,6 +26,7 @@ const STATUS_MAP = {
   repor: { label: 'Repor', color: 'orange' },
   ok: { label: 'OK', color: 'green' },
   sem_media: { label: 'Sem Media', color: 'gray' },
+  sem_giro: { label: 'Sem Giro', color: 'purple' },
 }
 
 const COLOR_MAP = {
@@ -142,7 +144,8 @@ function ComprasTable({ data = [], columns, fornecedorFilter }) {
     const atencao = data.filter(i => i.status === 'atencao').length
     const repor = data.filter(i => i.status === 'repor').length
     const ok = data.filter(i => i.status === 'ok').length
-    return { total: data.length, criticos, atencao, repor, ok }
+    const semGiro = data.filter(i => i.status === 'sem_giro').length
+    return { total: data.length, criticos, atencao, repor, ok, semGiro }
   }, [data])
 
   const table = useReactTable({
@@ -161,7 +164,7 @@ function ComprasTable({ data = [], columns, fornecedorFilter }) {
   return (
     <div>
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
+      <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 mb-4">
         <div className="bg-white rounded-lg shadow p-3 border-l-4 border-blue-500">
           <p className="text-xs text-gray-500">Total Produtos</p>
           <p className="text-lg font-bold text-gray-800">{formatNumber(summary.total)}</p>
@@ -181,6 +184,10 @@ function ComprasTable({ data = [], columns, fornecedorFilter }) {
         <div className="bg-white rounded-lg shadow p-3 border-l-4 border-green-500">
           <p className="text-xs text-gray-500">OK (&gt;6 meses)</p>
           <p className="text-lg font-bold text-green-600">{formatNumber(summary.ok)}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow p-3 border-l-4 border-purple-500">
+          <p className="text-xs text-gray-500">Sem Giro (0 vendas)</p>
+          <p className="text-lg font-bold text-purple-600">{formatNumber(summary.semGiro)}</p>
         </div>
       </div>
 
@@ -422,7 +429,7 @@ export default function ComprasPage() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-xl font-bold text-gray-800">Gestao de Compras</h2>
-          <p className="text-xs text-gray-500 mt-1">Produtos com vendas nos ultimos 6 meses - media mensal e sugestao de compra</p>
+          <p className="text-xs text-gray-500 mt-1">Todos os produtos ativos - media mensal de vendas e sugestao de compra</p>
         </div>
         {isFetching && (
           <span className="text-xs text-blue-500 flex items-center gap-1">

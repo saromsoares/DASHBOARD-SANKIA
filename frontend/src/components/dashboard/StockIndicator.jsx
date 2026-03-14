@@ -4,6 +4,7 @@ const COLOR_MAP = {
   yellow: 'bg-yellow-100 text-yellow-800 border-yellow-200',
   green: 'bg-green-100 text-green-800 border-green-200',
   gray: 'bg-gray-100 text-gray-600 border-gray-200',
+  purple: 'bg-purple-100 text-purple-800 border-purple-200',
 }
 
 const DOT_MAP = {
@@ -12,6 +13,7 @@ const DOT_MAP = {
   yellow: 'bg-yellow-500',
   green: 'bg-green-500',
   gray: 'bg-gray-400',
+  purple: 'bg-purple-500',
 }
 
 export default function StockIndicator({ status }) {

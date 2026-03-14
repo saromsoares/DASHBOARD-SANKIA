@@ -11,6 +11,7 @@ class SankhyaService {
     this._maxConcurrent = 3;   // max simultaneous Sankhya API calls
     this.api = axios.create({
       baseURL: this.baseURL,
+      timeout: 120000, // 2 min timeout per request
       headers: {
         'Content-Type': 'application/json',
       },
@@ -889,39 +890,23 @@ class SankhyaService {
   async getPartnerNamesBulk(codParcList) {
     if (!codParcList || codParcList.length === 0) return {};
     const map = {};
-    const BATCH_SIZE = 200;
+    const BATCH_SIZE = 500;
 
     for (let i = 0; i < codParcList.length; i += BATCH_SIZE) {
       const batch = codParcList.slice(i, i + BATCH_SIZE);
       const inClause = batch.join(',');
 
       try {
-        const body = {
-          dataSet: {
-            rootEntity: "Parceiro",
-            includePresentationFields: "S",
-            offsetPage: "0",
-            criteria: {
-              expression: { "$": `CODPARC IN (${inClause})` }
-            },
-            entity: {
-              fieldset: { list: "CODPARC,NOMEPARC" }
-            }
-          }
-        };
-
-        const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
-        const entities = response.responseBody?.entities?.entity;
-        if (!entities) continue;
-
-        const list = Array.isArray(entities) ? entities : [entities];
-        list.forEach(p => {
-          const cod = String(p.f0?.['$'] || p.CODPARC?.['$'] || p.CODPARC);
-          const nome = p.f1?.['$'] || p.NOMEPARC?.['$'] || p.NOMEPARC || '';
+        const sql = `SELECT CODPARC, NOMEPARC FROM TGFPAR WHERE CODPARC IN (${inClause})`;
+        const result = await this.executeSQL(sql);
+        const rows = result.rows || [];
+        rows.forEach(row => {
+          const cod = String(row[0]);
+          const nome = row[1] || '';
           map[cod] = nome;
         });
       } catch (err) {
-        console.error(`Error fetching partner names batch ${i}:`, err.message);
+        console.error(`Error fetching partner names SQL batch ${i}:`, err.message);
       }
     }
 
@@ -1090,6 +1075,7 @@ class SankhyaService {
 
   /**
    * Get descriptions, reference, brand and group for a list of product codes (batch).
+   * Uses SQL for faster fetching (single query per batch vs paginated CRUD).
    * @param {Array<string>} codProdList
    * @returns {Object} Map of CODPROD -> { descrprod, referencia, marca, codgrupoprod }
    */
@@ -1097,57 +1083,90 @@ class SankhyaService {
     if (!codProdList || codProdList.length === 0) return {};
 
     const map = {};
-    const BATCH_SIZE = 200;
+    const BATCH_SIZE = 500;
+    const t0 = Date.now();
 
     for (let i = 0; i < codProdList.length; i += BATCH_SIZE) {
       const batch = codProdList.slice(i, i + BATCH_SIZE);
       const inClause = batch.join(',');
 
-      let page = 0;
-      while (true) {
-        const body = {
-          dataSet: {
-            rootEntity: "Produto",
-            includePresentationFields: "S",
-            offsetPage: String(page),
-            criteria: {
-              expression: { "$": `CODPROD IN (${inClause})` }
-            },
-            entity: {
-              fieldset: { list: "CODPROD,DESCRPROD,REFERENCIA,MARCA,CODGRUPOPROD,CODPARCFORN,REFFORN" }
-            }
-          }
-        };
+      const sql = `SELECT CODPROD, DESCRPROD, REFERENCIA, MARCA, CODGRUPOPROD, CODPARCFORN, REFFORN
+        FROM TGFPRO
+        WHERE CODPROD IN (${inClause})`;
 
-        try {
-          const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
-          const entities = response.responseBody?.entities?.entity;
-          if (!entities) break;
-
-          const list = Array.isArray(entities) ? entities : [entities];
-          if (list.length === 0) break;
-
-          list.forEach(p => {
-            const cod = String(p.f0?.['$'] || p.CODPROD?.['$'] || p.CODPROD);
-            map[cod] = {
-              descrprod: p.f1?.['$'] || p.DESCRPROD?.['$'] || p.DESCRPROD || '',
-              referencia: p.f2?.['$'] || p.REFERENCIA?.['$'] || p.REFERENCIA || '',
-              marca: p.f3?.['$'] || p.MARCA?.['$'] || p.MARCA || '',
-              codgrupoprod: String(p.f4?.['$'] || p.CODGRUPOPROD?.['$'] || p.CODGRUPOPROD || ''),
-              codparcforn: String(p.f5?.['$'] || p.CODPARCFORN?.['$'] || p.CODPARCFORN || '0'),
-              refforn: p.f6?.['$'] || p.REFFORN?.['$'] || p.REFFORN || '',
-            };
-          });
-
-          page++;
-        } catch (err) {
-          console.error(`Error fetching product descriptions batch ${i}, page ${page}:`, err.message);
-          break;
-        }
+      try {
+        const result = await this.executeSQL(sql);
+        const rows = result.rows || [];
+        rows.forEach(row => {
+          const cod = String(row[0]);
+          map[cod] = {
+            descrprod: row[1] || '',
+            referencia: row[2] || '',
+            marca: row[3] || '',
+            codgrupoprod: String(row[4] || ''),
+            codparcforn: String(row[5] || '0'),
+            refforn: row[6] || '',
+          };
+        });
+      } catch (err) {
+        console.error(`Error fetching product descriptions SQL batch ${i}:`, err.message);
+        // Fallback to CRUD for this batch
+        await this._getProductDescriptionsFullCRUD(batch, map);
       }
     }
 
+    console.log(`[ProductDescFull] Got ${Object.keys(map).length} products via SQL in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
     return map;
+  }
+
+  /**
+   * Fallback: CRUD pagination for product descriptions.
+   */
+  async _getProductDescriptionsFullCRUD(codProdList, map) {
+    const inClause = codProdList.join(',');
+    let page = 0;
+
+    while (true) {
+      const body = {
+        dataSet: {
+          rootEntity: "Produto",
+          includePresentationFields: "S",
+          offsetPage: String(page),
+          criteria: {
+            expression: { "$": `CODPROD IN (${inClause})` }
+          },
+          entity: {
+            fieldset: { list: "CODPROD,DESCRPROD,REFERENCIA,MARCA,CODGRUPOPROD,CODPARCFORN,REFFORN" }
+          }
+        }
+      };
+
+      try {
+        const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
+        const entities = response.responseBody?.entities?.entity;
+        if (!entities) break;
+
+        const list = Array.isArray(entities) ? entities : [entities];
+        if (list.length === 0) break;
+
+        list.forEach(p => {
+          const cod = String(p.f0?.['$'] || p.CODPROD?.['$'] || p.CODPROD);
+          map[cod] = {
+            descrprod: p.f1?.['$'] || p.DESCRPROD?.['$'] || p.DESCRPROD || '',
+            referencia: p.f2?.['$'] || p.REFERENCIA?.['$'] || p.REFERENCIA || '',
+            marca: p.f3?.['$'] || p.MARCA?.['$'] || p.MARCA || '',
+            codgrupoprod: String(p.f4?.['$'] || p.CODGRUPOPROD?.['$'] || p.CODGRUPOPROD || ''),
+            codparcforn: String(p.f5?.['$'] || p.CODPARCFORN?.['$'] || p.CODPARCFORN || '0'),
+            refforn: p.f6?.['$'] || p.REFFORN?.['$'] || p.REFFORN || '',
+          };
+        });
+
+        page++;
+      } catch (err) {
+        console.error(`Error fetching product descriptions CRUD page ${page}:`, err.message);
+        break;
+      }
+    }
   }
 
   // =============================================
@@ -1305,10 +1324,45 @@ class SankhyaService {
 
   /**
    * Get sales invoices (Vendas Liberadas) in a date range.
+   * Uses SQL for much faster fetching (single query vs dozens of paginated CRUD calls).
    * @param {string} startDate - dd/MM/yyyy
    * @param {string} endDate - dd/MM/yyyy
    */
   async getSalesInvoices(startDate, endDate) {
+    const sql = `SELECT CAB.NUNOTA, TO_CHAR(CAB.DTNEG, 'DD/MM/YYYY') AS DTNEG, CAB.VLRNOTA, CAB.CODVEND, CAB.CODPARC, PAR.NOMEPARC
+      FROM TGFCAB CAB
+      LEFT JOIN TGFPAR PAR ON PAR.CODPARC = CAB.CODPARC
+      WHERE CAB.TIPMOV = 'V' AND CAB.STATUSNOTA = 'L'
+        AND CAB.DTNEG BETWEEN TO_DATE('${startDate}', 'DD/MM/YYYY') AND TO_DATE('${endDate}', 'DD/MM/YYYY')
+      ORDER BY CAB.DTNEG DESC`;
+
+    try {
+      const t0 = Date.now();
+      const result = await this.executeSQL(sql);
+      const rows = result.rows || [];
+
+      const allInvoices = rows.map(row => ({
+        nunota: String(row[0]),
+        dtneg: row[1] || '',
+        vlrnota: parseFloat(row[2] || 0),
+        codvend: String(row[3] || '0'),
+        codparc: String(row[4] || '0'),
+        nomeparc: row[5] || '',
+      }));
+
+      console.log(`Sales invoices fetched: ${allInvoices.length} via SQL in ${((Date.now() - t0) / 1000).toFixed(1)}s [${startDate} - ${endDate}]`);
+      return allInvoices;
+    } catch (err) {
+      console.error(`Error fetching sales invoices via SQL:`, err.message);
+      // Fallback to CRUD pagination if SQL fails
+      return this._getSalesInvoicesCRUD(startDate, endDate);
+    }
+  }
+
+  /**
+   * Fallback: Get sales invoices via CRUD pagination (slower).
+   */
+  async _getSalesInvoicesCRUD(startDate, endDate) {
     const where = `TIPMOV = 'V' AND STATUSNOTA = 'L' AND DTNEG BETWEEN '${startDate}' AND '${endDate}'`;
     let allInvoices = [];
     let page = 0;
@@ -1332,10 +1386,7 @@ class SankhyaService {
 
       const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
       const entities = response.responseBody?.entities?.entity;
-      if (!entities) {
-        if (page === 0) console.log(`[Sales] Page 0 empty for [${startDate} - ${endDate}]. Response totalRecords: ${response.responseBody?.entities?.totalRecords || 'N/A'}`);
-        break;
-      }
+      if (!entities) break;
 
       const list = Array.isArray(entities) ? entities : [entities];
       const mapped = list.map(n => ({
@@ -1352,22 +1403,60 @@ class SankhyaService {
       page++;
     }
 
-    console.log(`Sales invoices fetched: ${allInvoices.length} (${page + 1} pages) [${startDate} - ${endDate}]`);
+    console.log(`Sales invoices fetched (CRUD fallback): ${allInvoices.length} (${page + 1} pages) [${startDate} - ${endDate}]`);
     return allInvoices;
   }
 
   /**
-   * Get sales items by list of NUNOTAs (batched in groups of 200).
+   * Get sales items by list of NUNOTAs.
+   * Uses SQL for much faster fetching (batched queries vs dozens of paginated CRUD calls).
    */
   async getSalesItemsByNunotas(nunotas) {
-    const BATCH_SIZE = 100; // IN clause batch size
+    const BATCH_SIZE = 500; // SQL IN clause batch size (larger than CRUD)
+    let allItems = [];
+    const t0 = Date.now();
+
+    for (let i = 0; i < nunotas.length; i += BATCH_SIZE) {
+      const batch = nunotas.slice(i, i + BATCH_SIZE);
+      const inClause = batch.join(',');
+
+      const sql = `SELECT ITE.NUNOTA, ITE.CODPROD, ITE.QTDNEG, ITE.VLRTOT
+        FROM TGFITE ITE
+        WHERE ITE.NUNOTA IN (${inClause})`;
+
+      try {
+        const result = await this.executeSQL(sql);
+        const rows = result.rows || [];
+        const mapped = rows.map(row => ({
+          nunota: String(row[0]),
+          codprod: String(row[1]),
+          qtdneg: parseFloat(row[2] || 0),
+          vlrtot: parseFloat(row[3] || 0),
+        }));
+        allItems = allItems.concat(mapped);
+      } catch (err) {
+        console.error(`Error fetching items SQL batch ${i}:`, err.message);
+        // Fallback to CRUD for this batch
+        const crudItems = await this._getSalesItemsByNunotasCRUD(batch);
+        allItems = allItems.concat(crudItems);
+      }
+    }
+
+    console.log(`Sales items fetched: ${allItems.length} via SQL in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+    return allItems;
+  }
+
+  /**
+   * Fallback: Get sales items via CRUD pagination (slower).
+   */
+  async _getSalesItemsByNunotasCRUD(nunotas) {
+    const BATCH_SIZE = 100;
     let allItems = [];
 
     for (let i = 0; i < nunotas.length; i += BATCH_SIZE) {
       const batch = nunotas.slice(i, i + BATCH_SIZE);
       const inClause = batch.join(',');
 
-      // Paginate within each IN clause batch
       let page = 0;
       while (true) {
         const body = {
@@ -1403,7 +1492,7 @@ class SankhyaService {
           allItems = allItems.concat(mapped);
           page++;
         } catch (err) {
-          console.error(`Error fetching items for batch starting at ${i}, page ${page}:`, err.message);
+          console.error(`Error fetching items CRUD batch ${i}, page ${page}:`, err.message);
           break;
         }
       }
@@ -1572,6 +1661,33 @@ class SankhyaService {
       topByQty: topQtyResult.rows.map(mapRow),
       topByValue: topValueResult.rows.map(mapRow),
     };
+  }
+  /**
+   * Get ALL active ASX/ABSOLUX products with stock via SQL.
+   * Returns array of { codprod, descrprod, referencia, marca, refforn, codgrupoprod, codparcforn, stock }.
+   */
+  async getAllActiveResaleProducts() {
+    const sql = `SELECT PRO.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA, PRO.MARCA, PRO.REFFORN,
+      PRO.CODGRUPOPROD, PRO.CODPARCFORN,
+      NVL((SELECT SUM(EST.ESTOQUE) FROM TGFEST EST
+            WHERE EST.CODPROD = PRO.CODPROD
+            AND EST.CODLOCAL NOT IN (9901001, 9901002, 9901003, 9901007, 9902002)), 0) AS ESTOQUE
+    FROM TGFPRO PRO
+    WHERE PRO.ATIVO = 'S'
+      AND (PRO.CODGRUPOPROD LIKE '9901%' OR PRO.CODGRUPOPROD LIKE '9902%' OR PRO.CODGRUPOPROD LIKE '70%' OR PRO.REFERENCIA LIKE 'ASX%')
+    ORDER BY PRO.CODPROD`;
+
+    const result = await this.executeSQL(sql);
+    return result.rows.map(row => ({
+      codprod: String(row[0]),
+      descrprod: row[1] || '',
+      referencia: row[2] || '',
+      marca: row[3] || '',
+      refforn: row[4] || '',
+      codgrupoprod: String(row[5] || ''),
+      codparcforn: String(row[6] || '0'),
+      stock: row[7] || 0,
+    }));
   }
 }
 
