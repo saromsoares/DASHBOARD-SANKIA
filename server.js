@@ -421,6 +421,7 @@ app.get('/api/dashboard/sales-data', async (req, res) => {
             }
         });
         const topBuyers = Object.values(byClient)
+            .filter(c => !/\bASX\b/i.test(c.nome)) // exclude internal transfers (ASX itself)
             .map(c => {
                 // Pick the vendor with most sales for this client
                 const vendorEntries = Object.values(c.vendors);
