@@ -624,6 +624,14 @@ async function warmUpPurchaseManagement() {
             return null;
         }
 
+        // Exclude: palhetas and supplier refs like H760W, H1160W (H + digits + optional letters)
+        const REFFORN_EXCLUDE = /^H\d+/i;
+        function shouldExcludeFromAsx(descrprod, refforn) {
+            if (descrprod && descrprod.toUpperCase().includes('PALHETA')) return true;
+            if (refforn && REFFORN_EXCLUDE.test(refforn.trim())) return true;
+            return false;
+        }
+
         // First: add products that had sales (with full metrics)
         soldCods.forEach(cod => {
             const prod = productMap[cod] || {};
@@ -633,6 +641,7 @@ async function warmUpPurchaseManagement() {
             const isAsx = classification === 'asx';
             const isAbsolux = classification === 'absolux';
             if (!isAsx && !isAbsolux) return;
+            if (isAsx && shouldExcludeFromAsx(prod.descrprod, prod.refforn)) return;
 
             includedCods.add(cod);
             const stock = stockMap.get(cod) || 0;
@@ -665,6 +674,7 @@ async function warmUpPurchaseManagement() {
             const isAsx = classification === 'asx';
             const isAbsolux = classification === 'absolux';
             if (!isAsx && !isAbsolux) return;
+            if (isAsx && shouldExcludeFromAsx(prod.descrprod, prod.refforn)) return;
 
             const nomeforn = partnerMap[prod.codparcforn] || '';
 
