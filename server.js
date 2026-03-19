@@ -132,11 +132,14 @@ function toSankhyaDate(dateStr) {
     return dateStr;
 }
 
-// Helper: get date N months ago as dd/MM/yyyy
+// Helper: get date N months ago as dd/MM/yyyy (safe for month boundaries)
 function monthsAgo(n) {
-    const d = new Date();
-    d.setMonth(d.getMonth() - n);
-    const dd = String(d.getDate()).padStart(2, '0');
+    const now = new Date();
+    const d = new Date(now.getFullYear(), now.getMonth() - n, 1); // first day of target month
+    // Use original day, but clamp to last day of target month
+    const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+    const day = Math.min(now.getDate(), lastDay);
+    const dd = String(day).padStart(2, '0');
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const yyyy = d.getFullYear();
     return `${dd}/${mm}/${yyyy}`;
@@ -320,6 +323,11 @@ app.get('/api/dashboard/sales-data', async (req, res) => {
         const { startDate, endDate } = req.query;
         if (!startDate || !endDate) {
             return res.status(400).json({ error: 'startDate e endDate obrigatórios.' });
+        }
+        // Validate date format (yyyy-MM-dd or dd/MM/yyyy)
+        const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4})$/;
+        if (!dateRegex.test(startDate) || !dateRegex.test(endDate)) {
+            return res.status(400).json({ error: 'Formato de data invalido. Use yyyy-MM-dd ou dd/MM/yyyy.' });
         }
 
         const start = toSankhyaDate(startDate);
@@ -521,7 +529,7 @@ app.get('/api/dashboard/search-partners', async (req, res) => {
 app.get('/api/dashboard/products-by-partner', async (req, res) => {
     try {
         const { codparc } = req.query;
-        if (!codparc) return res.json([]);
+        if (!codparc || !/^\d+$/.test(codparc)) return res.json([]);
         const codprods = await sankhyaService.getProductCodesByPartner(codparc);
         res.json(codprods);
     } catch (error) {
@@ -542,7 +550,13 @@ app.get('{*path}', (req, res) => {
 });
 
 // Warm-up: pre-load heavy endpoints in background on startup
+let _warmUpRunning = false;
 async function warmUpPurchaseManagement() {
+    if (_warmUpRunning) {
+        console.log('[WarmUp] Already running, skipping duplicate call.');
+        return;
+    }
+    _warmUpRunning = true;
     console.log('[WarmUp] Starting purchase-management pre-load in background...');
     try {
         const t0 = Date.now();
@@ -711,6 +725,8 @@ async function warmUpPurchaseManagement() {
         console.log(`[WarmUp] COMPLETE in ${totalTime}s - ASX: ${asx.length}, ABSOLUX: ${absolux.length}`);
     } catch (error) {
         console.error('[WarmUp] Error:', error.message);
+    } finally {
+        _warmUpRunning = false;
     }
 }
 
@@ -763,7 +779,7 @@ function scheduleWarmUp() {
 app.get('/api/dashboard/refresh', async (req, res) => {
     console.log('[Refresh] Manual warm-up triggered');
     res.json({ status: 'refreshing', message: 'Warm-up iniciado em background' });
-    warmUpPurchaseManagement();
+    warmUpPurchaseManagement().catch(err => console.error('[Refresh] Warm-up error:', err.message));
 });
 
 // Start Server

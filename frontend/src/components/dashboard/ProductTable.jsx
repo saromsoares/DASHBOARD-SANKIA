@@ -123,7 +123,7 @@ export default function ProductTable({ data = [] }) {
       <div className="flex items-center justify-between p-4 border-t text-sm text-gray-500">
         <span>
           Pagina {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
-          {' '}({data.length} itens)
+          {' '}({table.getFilteredRowModel().rows.length} itens)
         </span>
         <div className="flex gap-2">
           <button

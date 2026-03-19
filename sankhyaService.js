@@ -52,7 +52,7 @@ class SankhyaService {
       const clientId = (process.env.SANKHYA_CLIENT_ID || '').trim();
       const clientSecret = (process.env.SANKHYA_CLIENT_SECRET || '').trim();
       const xToken = (process.env.SANKHYA_TOKEN || '').trim();
-      console.log(`Authenticating with Sankhya (OAuth2)... base=${this.baseURL} client_id=${clientId.substring(0,8)}... secret=${clientSecret.substring(0,4)}... token=${xToken.substring(0,8)}...`);
+      console.log(`Authenticating with Sankhya (OAuth2)... base=${this.baseURL}`);
 
       const authData = new URLSearchParams();
       authData.append('client_id', clientId);
@@ -114,6 +114,8 @@ class SankhyaService {
       await this.login();
     }
 
+    await this._acquireSlot();
+
     const payload = {
       serviceName: serviceName,
       requestBody: requestBody
@@ -148,15 +150,29 @@ class SankhyaService {
         return retryResponse.data;
       }
       throw error;
+    } finally {
+      this._releaseSlot();
     }
   }
 
   // --- Specific Business Methods ---
 
   /**
-   * Fetches detailed product info including aggregated stock and base price.
-   * @param {string|number} term - Product Code or Description
+   * Sanitize a string for use in SQL/CRUD expressions.
+   * Escapes single quotes to prevent SQL injection.
    */
+  _sanitize(str) {
+    if (str == null) return '';
+    return String(str).replace(/'/g, "''");
+  }
+
+  /**
+   * Validate that a value is strictly numeric (integer).
+   */
+  _isNumericId(val) {
+    return /^\d+$/.test(String(val).trim());
+  }
+
   /**
    * Performs a smart search for products and returns a summary with stock.
    * Ideal for AI Agents.
@@ -167,12 +183,12 @@ class SankhyaService {
 
     const terms = term.toUpperCase().split(/\s+/).filter(t => t.length > 0);
     const termConditions = terms.map(t => {
-      // Check if term is strictly numeric for CODPROD
-      const isNumeric = /^\d+$/.test(t);
+      const safe = this._sanitize(t);
+      const isNumeric = this._isNumericId(t);
       const conditions = [
-        `DESCRPROD LIKE '%${t}%'`,
-        `REFERENCIA LIKE '%${t}%'`,
-        `MARCA LIKE '%${t}%'`
+        `DESCRPROD LIKE '%${safe}%'`,
+        `REFERENCIA LIKE '%${safe}%'`,
+        `MARCA LIKE '%${safe}%'`
       ];
 
       if (isNumeric) {
@@ -438,7 +454,8 @@ class SankhyaService {
 
     try {
       // Step A: Find CODPARC
-      const partnerWhere = `CGC_CPF = '${cnpj}'`;
+      const safeCnpj = this._sanitize(cnpj.replace(/\D/g, ''));
+      const partnerWhere = `CGC_CPF = '${safeCnpj}'`;
       const partnerBody = {
         dataSet: {
           rootEntity: "Parceiro",
@@ -654,7 +671,7 @@ class SankhyaService {
       const isNumeric = !isNaN(searchTerm);
 
       if (!isNumeric) {
-        return `Parâmetro inválido. Informe um número de nota válido.`;
+        return { success: false, message: 'Parâmetro inválido. Informe um número de nota válido.' };
       }
 
       // Search by NUNOTA first (more precise), fallback to NUMNOTA
@@ -923,8 +940,8 @@ class SankhyaService {
     if (!term || term.length < 2) return [];
 
     try {
-      const safeTerm = term.replace(/'/g, "''").toUpperCase();
-      const isNumeric = /^\d+$/.test(term.trim());
+      const safeTerm = this._sanitize(term).toUpperCase();
+      const isNumeric = this._isNumericId(term.trim());
 
       const where = isNumeric
         ? `CODPARC = ${term.trim()}`
@@ -949,7 +966,7 @@ class SankhyaService {
    * @returns {Array<string>} List of CODPROD
    */
   async getProductCodesByPartner(codparc) {
-    if (!codparc) return [];
+    if (!codparc || !this._isNumericId(codparc)) return [];
 
     try {
       const sql = `SELECT CODPROD FROM TGFPRO WHERE CODPARCFORN = ${codparc} AND ATIVO = 'S'`;
@@ -1329,11 +1346,13 @@ class SankhyaService {
    * @param {string} endDate - dd/MM/yyyy
    */
   async getSalesInvoices(startDate, endDate) {
+    const safeStart = this._sanitize(startDate);
+    const safeEnd = this._sanitize(endDate);
     const sql = `SELECT CAB.NUNOTA, TO_CHAR(CAB.DTNEG, 'DD/MM/YYYY') AS DTNEG, CAB.VLRNOTA, CAB.CODVEND, CAB.CODPARC, PAR.NOMEPARC
       FROM TGFCAB CAB
       LEFT JOIN TGFPAR PAR ON PAR.CODPARC = CAB.CODPARC
       WHERE CAB.TIPMOV = 'V' AND CAB.STATUSNOTA = 'L'
-        AND CAB.DTNEG BETWEEN TO_DATE('${startDate}', 'DD/MM/YYYY') AND TO_DATE('${endDate}', 'DD/MM/YYYY')
+        AND CAB.DTNEG BETWEEN TO_DATE('${safeStart}', 'DD/MM/YYYY') AND TO_DATE('${safeEnd}', 'DD/MM/YYYY')
       ORDER BY CAB.DTNEG DESC`;
 
     try {
@@ -1506,31 +1525,45 @@ class SankhyaService {
    */
   async getVendorList() {
     try {
-      const body = {
-        dataSet: {
-          rootEntity: "Vendedor",
-          includePresentationFields: "S",
-          offsetPage: "0",
-          criteria: {
-            expression: { "$": "ATIVO = 'S'" }
-          },
-          entity: {
-            fieldset: {
-              list: "CODVEND,APELIDO"
+      let allVendors = [];
+      let page = 0;
+
+      while (true) {
+        const body = {
+          dataSet: {
+            rootEntity: "Vendedor",
+            includePresentationFields: "S",
+            offsetPage: String(page),
+            criteria: {
+              expression: { "$": "ATIVO = 'S'" }
+            },
+            entity: {
+              fieldset: {
+                list: "CODVEND,APELIDO"
+              }
             }
           }
-        }
-      };
+        };
 
-      const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
-      const entities = response.responseBody?.entities?.entity;
-      if (!entities) return [];
+        const response = await this.callService('CRUDServiceProvider.loadRecords', body, 'mge');
+        const entities = response.responseBody?.entities?.entity;
+        if (!entities) break;
 
-      const list = Array.isArray(entities) ? entities : [entities];
-      return list.map(v => ({
-        codvend: v.f0?.['$'] || v.CODVEND?.['$'] || v.CODVEND,
-        apelido: v.f1?.['$'] || v.APELIDO?.['$'] || v.APELIDO || `Vendedor ${v.f0?.['$'] || v.CODVEND?.['$']}`,
-      }));
+        const list = Array.isArray(entities) ? entities : [entities];
+        if (list.length === 0) break;
+
+        const mapped = list.map(v => ({
+          codvend: v.f0?.['$'] || v.CODVEND?.['$'] || v.CODVEND,
+          apelido: v.f1?.['$'] || v.APELIDO?.['$'] || v.APELIDO || `Vendedor ${v.f0?.['$'] || v.CODVEND?.['$']}`,
+        }));
+        allVendors = allVendors.concat(mapped);
+        page++;
+
+        // Safety limit to prevent infinite loops
+        if (page > 20) break;
+      }
+
+      return allVendors;
     } catch (err) {
       console.error('Error fetching vendor list:', err.message);
       return [];
@@ -1544,11 +1577,12 @@ class SankhyaService {
    */
   async findProduct(term) {
     try {
-      const isNumeric = /^\d+$/.test(term);
+      const safe = this._sanitize(term);
+      const isNumeric = this._isNumericId(term);
       const conditions = [
-        `REFERENCIA = '${term}'`,
-        `DESCRPROD LIKE '%${term}%'`,
-        `MARCA LIKE '%${term}%'`
+        `REFERENCIA = '${safe}'`,
+        `DESCRPROD LIKE '%${safe}%'`,
+        `MARCA LIKE '%${safe}%'`
       ];
 
       if (isNumeric) {

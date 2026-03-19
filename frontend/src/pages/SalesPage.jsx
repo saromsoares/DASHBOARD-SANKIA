@@ -155,7 +155,8 @@ export default function SalesPage() {
   const vendorSalesAbsolux = salesData?.vendorSalesAbsolux || []
   const allVendors = salesData?.vendorSales || []
 
-  const maxValue = allVendors.length > 0 ? allVendors[0].totalValue : 1
+  const maxValueAsx = vendorSalesAsx.length > 0 ? vendorSalesAsx[0].totalValue : 1
+  const maxValueAbsolux = vendorSalesAbsolux.length > 0 ? vendorSalesAbsolux[0].totalValue : 1
   const grandTotal = allVendors.reduce((sum, v) => sum + v.totalValue, 0)
   const grandInvoices = allVendors.reduce((sum, v) => sum + v.totalInvoices, 0)
 
@@ -172,7 +173,7 @@ export default function SalesPage() {
       </div>
 
       <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <PeriodFilter onFilter={handleFilter} />
+        <PeriodFilter onFilter={handleFilter} defaultMonths={0} />
       </div>
 
       {isLoading && <LoadingBanner />}
@@ -212,7 +213,7 @@ export default function SalesPage() {
           vendors={vendorSalesAsx}
           months={months}
           loading={loading}
-          maxValue={maxValue}
+          maxValue={maxValueAsx}
         />
       </div>
 
@@ -224,7 +225,7 @@ export default function SalesPage() {
           vendors={vendorSalesAbsolux}
           months={months}
           loading={loading}
-          maxValue={maxValue}
+          maxValue={maxValueAbsolux}
         />
       </div>
 

@@ -13,6 +13,7 @@ export default function SalesByVendorChart({ data = [] }) {
 
   const chartData = data.slice(0, 10).map(v => ({
     name: v.nome?.length > 12 ? v.nome.substring(0, 12) + '...' : v.nome,
+    fullName: v.nome,
     valor: v.totalValue,
     notas: v.totalInvoices,
   }))
@@ -25,7 +26,10 @@ export default function SalesByVendorChart({ data = [] }) {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis type="number" tickFormatter={v => formatBRL(v)} />
           <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 12 }} />
-          <Tooltip formatter={v => formatBRL(v)} />
+          <Tooltip
+            formatter={v => formatBRL(v)}
+            labelFormatter={(label, payload) => payload?.[0]?.payload?.fullName || label}
+          />
           <Bar dataKey="valor" fill="#3b82f6" radius={[0, 4, 4, 0]} />
         </BarChart>
       </ResponsiveContainer>

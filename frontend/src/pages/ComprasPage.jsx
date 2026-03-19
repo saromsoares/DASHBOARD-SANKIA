@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import {
   useReactTable,
   getCoreRowModel,
@@ -27,10 +27,6 @@ const STATUS_MAP = {
   ok: { label: 'OK', color: 'green' },
   sem_media: { label: 'Sem Media', color: 'gray' },
   sem_giro: { label: 'Sem Giro', color: 'purple' },
-}
-
-const COLOR_MAP = {
-  orange: 'bg-orange-100 text-orange-800 border-orange-200',
 }
 
 const BASE_COLUMNS = [
@@ -289,6 +285,7 @@ function FornecedorFilter({ selected, selectedName, onApply, onClear }) {
   const [showDropdown, setShowDropdown] = useState(false)
   const [pending, setPending] = useState(null)
   const [pendingName, setPendingName] = useState('')
+  const containerRef = useRef(null)
 
   const { data: suggestions = [], isFetching } = useSearchPartners(debouncedTerm)
 
@@ -297,6 +294,17 @@ function FornecedorFilter({ selected, selectedName, onApply, onClear }) {
     const timer = setTimeout(() => setDebouncedTerm(searchTerm), 300)
     return () => clearTimeout(timer)
   }, [searchTerm])
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setShowDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   const handleSelect = (p) => {
     setPending(p.codparc)
@@ -336,7 +344,7 @@ function FornecedorFilter({ selected, selectedName, onApply, onClear }) {
     <div className="bg-white rounded-lg shadow p-3 mb-4">
       <div className="flex items-center gap-3">
         <label className="text-sm font-semibold text-gray-700 whitespace-nowrap">Fornecedor:</label>
-        <div className="relative flex-1 max-w-md">
+        <div ref={containerRef} className="relative flex-1 max-w-md">
           <input
             type="text"
             placeholder="Digite o nome ou codigo do parceiro/fornecedor..."

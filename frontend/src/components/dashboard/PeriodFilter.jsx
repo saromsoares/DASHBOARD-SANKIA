@@ -10,8 +10,9 @@ const PRESETS = [
 
 export default function PeriodFilter({ onFilter, defaultMonths = 1 }) {
   const now = new Date()
-  const defaultStart = new Date(now)
-  defaultStart.setMonth(defaultStart.getMonth() - defaultMonths)
+  const defaultStart = defaultMonths === 0
+    ? new Date(now.getFullYear(), now.getMonth(), 1)
+    : new Date(now.getFullYear(), now.getMonth() - defaultMonths, now.getDate())
 
   const [startDate, setStartDate] = useState(toISODate(defaultStart))
   const [endDate, setEndDate] = useState(toISODate(now))
