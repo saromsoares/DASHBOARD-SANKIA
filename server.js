@@ -849,6 +849,9 @@ async function warmUpPurchaseManagement() {
                 nomeforn,
             };
 
+            // Skip dead products: stock 0, no transit, no sales - completely inactive
+            if (prod.stock === 0 && emTransito === 0) return;
+
             if (isAsx) asx.push(item);
             if (isAbsolux) absolux.push(item);
         });
