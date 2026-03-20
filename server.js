@@ -552,12 +552,13 @@ app.get('/api/dashboard/pending-billing', async (req, res) => {
         const cached = cache.get(cacheKey);
         if (cached) return res.json(cached);
 
-        // TOPs: pedidos de venda ASX (1963=NF-E, 1965=NFC-E) e ABSOLUX (1964=NF-E, 1966=NFC-E, 1968=orçamento)
-        const PENDING_TOPS = '1963,1964,1965,1966,1968';
-        // Vlr Total Bruto 100% = SUM of items (VLRTOT + VLRDESC + VLRIPI + VLRSUBST) per order
+        // TOPs: pedidos de venda ASX (1963=NF-E, 1965=NFC-E) e ABSOLUX (1964=NF-E, 1966=NFC-E)
+        // Excludes 1968 (orçamento de venda)
+        const PENDING_TOPS = '1963,1964,1965,1966';
+        // Vlr Total Bruto = SUM of items (VLRTOT + VLRDESC) without IPI, ICMS-ST or freight
         const sql = `SELECT CAB.NUNOTA, CAB.NUMNOTA, TO_CHAR(CAB.DTNEG, 'DD/MM/YYYY') AS DTNEG,
             CAB.CODTIPOPER, CAB.CODPARC, PAR.NOMEPARC,
-            NVL((SELECT SUM(NVL(ITE.VLRTOT,0) + NVL(ITE.VLRDESC,0) + NVL(ITE.VLRIPI,0) + NVL(ITE.VLRSUBST,0)) FROM TGFITE ITE WHERE ITE.NUNOTA = CAB.NUNOTA), 0) AS VLRBRUTO,
+            NVL((SELECT SUM(NVL(ITE.VLRTOT,0) + NVL(ITE.VLRDESC,0)) FROM TGFITE ITE WHERE ITE.NUNOTA = CAB.NUNOTA), 0) AS VLRBRUTO,
             CAB.CODVEND, VEN.APELIDO AS NOMEVEND, CAB.STATUSNOTA
             FROM TGFCAB CAB
             LEFT JOIN TGFPAR PAR ON PAR.CODPARC = CAB.CODPARC

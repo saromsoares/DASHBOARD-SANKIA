@@ -1350,9 +1350,9 @@ class SankhyaService {
     const safeEnd = this._sanitize(endDate);
     // TOP codes matching the Portal de Vendas filters (sales operations only)
     const SALES_TOPS = '1971,1972,1974,1975,1976,1978,1979,1982';
-    // Vlr Total Bruto 100% = sum of items (VLRTOT + VLRDESC + VLRIPI + VLRSUBST)
+    // Vlr Total Bruto = sum of items (VLRTOT + VLRDESC) without IPI, ICMS-ST or freight
     const sql = `SELECT CAB.NUNOTA, TO_CHAR(CAB.DTNEG, 'DD/MM/YYYY') AS DTNEG,
-        NVL((SELECT SUM(NVL(ITE.VLRTOT,0) + NVL(ITE.VLRDESC,0) + NVL(ITE.VLRIPI,0) + NVL(ITE.VLRSUBST,0)) FROM TGFITE ITE WHERE ITE.NUNOTA = CAB.NUNOTA), 0) AS VLRBRUTO,
+        NVL((SELECT SUM(NVL(ITE.VLRTOT,0) + NVL(ITE.VLRDESC,0)) FROM TGFITE ITE WHERE ITE.NUNOTA = CAB.NUNOTA), 0) AS VLRBRUTO,
         CAB.CODVEND, CAB.CODPARC, PAR.NOMEPARC
       FROM TGFCAB CAB
       LEFT JOIN TGFPAR PAR ON PAR.CODPARC = CAB.CODPARC
