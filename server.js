@@ -552,6 +552,7 @@ app.get('/api/dashboard/pending-billing', async (req, res) => {
         const cached = cache.get(cacheKey);
         if (cached) return res.json(cached);
 
+        // TOPs: pedidos de venda ASX (1963=NF-E, 1965=NFC-E) e ABSOLUX (1964=NF-E, 1966=NFC-E, 1968=orçamento, 1970=outros)
         const PENDING_TOPS = '1963,1964,1965,1966,1968,1970';
         const sql = `SELECT CAB.NUNOTA, CAB.NUMNOTA, TO_CHAR(CAB.DTNEG, 'DD/MM/YYYY') AS DTNEG,
             CAB.CODTIPOPER, CAB.CODPARC, PAR.NOMEPARC,
@@ -563,7 +564,7 @@ app.get('/api/dashboard/pending-billing', async (req, res) => {
             WHERE CAB.TIPMOV = 'P' AND CAB.STATUSNOTA = 'A'
             AND CAB.CODTIPOPER IN (${PENDING_TOPS})
             AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
-            ORDER BY CAB.DTNEG DESC`;
+            ORDER BY CAB.VLRNOTA DESC`;
 
         const result = await sankhyaService.executeSQL(sql);
         const rows = (result.rows || []).map(row => ({
