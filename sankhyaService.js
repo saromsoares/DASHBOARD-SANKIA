@@ -1348,10 +1348,13 @@ class SankhyaService {
   async getSalesInvoices(startDate, endDate) {
     const safeStart = this._sanitize(startDate);
     const safeEnd = this._sanitize(endDate);
-    const sql = `SELECT CAB.NUNOTA, TO_CHAR(CAB.DTNEG, 'DD/MM/YYYY') AS DTNEG, CAB.VLRNOTA, CAB.CODVEND, CAB.CODPARC, PAR.NOMEPARC
+    // TOP codes matching the Portal de Vendas filters (sales operations only)
+    const SALES_TOPS = '1971,1972,1974,1975,1976,1978,1979,1982';
+    const sql = `SELECT CAB.NUNOTA, TO_CHAR(CAB.DTNEG, 'DD/MM/YYYY') AS DTNEG, (CAB.VLRNOTA + NVL(CAB.VLRDESCTOTITEM, 0)) AS VLRBRUTO, CAB.CODVEND, CAB.CODPARC, PAR.NOMEPARC
       FROM TGFCAB CAB
       LEFT JOIN TGFPAR PAR ON PAR.CODPARC = CAB.CODPARC
-      WHERE CAB.TIPMOV = 'V' AND CAB.STATUSNOTA = 'L'
+      WHERE CAB.STATUSNOTA = 'L'
+        AND CAB.CODTIPOPER IN (${SALES_TOPS})
         AND CAB.DTNEG BETWEEN TO_DATE('${safeStart}', 'DD/MM/YYYY') AND TO_DATE('${safeEnd}', 'DD/MM/YYYY')
       ORDER BY CAB.DTNEG DESC`;
 
@@ -1382,7 +1385,7 @@ class SankhyaService {
    * Fallback: Get sales invoices via CRUD pagination (slower).
    */
   async _getSalesInvoicesCRUD(startDate, endDate) {
-    const where = `TIPMOV = 'V' AND STATUSNOTA = 'L' AND DTNEG BETWEEN '${startDate}' AND '${endDate}'`;
+    const where = `STATUSNOTA = 'L' AND CODTIPOPER IN (1971,1972,1974,1975,1976,1978,1979,1982) AND DTNEG BETWEEN '${startDate}' AND '${endDate}'`;
     let allInvoices = [];
     let page = 0;
 
@@ -1652,7 +1655,7 @@ class SankhyaService {
       FROM TGFITE ITE
       INNER JOIN TGFCAB CAB ON CAB.NUNOTA = ITE.NUNOTA
       INNER JOIN TGFPRO PRO ON PRO.CODPROD = ITE.CODPROD
-      WHERE CAB.TIPMOV = 'V' AND CAB.STATUSNOTA = 'L'
+      WHERE CAB.STATUSNOTA = 'L' AND CAB.CODTIPOPER IN (1971,1972,1974,1975,1976,1978,1979,1982)
         AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
         AND PRO.CODGRUPOPROD LIKE '9901%'
       GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA, PRO.REFFORN
@@ -1669,7 +1672,7 @@ class SankhyaService {
       FROM TGFITE ITE
       INNER JOIN TGFCAB CAB ON CAB.NUNOTA = ITE.NUNOTA
       INNER JOIN TGFPRO PRO ON PRO.CODPROD = ITE.CODPROD
-      WHERE CAB.TIPMOV = 'V' AND CAB.STATUSNOTA = 'L'
+      WHERE CAB.STATUSNOTA = 'L' AND CAB.CODTIPOPER IN (1971,1972,1974,1975,1976,1978,1979,1982)
         AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
         AND PRO.CODGRUPOPROD LIKE '9901%'
       GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA, PRO.REFFORN
