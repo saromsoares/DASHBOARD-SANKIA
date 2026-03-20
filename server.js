@@ -775,11 +775,13 @@ async function warmUpPurchaseManagement() {
             return null;
         }
 
-        // Exclude: palhetas and supplier refs like H760W, H1160W (H + digits + optional letters)
+        // Exclude: palhetas, supplier refs like H760W, and specific discontinued products
         const REFFORN_EXCLUDE = /^H\d+/i;
+        const REFFORN_BLACKLIST = new Set(['LT72BI', 'BC12V', 'LTLAM85', 'T1008AM', 'SIRBIV']);
         function shouldExcludeFromAsx(descrprod, refforn) {
             if (descrprod && descrprod.toUpperCase().includes('PALHETA')) return true;
             if (refforn && REFFORN_EXCLUDE.test(refforn.trim())) return true;
+            if (refforn && REFFORN_BLACKLIST.has(refforn.trim())) return true;
             return false;
         }
 
