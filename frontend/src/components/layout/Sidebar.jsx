@@ -3,6 +3,7 @@ const NAV_ITEMS = [
   { key: 'sales', label: 'Vendas', icon: '💰' },
   { key: 'faturamento', label: 'Faturamento', icon: '📋' },
   { key: 'compras', label: 'Compras', icon: '📦' },
+  { key: 'sugestao', label: 'Sugestao Compra', icon: '🛒' },
   { key: 'importacao', label: 'Importacao', icon: '🚢' },
 ]
 
