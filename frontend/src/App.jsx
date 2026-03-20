@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Layout from './components/layout/Layout'
 import DashboardPage from './pages/DashboardPage'
 import SalesPage from './pages/SalesPage'
+import FaturamentoPage from './pages/FaturamentoPage'
 import ComprasPage from './pages/ComprasPage'
 import ImportacaoPage from './pages/ImportacaoPage'
 
@@ -12,6 +13,7 @@ function App() {
     <Layout currentPage={currentPage} onNavigate={setCurrentPage}>
       {currentPage === 'dashboard' && <DashboardPage />}
       {currentPage === 'sales' && <SalesPage />}
+      {currentPage === 'faturamento' && <FaturamentoPage />}
       {currentPage === 'compras' && <ComprasPage />}
       {currentPage === 'importacao' && <ImportacaoPage />}
     </Layout>

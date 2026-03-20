@@ -1,6 +1,7 @@
 const NAV_ITEMS = [
   { key: 'dashboard', label: 'Dashboard', icon: '📊' },
   { key: 'sales', label: 'Vendas', icon: '💰' },
+  { key: 'faturamento', label: 'Faturamento', icon: '📋' },
   { key: 'compras', label: 'Compras', icon: '📦' },
   { key: 'importacao', label: 'Importacao', icon: '🚢' },
 ]

@@ -539,6 +539,56 @@ app.get('/api/dashboard/products-by-partner', async (req, res) => {
     }
 });
 
+// --- Faturamento Pendente Routes ---
+
+/**
+ * GET /api/dashboard/pending-billing
+ * Returns pending sales orders (pedidos de venda) not yet billed.
+ * Uses TIPMOV='P', STATUSNOTA='A', specific TOPs for ASX/ABSOLUX sales.
+ */
+app.get('/api/dashboard/pending-billing', async (req, res) => {
+    try {
+        const cacheKey = 'pending_billing';
+        const cached = cache.get(cacheKey);
+        if (cached) return res.json(cached);
+
+        const PENDING_TOPS = '1963,1964,1965,1966,1968,1970';
+        const sql = `SELECT CAB.NUNOTA, CAB.NUMNOTA, TO_CHAR(CAB.DTNEG, 'DD/MM/YYYY') AS DTNEG,
+            CAB.CODTIPOPER, CAB.CODPARC, PAR.NOMEPARC,
+            (CAB.VLRNOTA + NVL(CAB.VLRDESCTOTITEM, 0)) AS VLRBRUTO,
+            CAB.CODVEND, VEN.APELIDO AS NOMEVEND, CAB.STATUSNOTA
+            FROM TGFCAB CAB
+            LEFT JOIN TGFPAR PAR ON PAR.CODPARC = CAB.CODPARC
+            LEFT JOIN TGFVEN VEN ON VEN.CODVEND = CAB.CODVEND
+            WHERE CAB.TIPMOV = 'P' AND CAB.STATUSNOTA = 'A'
+            AND CAB.CODTIPOPER IN (${PENDING_TOPS})
+            AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
+            ORDER BY CAB.DTNEG DESC`;
+
+        const result = await sankhyaService.executeSQL(sql);
+        const rows = (result.rows || []).map(row => ({
+            nunota: String(row[0]),
+            numnota: String(row[1] || '0'),
+            dtneg: row[2] || '',
+            codtipoper: String(row[3]),
+            codparc: String(row[4]),
+            nomeparc: row[5] || '',
+            vlrbruto: parseFloat(row[6] || 0),
+            codvend: String(row[7] || '0'),
+            nomevend: row[8] || '',
+            statusnota: row[9] || '',
+        }));
+
+        const totalValue = rows.reduce((sum, r) => sum + r.vlrbruto, 0);
+        const data = { orders: rows, totalOrders: rows.length, totalValue };
+        cache.set(cacheKey, data, 5 * 60 * 1000); // 5 min cache
+        res.json(data);
+    } catch (error) {
+        console.error('Pending billing error:', error.message);
+        res.status(500).json({ error: 'Erro ao buscar faturamento pendente.' });
+    }
+});
+
 // --- Importacao (Transit) Routes ---
 
 /**

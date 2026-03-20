@@ -91,6 +91,14 @@ export function useSalesData(startDate, endDate) {
   })
 }
 
+export function usePendingBilling() {
+  return useQuery({
+    queryKey: ['pending-billing'],
+    queryFn: () => api.get('/pending-billing').then(r => r.data),
+    refetchInterval: 5 * 60 * 1000,
+  })
+}
+
 export function useImportacoes() {
   return useQuery({
     queryKey: ['importacoes'],
