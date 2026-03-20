@@ -31,7 +31,7 @@ export default function DashboardPage() {
       )}
 
       {loadingSales ? (
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6">
           {[1,2,3,4].map(i => (
             <div key={i} className="bg-white rounded-lg shadow p-5 animate-pulse">
               <div className="h-4 bg-gray-200 rounded w-24 mb-2" />
@@ -43,7 +43,7 @@ export default function DashboardPage() {
         <KPICards periodSales={salesData} vendorCount={vendorCount} />
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         <SalesByVendorChart data={salesData?.vendorSales || []} />
         <SalesTrendChart topBuyers={salesData?.topBuyers || []} />
       </div>

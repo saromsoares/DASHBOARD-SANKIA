@@ -163,7 +163,7 @@ export default function SalesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-800">Vendas por Periodo</h2>
+        <h2 className="text-lg sm:text-xl font-bold text-gray-800">Vendas por Periodo</h2>
         {isFetching && !isLoading && (
           <span className="text-xs text-blue-500 flex items-center gap-1">
             <span className="animate-spin rounded-full h-3 w-3 border-b border-blue-500"></span>
@@ -179,22 +179,22 @@ export default function SalesPage() {
       {isLoading && <LoadingBanner />}
 
       {/* Period Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-5 border-l-4 border-green-500">
-          <p className="text-sm text-gray-500">Total Vendido</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6">
+        <div className="bg-white rounded-lg shadow p-3 sm:p-5 border-l-4 border-green-500">
+          <p className="text-[10px] sm:text-sm text-gray-500">Total Vendido</p>
+          <p className="text-sm sm:text-2xl font-bold text-gray-900 mt-1">
             {isLoading ? '...' : formatBRL(salesData?.totalValue)}
           </p>
         </div>
-        <div className="bg-white rounded-lg shadow p-5 border-l-4 border-blue-500">
-          <p className="text-sm text-gray-500">Notas Emitidas</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">
+        <div className="bg-white rounded-lg shadow p-3 sm:p-5 border-l-4 border-blue-500">
+          <p className="text-[10px] sm:text-sm text-gray-500">Notas</p>
+          <p className="text-sm sm:text-2xl font-bold text-gray-900 mt-1">
             {isLoading ? '...' : formatNumber(salesData?.totalInvoices)}
           </p>
         </div>
-        <div className="bg-white rounded-lg shadow p-5 border-l-4 border-purple-500">
-          <p className="text-sm text-gray-500">Vendedores</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">
+        <div className="bg-white rounded-lg shadow p-3 sm:p-5 border-l-4 border-purple-500">
+          <p className="text-[10px] sm:text-sm text-gray-500">Vendedores</p>
+          <p className="text-sm sm:text-2xl font-bold text-gray-900 mt-1">
             {isLoading ? '...' : formatNumber(allVendors.length)}
           </p>
         </div>

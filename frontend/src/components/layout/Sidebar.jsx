@@ -7,7 +7,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ currentPage, onNavigate }) {
   return (
-    <aside className="w-56 bg-gray-900 text-white flex flex-col">
+    <aside className="w-56 bg-gray-900 text-white flex flex-col h-full">
       <div className="p-4 border-b border-gray-700">
         <h1 className="text-lg font-bold">ASX Dashboard</h1>
         <p className="text-xs text-gray-400 mt-1">Sankhya ERP</p>

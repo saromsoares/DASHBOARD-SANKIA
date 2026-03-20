@@ -137,10 +137,10 @@ function AddImportForm({ onAdd, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-5 mb-4 border-l-4 border-indigo-500">
+    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-3 sm:p-5 mb-4 border-l-4 border-indigo-500">
       <h3 className="text-sm font-bold text-gray-700 mb-3">Nova Importacao em Transito</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
         <div className="md:col-span-2">
           <label className="block text-xs font-medium text-gray-600 mb-1">Produto ASX *</label>
           {product ? (
@@ -411,44 +411,44 @@ export default function ImportacaoPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h2 className="text-xl font-bold text-gray-800">Importacoes em Transito</h2>
-          <p className="text-xs text-gray-500 mt-1">Produtos ASX comprados e em transito - impacta no calculo de duracao do estoque</p>
+      <div className="flex items-center justify-between mb-4 gap-2">
+        <div className="min-w-0">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800">Importacoes em Transito</h2>
+          <p className="text-[10px] sm:text-xs text-gray-500 mt-1 hidden sm:block">Produtos ASX comprados e em transito - impacta no calculo de duracao do estoque</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className={`px-4 py-2 text-sm font-semibold rounded-md transition-colors ${
+          className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-md transition-colors whitespace-nowrap shrink-0 ${
             showForm
               ? 'bg-gray-200 text-gray-600 hover:bg-gray-300'
               : 'bg-indigo-600 text-white hover:bg-indigo-700'
           }`}
         >
-          {showForm ? 'Fechar Formulario' : '+ Nova Importacao'}
+          {showForm ? 'Fechar' : '+ Nova'}
         </button>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-4">
-        <div className="bg-white rounded-lg shadow p-3 border-l-4 border-blue-500">
-          <p className="text-xs text-gray-500">Em Transito</p>
-          <p className="text-lg font-bold text-blue-600">{formatNumber(summary.emTransito)}</p>
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3 mb-4">
+        <div className="bg-white rounded-lg shadow p-2 sm:p-3 border-l-4 border-blue-500">
+          <p className="text-[10px] sm:text-xs text-gray-500">Em Transito</p>
+          <p className="text-sm sm:text-lg font-bold text-blue-600">{formatNumber(summary.emTransito)}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-3 border-l-4 border-indigo-500">
-          <p className="text-xs text-gray-500">Total Pecas</p>
-          <p className="text-lg font-bold text-indigo-600">{formatNumber(summary.totalQtd)}</p>
+        <div className="bg-white rounded-lg shadow p-2 sm:p-3 border-l-4 border-indigo-500">
+          <p className="text-[10px] sm:text-xs text-gray-500">Total Pecas</p>
+          <p className="text-sm sm:text-lg font-bold text-indigo-600">{formatNumber(summary.totalQtd)}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-3 border-l-4 border-purple-500">
-          <p className="text-xs text-gray-500">Produtos Distintos</p>
-          <p className="text-lg font-bold text-purple-600">{formatNumber(summary.produtos)}</p>
+        <div className="bg-white rounded-lg shadow p-2 sm:p-3 border-l-4 border-purple-500">
+          <p className="text-[10px] sm:text-xs text-gray-500">Produtos</p>
+          <p className="text-sm sm:text-lg font-bold text-purple-600">{formatNumber(summary.produtos)}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-3 border-l-4 border-red-500">
-          <p className="text-xs text-gray-500">Atrasados</p>
-          <p className="text-lg font-bold text-red-600">{formatNumber(summary.atrasados)}</p>
+        <div className="bg-white rounded-lg shadow p-2 sm:p-3 border-l-4 border-red-500">
+          <p className="text-[10px] sm:text-xs text-gray-500">Atrasados</p>
+          <p className="text-sm sm:text-lg font-bold text-red-600">{formatNumber(summary.atrasados)}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-3 border-l-4 border-green-500">
-          <p className="text-xs text-gray-500">Recebidos</p>
-          <p className="text-lg font-bold text-green-600">{formatNumber(summary.recebidos)}</p>
+        <div className="bg-white rounded-lg shadow p-2 sm:p-3 border-l-4 border-green-500">
+          <p className="text-[10px] sm:text-xs text-gray-500">Recebidos</p>
+          <p className="text-sm sm:text-lg font-bold text-green-600">{formatNumber(summary.recebidos)}</p>
         </div>
       </div>
 
@@ -456,20 +456,20 @@ export default function ImportacaoPage() {
 
       {/* Filters + Table */}
       <div className="bg-white rounded-lg shadow">
-        <div className="p-4 border-b flex flex-wrap items-center gap-3">
+        <div className="p-3 sm:p-4 border-b space-y-2 sm:space-y-0 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
           <input
             type="text"
-            placeholder="Buscar por produto, codigo, pedido, fornecedor..."
+            placeholder="Buscar produto, pedido, fornecedor..."
             value={globalFilter}
             onChange={e => setGlobalFilter(e.target.value)}
-            className="flex-1 min-w-[200px] max-w-sm px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full sm:flex-1 sm:min-w-[200px] sm:max-w-sm px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
           <div className="flex gap-1">
             {STATUS_FILTERS.map(f => (
               <button
                 key={f.key}
                 onClick={() => setStatusFilter(f.key)}
-                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                className={`px-2 sm:px-3 py-1.5 rounded text-[10px] sm:text-xs font-medium transition-colors whitespace-nowrap ${
                   statusFilter === f.key
                     ? 'bg-indigo-600 text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'

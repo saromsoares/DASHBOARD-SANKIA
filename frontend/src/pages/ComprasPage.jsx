@@ -170,49 +170,49 @@ function ComprasTable({ data = [], columns, fornecedorFilter }) {
   return (
     <div>
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-6 gap-3 mb-4">
-        <div className="bg-white rounded-lg shadow p-3 border-l-4 border-blue-500">
-          <p className="text-xs text-gray-500">Total Produtos</p>
-          <p className="text-lg font-bold text-gray-800">{formatNumber(summary.total)}</p>
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3 mb-4">
+        <div className="bg-white rounded-lg shadow p-2 sm:p-3 border-l-4 border-blue-500">
+          <p className="text-[10px] sm:text-xs text-gray-500">Total</p>
+          <p className="text-sm sm:text-lg font-bold text-gray-800">{formatNumber(summary.total)}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-3 border-l-4 border-red-500">
-          <p className="text-xs text-gray-500">Critico (&lt;1 mes)</p>
-          <p className="text-lg font-bold text-red-600">{formatNumber(summary.criticos)}</p>
+        <div className="bg-white rounded-lg shadow p-2 sm:p-3 border-l-4 border-red-500">
+          <p className="text-[10px] sm:text-xs text-gray-500">Critico</p>
+          <p className="text-sm sm:text-lg font-bold text-red-600">{formatNumber(summary.criticos)}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-3 border-l-4 border-yellow-500">
-          <p className="text-xs text-gray-500">Atencao (1-3 meses)</p>
-          <p className="text-lg font-bold text-yellow-600">{formatNumber(summary.atencao)}</p>
+        <div className="bg-white rounded-lg shadow p-2 sm:p-3 border-l-4 border-yellow-500">
+          <p className="text-[10px] sm:text-xs text-gray-500">Atencao</p>
+          <p className="text-sm sm:text-lg font-bold text-yellow-600">{formatNumber(summary.atencao)}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-3 border-l-4 border-orange-400">
-          <p className="text-xs text-gray-500">Repor (3-6 meses)</p>
-          <p className="text-lg font-bold text-orange-500">{formatNumber(summary.repor)}</p>
+        <div className="bg-white rounded-lg shadow p-2 sm:p-3 border-l-4 border-orange-400">
+          <p className="text-[10px] sm:text-xs text-gray-500">Repor</p>
+          <p className="text-sm sm:text-lg font-bold text-orange-500">{formatNumber(summary.repor)}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-3 border-l-4 border-green-500">
-          <p className="text-xs text-gray-500">OK (&gt;6 meses)</p>
-          <p className="text-lg font-bold text-green-600">{formatNumber(summary.ok)}</p>
+        <div className="bg-white rounded-lg shadow p-2 sm:p-3 border-l-4 border-green-500">
+          <p className="text-[10px] sm:text-xs text-gray-500">OK</p>
+          <p className="text-sm sm:text-lg font-bold text-green-600">{formatNumber(summary.ok)}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-3 border-l-4 border-purple-500">
-          <p className="text-xs text-gray-500">Sem Giro (0 vendas)</p>
-          <p className="text-lg font-bold text-purple-600">{formatNumber(summary.semGiro)}</p>
+        <div className="bg-white rounded-lg shadow p-2 sm:p-3 border-l-4 border-purple-500">
+          <p className="text-[10px] sm:text-xs text-gray-500">Sem Giro</p>
+          <p className="text-sm sm:text-lg font-bold text-purple-600">{formatNumber(summary.semGiro)}</p>
         </div>
       </div>
 
       {/* Filters + Table */}
       <div className="bg-white rounded-lg shadow mb-4">
-        <div className="p-4 border-b flex flex-wrap items-center gap-3">
+        <div className="p-3 sm:p-4 border-b space-y-2 sm:space-y-0 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
           <input
             type="text"
-            placeholder="Buscar produto, codigo, referencia, ref fornecedor..."
+            placeholder="Buscar produto, codigo, referencia..."
             value={globalFilter}
             onChange={e => setGlobalFilter(e.target.value)}
-            className="flex-1 min-w-[200px] max-w-sm px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:flex-1 sm:min-w-[200px] sm:max-w-sm px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <div className="flex gap-1">
+          <div className="flex gap-1 overflow-x-auto pb-1 sm:pb-0">
             {STATUS_FILTERS.map(f => (
               <button
                 key={f.key}
                 onClick={() => setStatusFilter(f.key)}
-                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors ${
+                className={`px-2 sm:px-3 py-1.5 rounded text-[10px] sm:text-xs font-medium transition-colors whitespace-nowrap ${
                   statusFilter === f.key
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
@@ -446,8 +446,8 @@ export default function ComprasPage() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Gestao de Compras</h2>
-          <p className="text-xs text-gray-500 mt-1">Todos os produtos ativos - media mensal de vendas e sugestao de compra</p>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800">Gestao de Compras</h2>
+          <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Produtos ativos - media mensal e sugestao de compra</p>
         </div>
         {isFetching && (
           <span className="text-xs text-blue-500 flex items-center gap-1">
@@ -463,7 +463,7 @@ export default function ComprasPage() {
           <button
             key={tab.key}
             onClick={() => { setActiveTab(tab.key); setFornecedorFilter(null); setFornecedorName('') }}
-            className={`px-5 py-2.5 rounded-t-lg text-sm font-semibold transition-colors ${
+            className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-t-lg text-xs sm:text-sm font-semibold transition-colors ${
               activeTab === tab.key
                 ? tab.key === 'asx'
                   ? 'bg-blue-600 text-white'
