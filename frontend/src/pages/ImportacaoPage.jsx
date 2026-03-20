@@ -240,12 +240,68 @@ function AddImportForm({ onAdd, onCancel }) {
   )
 }
 
+function ConfirmarChegadaModal({ item, onConfirm, onClose }) {
+  const restante = item.quantidade - (item.qtdRecebida || 0)
+  const [qtd, setQtd] = useState(String(restante))
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const val = Number(qtd)
+    if (val > 0) onConfirm(item.id, val)
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-sm p-4" onClick={e => e.stopPropagation()}>
+        <h3 className="text-sm font-bold text-gray-800 mb-1">Confirmar Chegada</h3>
+        <p className="text-xs text-gray-500 mb-3 truncate">{item.descrprod}</p>
+
+        <div className="bg-gray-50 rounded p-3 mb-3 text-xs space-y-1">
+          <div className="flex justify-between"><span className="text-gray-500">Pedido total:</span><span className="font-semibold">{formatNumber(item.quantidade)}</span></div>
+          <div className="flex justify-between"><span className="text-gray-500">Ja recebido:</span><span className="font-semibold text-green-600">{formatNumber(item.qtdRecebida || 0)}</span></div>
+          <div className="flex justify-between border-t pt-1"><span className="text-gray-500">Falta receber:</span><span className="font-bold text-blue-600">{formatNumber(restante)}</span></div>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <label className="block text-xs font-medium text-gray-600 mb-1">Quantidade que chegou agora:</label>
+          <input
+            type="number"
+            min="1"
+            max={restante}
+            value={qtd}
+            onChange={e => setQtd(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500 mb-3"
+            autoFocus
+          />
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={!qtd || Number(qtd) <= 0}
+              className="flex-1 px-3 py-2 bg-green-600 text-white text-sm font-semibold rounded-md hover:bg-green-700 disabled:opacity-40 transition-colors"
+            >
+              Confirmar
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-3 py-2 bg-gray-100 text-gray-600 text-sm font-semibold rounded-md hover:bg-gray-200 transition-colors"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 export default function ImportacaoPage() {
   const { data: importacoes = [], isLoading, refetch } = useImportacoes()
   const [showForm, setShowForm] = useState(false)
   const [statusFilter, setStatusFilter] = useState('all')
   const [globalFilter, setGlobalFilter] = useState('')
   const [sorting, setSorting] = useState([{ id: 'criadoEm', desc: true }])
+  const [confirmItem, setConfirmItem] = useState(null)
 
   const handleAdd = async (entry) => {
     try {
@@ -263,10 +319,17 @@ export default function ImportacaoPage() {
     }
   }
 
-  const handleRecebido = async (id) => {
+  const handleRecebido = async (id, qtdRecebida) => {
     try {
-      const res = await fetch(`/api/dashboard/importacoes/${id}/recebido`, { method: 'PUT' })
-      if (res.ok) refetch()
+      const res = await fetch(`/api/dashboard/importacoes/${id}/recebido`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qtdRecebida }),
+      })
+      if (res.ok) {
+        refetch()
+        setConfirmItem(null)
+      }
     } catch (err) {
       console.error('Erro ao marcar recebido:', err)
     }
@@ -309,8 +372,18 @@ export default function ImportacaoPage() {
     {
       accessorKey: 'quantidade',
       header: 'Qtd',
-      size: 70,
-      cell: ({ getValue }) => <span className="font-semibold">{formatNumber(getValue())}</span>,
+      size: 90,
+      cell: ({ row }) => {
+        const total = row.original.quantidade
+        const recebido = row.original.qtdRecebida || 0
+        if (recebido === 0) return <span className="font-semibold">{formatNumber(total)}</span>
+        return (
+          <div className="text-xs leading-tight">
+            <span className="font-semibold">{formatNumber(total)}</span>
+            <div className="text-green-600">{formatNumber(recebido)} receb.</div>
+          </div>
+        )
+      },
     },
     {
       accessorKey: 'fornecedor',
@@ -361,17 +434,17 @@ export default function ImportacaoPage() {
     {
       id: 'acoes',
       header: 'Acoes',
-      size: 140,
+      size: 160,
       cell: ({ row }) => {
         const item = row.original
         if (item.status !== 'em_transito') return null
         return (
           <div className="flex gap-1">
             <button
-              onClick={() => handleRecebido(item.id)}
+              onClick={() => setConfirmItem(item)}
               className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
             >
-              Recebido
+              Chegou
             </button>
             <button
               onClick={() => handleRemove(item.id)}
@@ -411,6 +484,14 @@ export default function ImportacaoPage() {
 
   return (
     <div>
+      {confirmItem && (
+        <ConfirmarChegadaModal
+          item={confirmItem}
+          onConfirm={handleRecebido}
+          onClose={() => setConfirmItem(null)}
+        />
+      )}
+
       <div className="flex items-center justify-between mb-4 gap-2">
         <div className="min-w-0">
           <h2 className="text-lg sm:text-xl font-bold text-gray-800">Importacoes em Transito</h2>

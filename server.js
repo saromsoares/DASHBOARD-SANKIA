@@ -593,11 +593,13 @@ app.put('/api/dashboard/importacoes/:id', (req, res) => {
 
 /**
  * PUT /api/dashboard/importacoes/:id/recebido
- * Mark an import as received.
+ * Mark an import as received (supports partial quantity).
+ * Body: { qtdRecebida: number } (optional - defaults to full quantity)
  */
 app.put('/api/dashboard/importacoes/:id/recebido', (req, res) => {
     try {
-        const updated = importStore.marcarRecebido(req.params.id);
+        const qtdRecebida = req.body?.qtdRecebida;
+        const updated = importStore.marcarRecebido(req.params.id, qtdRecebida);
         if (!updated) return res.status(404).json({ error: 'Importacao nao encontrada.' });
         cache.invalidate('purchase_management');
         res.json(updated);

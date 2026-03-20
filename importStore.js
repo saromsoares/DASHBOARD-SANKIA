@@ -89,8 +89,30 @@ function remove(id) {
     return true;
 }
 
-function marcarRecebido(id) {
-    return update(id, { status: 'recebido' });
+function marcarRecebido(id, qtdRecebida) {
+    const entries = readAll();
+    const idx = entries.findIndex(e => e.id === id);
+    if (idx === -1) return null;
+
+    const entry = entries[idx];
+    const recebido = Number(qtdRecebida) || entry.quantidade;
+    const prevRecebido = entry.qtdRecebida || 0;
+    const totalRecebido = prevRecebido + recebido;
+    const restante = entry.quantidade - totalRecebido;
+
+    entry.qtdRecebida = totalRecebido;
+    entry.atualizadoEm = new Date().toISOString();
+
+    if (restante <= 0) {
+        entry.status = 'recebido';
+        entry.qtdRecebida = entry.quantidade;
+    } else {
+        // Partial: keep em_transito, update quantity remaining
+        entry.status = 'em_transito';
+    }
+
+    writeAll(entries);
+    return entry;
 }
 
 /**
@@ -101,7 +123,10 @@ function getTransitMap() {
     const emTransito = getEmTransito();
     const map = {};
     emTransito.forEach(e => {
-        map[e.codprod] = (map[e.codprod] || 0) + e.quantidade;
+        const restante = e.quantidade - (e.qtdRecebida || 0);
+        if (restante > 0) {
+            map[e.codprod] = (map[e.codprod] || 0) + restante;
+        }
     });
     return map;
 }
