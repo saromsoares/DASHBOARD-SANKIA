@@ -552,11 +552,12 @@ app.get('/api/dashboard/pending-billing', async (req, res) => {
         const cached = cache.get(cacheKey);
         if (cached) return res.json(cached);
 
-        // TOPs: pedidos de venda ASX (1963=NF-E, 1965=NFC-E) e ABSOLUX (1964=NF-E, 1966=NFC-E, 1968=orçamento, 1970=outros)
-        const PENDING_TOPS = '1963,1964,1965,1966,1968,1970';
+        // TOPs: pedidos de venda ASX (1963=NF-E, 1965=NFC-E) e ABSOLUX (1964=NF-E, 1966=NFC-E, 1968=orçamento)
+        const PENDING_TOPS = '1963,1964,1965,1966,1968';
+        // Vlr Total Bruto 100% = SUM of items (VLRTOT + VLRDESC + VLRIPI + VLRSUBST) per order
         const sql = `SELECT CAB.NUNOTA, CAB.NUMNOTA, TO_CHAR(CAB.DTNEG, 'DD/MM/YYYY') AS DTNEG,
             CAB.CODTIPOPER, CAB.CODPARC, PAR.NOMEPARC,
-            (CAB.VLRNOTA + NVL(CAB.VLRDESCTOTITEM, 0)) AS VLRBRUTO,
+            NVL((SELECT SUM(NVL(ITE.VLRTOT,0) + NVL(ITE.VLRDESC,0) + NVL(ITE.VLRIPI,0) + NVL(ITE.VLRSUBST,0)) FROM TGFITE ITE WHERE ITE.NUNOTA = CAB.NUNOTA), 0) AS VLRBRUTO,
             CAB.CODVEND, VEN.APELIDO AS NOMEVEND, CAB.STATUSNOTA
             FROM TGFCAB CAB
             LEFT JOIN TGFPAR PAR ON PAR.CODPARC = CAB.CODPARC
@@ -564,7 +565,7 @@ app.get('/api/dashboard/pending-billing', async (req, res) => {
             WHERE CAB.TIPMOV = 'P' AND CAB.STATUSNOTA = 'A'
             AND CAB.CODTIPOPER IN (${PENDING_TOPS})
             AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
-            ORDER BY CAB.VLRNOTA DESC`;
+            ORDER BY VLRBRUTO DESC`;
 
         const result = await sankhyaService.executeSQL(sql);
         const rows = (result.rows || []).map(row => ({
@@ -830,7 +831,7 @@ async function warmUpPurchaseManagement() {
 
         // Exclude: palhetas, supplier refs like H760W, and specific discontinued products
         const REFFORN_EXCLUDE = /^H\d+/i;
-        const REFFORN_BLACKLIST = new Set(['LT72BI', 'BC12V', 'LTLAM85', 'T1008AM', 'SIRBIV']);
+        const REFFORN_BLACKLIST = new Set(['LT72BI', 'BC12V', 'LTLAM85', 'T1008AM', 'SIRBIV', 'CABORCA', 'ASX8440']);
         function shouldExcludeFromAsx(descrprod, refforn) {
             if (descrprod && descrprod.toUpperCase().includes('PALHETA')) return true;
             if (refforn && REFFORN_EXCLUDE.test(refforn.trim())) return true;
