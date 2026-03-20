@@ -62,6 +62,16 @@ const COMMON_COLUMNS = [
     cell: ({ getValue }) => <span className="font-medium">{formatNumber(getValue())}</span>,
   },
   {
+    accessorKey: 'emTransito',
+    header: 'Em Transito',
+    size: 90,
+    cell: ({ getValue }) => {
+      const v = getValue()
+      if (!v) return <span className="text-gray-300">-</span>
+      return <span className="text-blue-600 font-medium">+{formatNumber(v)}</span>
+    },
+  },
+  {
     accessorKey: 'avg6m',
     header: 'Media Venda/Mes (6M)',
     size: 140,

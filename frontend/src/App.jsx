@@ -3,6 +3,7 @@ import Layout from './components/layout/Layout'
 import DashboardPage from './pages/DashboardPage'
 import SalesPage from './pages/SalesPage'
 import ComprasPage from './pages/ComprasPage'
+import ImportacaoPage from './pages/ImportacaoPage'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard')
@@ -12,6 +13,7 @@ function App() {
       {currentPage === 'dashboard' && <DashboardPage />}
       {currentPage === 'sales' && <SalesPage />}
       {currentPage === 'compras' && <ComprasPage />}
+      {currentPage === 'importacao' && <ImportacaoPage />}
     </Layout>
   )
 }

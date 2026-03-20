@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const sankhyaService = require('./sankhyaService');
 const cache = require('./cache');
+const importStore = require('./importStore');
 
 dotenv.config();
 
@@ -538,6 +539,137 @@ app.get('/api/dashboard/products-by-partner', async (req, res) => {
     }
 });
 
+// --- Importacao (Transit) Routes ---
+
+/**
+ * GET /api/dashboard/importacoes
+ * Returns all import entries (excluding cancelled).
+ */
+app.get('/api/dashboard/importacoes', (req, res) => {
+    try {
+        const entries = importStore.getAll();
+        res.json(entries);
+    } catch (error) {
+        console.error('Importacoes GET error:', error.message);
+        res.status(500).json({ error: 'Erro ao buscar importacoes.' });
+    }
+});
+
+/**
+ * POST /api/dashboard/importacoes
+ * Add a new import entry (product in transit).
+ */
+app.post('/api/dashboard/importacoes', (req, res) => {
+    try {
+        const { codprod, quantidade } = req.body;
+        if (!codprod || !quantidade || quantidade <= 0) {
+            return res.status(400).json({ error: 'codprod e quantidade (>0) sao obrigatorios.' });
+        }
+        const entry = importStore.add(req.body);
+        // Invalidate purchase_management cache so transit data is recalculated
+        cache.invalidate('purchase_management');
+        res.status(201).json(entry);
+    } catch (error) {
+        console.error('Importacoes POST error:', error.message);
+        res.status(500).json({ error: 'Erro ao adicionar importacao.' });
+    }
+});
+
+/**
+ * PUT /api/dashboard/importacoes/:id
+ * Update an import entry.
+ */
+app.put('/api/dashboard/importacoes/:id', (req, res) => {
+    try {
+        const updated = importStore.update(req.params.id, req.body);
+        if (!updated) return res.status(404).json({ error: 'Importacao nao encontrada.' });
+        cache.invalidate('purchase_management');
+        res.json(updated);
+    } catch (error) {
+        console.error('Importacoes PUT error:', error.message);
+        res.status(500).json({ error: 'Erro ao atualizar importacao.' });
+    }
+});
+
+/**
+ * PUT /api/dashboard/importacoes/:id/recebido
+ * Mark an import as received.
+ */
+app.put('/api/dashboard/importacoes/:id/recebido', (req, res) => {
+    try {
+        const updated = importStore.marcarRecebido(req.params.id);
+        if (!updated) return res.status(404).json({ error: 'Importacao nao encontrada.' });
+        cache.invalidate('purchase_management');
+        res.json(updated);
+    } catch (error) {
+        console.error('Importacoes recebido error:', error.message);
+        res.status(500).json({ error: 'Erro ao marcar recebido.' });
+    }
+});
+
+/**
+ * DELETE /api/dashboard/importacoes/:id
+ * Cancel an import entry (soft delete).
+ */
+app.delete('/api/dashboard/importacoes/:id', (req, res) => {
+    try {
+        const removed = importStore.remove(req.params.id);
+        if (!removed) return res.status(404).json({ error: 'Importacao nao encontrada.' });
+        cache.invalidate('purchase_management');
+        res.json({ ok: true });
+    } catch (error) {
+        console.error('Importacoes DELETE error:', error.message);
+        res.status(500).json({ error: 'Erro ao cancelar importacao.' });
+    }
+});
+
+/**
+ * GET /api/dashboard/search-products-asx?term=xxx
+ * Search ASX products by code, name or reference for the import form autocomplete.
+ */
+app.get('/api/dashboard/search-products-asx', async (req, res) => {
+    try {
+        const { term } = req.query;
+        if (!term || term.length < 2) return res.json([]);
+
+        // Use cached purchase_management data if available, otherwise query Sankhya
+        const cached = cache.get('purchase_management');
+        if (cached && cached.asx) {
+            const termLower = term.toLowerCase();
+            const results = cached.asx
+                .filter(p =>
+                    String(p.codprod).includes(term) ||
+                    (p.descrprod && p.descrprod.toLowerCase().includes(termLower)) ||
+                    (p.referencia && p.referencia.toLowerCase().includes(termLower))
+                )
+                .slice(0, 20)
+                .map(p => ({ codprod: p.codprod, descrprod: p.descrprod, referencia: p.referencia }));
+            return res.json(results);
+        }
+
+        // Fallback: fetch all active ASX products and filter in-memory
+        const allProducts = await sankhyaService.getAllActiveResaleProducts();
+        const termLower = term.toLowerCase();
+        const results = allProducts
+            .filter(p => {
+                const grupo = String(p.codgrupoprod || '');
+                const ref = (p.referencia || '').toUpperCase();
+                return grupo.startsWith('9901') || grupo.startsWith('70') || ref.startsWith('ASX');
+            })
+            .filter(p =>
+                String(p.codprod).includes(term) ||
+                (p.descrprod && p.descrprod.toLowerCase().includes(termLower)) ||
+                (p.referencia && p.referencia.toLowerCase().includes(termLower))
+            )
+            .slice(0, 20)
+            .map(p => ({ codprod: String(p.codprod), descrprod: p.descrprod || '', referencia: p.referencia || '' }));
+        res.json(results);
+    } catch (error) {
+        console.error('Search products ASX error:', error.message);
+        res.status(500).json({ error: 'Erro ao buscar produtos ASX.' });
+    }
+});
+
 // --- Static Frontend Serving ---
 app.use(express.static(path.join(__dirname, 'frontend', 'dist')));
 
@@ -626,6 +758,10 @@ async function warmUpPurchaseManagement() {
         const partnerMap = await sankhyaService.getPartnerNamesBulk([...allParcCodes]);
         console.log(`[WarmUp] Supplier names for ${allParcCodes.size} partners in ${((Date.now() - t5) / 1000).toFixed(1)}s`);
 
+        // Load transit quantities from importacoes
+        const transitMap = importStore.getTransitMap();
+        console.log(`[WarmUp] Transit items: ${Object.keys(transitMap).length} products with ${Object.values(transitMap).reduce((a, b) => a + b, 0)} units in transit`);
+
         const asx = [];
         const absolux = [];
         const includedCods = new Set();
@@ -660,10 +796,12 @@ async function warmUpPurchaseManagement() {
 
             includedCods.add(cod);
             const stock = stockMap.get(cod) || 0;
+            const emTransito = transitMap[cod] || 0;
+            const stockEfetivo = stock + emTransito;
             const avg6m = Math.round(((qty6m[cod] || 0) / 6) * 100) / 100;
-            const duracao = avg6m > 0 ? Math.round((stock / avg6m) * 100) / 100 : null;
-            const need3m = avg6m > 0 ? Math.max(0, Math.ceil(avg6m * 3 - stock)) : 0;
-            const need6m = avg6m > 0 ? Math.max(0, Math.ceil(avg6m * 6 - stock)) : 0;
+            const duracao = avg6m > 0 ? Math.round((stockEfetivo / avg6m) * 100) / 100 : null;
+            const need3m = avg6m > 0 ? Math.max(0, Math.ceil(avg6m * 3 - stockEfetivo)) : 0;
+            const need6m = avg6m > 0 ? Math.max(0, Math.ceil(avg6m * 6 - stockEfetivo)) : 0;
 
             let status;
             if (duracao === null) status = 'sem_media';
@@ -675,7 +813,7 @@ async function warmUpPurchaseManagement() {
             const codparcforn = prod.codparcforn || '0';
             const nomeforn = partnerMap[codparcforn] || '';
 
-            const item = { codprod: cod, descrprod: prod.descrprod || `Produto ${cod}`, referencia: prod.referencia || '', marca: prod.marca || '', refforn: prod.refforn || '', stock, avg6m, need3m, need6m, duracao, status, codparcforn, nomeforn };
+            const item = { codprod: cod, descrprod: prod.descrprod || `Produto ${cod}`, referencia: prod.referencia || '', marca: prod.marca || '', refforn: prod.refforn || '', stock, emTransito, avg6m, need3m, need6m, duracao, status, codparcforn, nomeforn };
             if (isAsx) asx.push(item);
             if (isAbsolux) absolux.push(item);
         });
@@ -693,6 +831,7 @@ async function warmUpPurchaseManagement() {
 
             const nomeforn = partnerMap[prod.codparcforn] || '';
 
+            const emTransito = transitMap[cod] || 0;
             const item = {
                 codprod: cod,
                 descrprod: prod.descrprod,
@@ -700,11 +839,12 @@ async function warmUpPurchaseManagement() {
                 marca: prod.marca,
                 refforn: prod.refforn,
                 stock: prod.stock,
+                emTransito,
                 avg6m: 0,
                 need3m: 0,
                 need6m: 0,
                 duracao: null,
-                status: prod.stock > 0 ? 'sem_media' : 'critico',
+                status: (prod.stock + emTransito) > 0 ? 'sem_media' : 'critico',
                 codparcforn: prod.codparcforn,
                 nomeforn,
             };

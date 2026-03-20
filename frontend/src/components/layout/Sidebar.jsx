@@ -2,6 +2,7 @@ const NAV_ITEMS = [
   { key: 'dashboard', label: 'Dashboard', icon: '📊' },
   { key: 'sales', label: 'Vendas', icon: '💰' },
   { key: 'compras', label: 'Compras', icon: '📦' },
+  { key: 'importacao', label: 'Importacao', icon: '🚢' },
 ]
 
 export default function Sidebar({ currentPage, onNavigate }) {

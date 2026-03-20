@@ -90,3 +90,20 @@ export function useSalesData(startDate, endDate) {
     refetchInterval: 300 * 1000,
   })
 }
+
+export function useImportacoes() {
+  return useQuery({
+    queryKey: ['importacoes'],
+    queryFn: () => api.get('/importacoes').then(r => r.data),
+    refetchInterval: 60 * 1000,
+  })
+}
+
+export function useSearchProductsAsx(term) {
+  return useQuery({
+    queryKey: ['search-products-asx', term],
+    queryFn: () => api.get(`/search-products-asx?term=${encodeURIComponent(term)}`).then(r => r.data),
+    enabled: !!term && term.length >= 2,
+    staleTime: 60 * 1000,
+  })
+}
