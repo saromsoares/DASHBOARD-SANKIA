@@ -10,6 +10,7 @@ import {
 import { usePurchaseManagement, useSearchPartners } from '../api/dashboard'
 import StockIndicator from '../components/dashboard/StockIndicator'
 import { formatNumber } from '../lib/formatters'
+import RefreshButton from '../components/RefreshButton'
 
 const STATUS_FILTERS = [
   { key: 'all', label: 'Todos' },
@@ -449,12 +450,15 @@ export default function ComprasPage() {
           <h2 className="text-lg sm:text-xl font-bold text-gray-800">Gestao de Compras</h2>
           <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Produtos ativos - media mensal e sugestao de compra</p>
         </div>
-        {isFetching && (
-          <span className="text-xs text-blue-500 flex items-center gap-1">
-            <span className="animate-spin rounded-full h-3 w-3 border-b border-blue-500"></span>
-            Atualizando...
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {isFetching && (
+            <span className="text-xs text-blue-500 flex items-center gap-1">
+              <span className="animate-spin rounded-full h-3 w-3 border-b border-blue-500"></span>
+              Atualizando...
+            </span>
+          )}
+          <RefreshButton queryKeys={['purchase-management']} />
+        </div>
       </div>
 
       {/* Tabs ASX / ABSOLUX */}

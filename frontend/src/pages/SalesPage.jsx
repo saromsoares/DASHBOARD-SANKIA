@@ -3,6 +3,7 @@ import { useSalesData } from '../api/dashboard'
 import { formatBRL, formatNumber, toISODate } from '../lib/formatters'
 import PeriodFilter from '../components/dashboard/PeriodFilter'
 import SalesByVendorChart from '../components/dashboard/SalesByVendorChart'
+import RefreshButton from '../components/RefreshButton'
 
 const MONTH_NAMES = {
   '01': 'Jan', '02': 'Fev', '03': 'Mar', '04': 'Abr', '05': 'Mai', '06': 'Jun',
@@ -164,12 +165,15 @@ export default function SalesPage() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg sm:text-xl font-bold text-gray-800">Vendas por Periodo</h2>
-        {isFetching && !isLoading && (
-          <span className="text-xs text-blue-500 flex items-center gap-1">
-            <span className="animate-spin rounded-full h-3 w-3 border-b border-blue-500"></span>
-            Atualizando...
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {isFetching && !isLoading && (
+            <span className="text-xs text-blue-500 flex items-center gap-1">
+              <span className="animate-spin rounded-full h-3 w-3 border-b border-blue-500"></span>
+              Atualizando...
+            </span>
+          )}
+          <RefreshButton queryKeys={['sales-data']} />
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow p-4 mb-6">

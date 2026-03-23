@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-table'
 import { usePendingBilling, useSalesData } from '../api/dashboard'
 import { formatBRL, formatNumber, toISODate } from '../lib/formatters'
+import RefreshButton from '../components/RefreshButton'
 
 function getDefaultDates() {
   const now = new Date()
@@ -108,12 +109,15 @@ export default function FaturamentoPage() {
           <h2 className="text-lg sm:text-xl font-bold text-gray-800">Faturamento Pendente</h2>
           <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Pedidos aprovados aguardando faturamento - mes atual</p>
         </div>
-        {isFetching && (
-          <span className="text-xs text-yellow-600 flex items-center gap-1">
-            <span className="animate-spin rounded-full h-3 w-3 border-b border-yellow-500"></span>
-            Atualizando...
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {isFetching && (
+            <span className="text-xs text-yellow-600 flex items-center gap-1">
+              <span className="animate-spin rounded-full h-3 w-3 border-b border-yellow-500"></span>
+              Atualizando...
+            </span>
+          )}
+          <RefreshButton queryKeys={['pending-billing', 'sales-data']} />
+        </div>
       </div>
 
       {/* KPI Cards */}

@@ -7,8 +7,11 @@ import {
   getPaginationRowModel,
   flexRender,
 } from '@tanstack/react-table'
+import { useQueryClient, useMutation } from '@tanstack/react-query'
 import { useImportacoes, useSearchProductsAsx } from '../api/dashboard'
 import { formatNumber } from '../lib/formatters'
+import api from '../api/client'
+import RefreshButton from '../components/RefreshButton'
 
 const STATUS_LABELS = {
   em_transito: { label: 'Em Transito', bg: 'bg-blue-100', text: 'text-blue-800', dot: 'bg-blue-500' },
@@ -296,24 +299,33 @@ function ConfirmarChegadaModal({ item, onConfirm, onClose }) {
 }
 
 export default function ImportacaoPage() {
-  const { data: importacoes = [], isLoading, refetch } = useImportacoes()
+  const { data: importacoes = [], isLoading } = useImportacoes()
+  const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
   const [statusFilter, setStatusFilter] = useState('all')
   const [globalFilter, setGlobalFilter] = useState('')
   const [sorting, setSorting] = useState([{ id: 'criadoEm', desc: true }])
   const [confirmItem, setConfirmItem] = useState(null)
 
+  const addMutation = useMutation({
+    mutationFn: (data) => api.post('/importacoes', data).then(r => r.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['importacoes'] }),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => api.delete(`/importacoes/${id}`).then(r => r.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['importacoes'] }),
+  })
+
+  const receiveMutation = useMutation({
+    mutationFn: ({ id, qtdRecebida }) => api.put(`/importacoes/${id}/recebido`, { qtdRecebida }).then(r => r.data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['importacoes'] }),
+  })
+
   const handleAdd = async (entry) => {
     try {
-      const res = await fetch('/api/dashboard/importacoes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entry),
-      })
-      if (res.ok) {
-        refetch()
-        setShowForm(false)
-      }
+      await addMutation.mutateAsync(entry)
+      setShowForm(false)
     } catch (err) {
       console.error('Erro ao adicionar importacao:', err)
     }
@@ -321,15 +333,8 @@ export default function ImportacaoPage() {
 
   const handleRecebido = async (id, qtdRecebida) => {
     try {
-      const res = await fetch(`/api/dashboard/importacoes/${id}/recebido`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ qtdRecebida }),
-      })
-      if (res.ok) {
-        refetch()
-        setConfirmItem(null)
-      }
+      await receiveMutation.mutateAsync({ id, qtdRecebida })
+      setConfirmItem(null)
     } catch (err) {
       console.error('Erro ao marcar recebido:', err)
     }
@@ -338,8 +343,7 @@ export default function ImportacaoPage() {
   const handleRemove = async (id) => {
     if (!confirm('Cancelar esta importacao?')) return
     try {
-      const res = await fetch(`/api/dashboard/importacoes/${id}`, { method: 'DELETE' })
-      if (res.ok) refetch()
+      await deleteMutation.mutateAsync(id)
     } catch (err) {
       console.error('Erro ao cancelar importacao:', err)
     }
@@ -497,6 +501,8 @@ export default function ImportacaoPage() {
           <h2 className="text-lg sm:text-xl font-bold text-gray-800">Importacoes em Transito</h2>
           <p className="text-[10px] sm:text-xs text-gray-500 mt-1 hidden sm:block">Produtos ASX comprados e em transito - impacta no calculo de duracao do estoque</p>
         </div>
+        <div className="flex items-center gap-2">
+        <RefreshButton queryKeys={['importacoes']} />
         <button
           onClick={() => setShowForm(!showForm)}
           className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-md transition-colors whitespace-nowrap shrink-0 ${
@@ -507,6 +513,7 @@ export default function ImportacaoPage() {
         >
           {showForm ? 'Fechar' : '+ Nova'}
         </button>
+        </div>
       </div>
 
       {/* KPI Cards */}

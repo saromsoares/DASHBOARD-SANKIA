@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useSalesData, useTopProductsAsx } from '../api/dashboard'
 import { toISODate } from '../lib/formatters'
+import RefreshButton from '../components/RefreshButton'
 import KPICards from '../components/dashboard/KPICards'
 import SalesByVendorChart from '../components/dashboard/SalesByVendorChart'
 import SalesTrendChart from '../components/dashboard/SalesTrendChart'
@@ -22,7 +23,10 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-800 mb-4">Dashboard</h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-bold text-gray-800">Dashboard</h2>
+        <RefreshButton queryKeys={['sales-data', 'top-products-asx']} />
+      </div>
 
       {salesError && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">

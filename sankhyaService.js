@@ -166,6 +166,26 @@ class SankhyaService {
     return String(str).replace(/'/g, "''");
   }
 
+  _sanitizeLike(str) {
+    if (str == null) return '';
+    return String(str).replace(/'/g, "''").replace(/%/g, '\\%').replace(/_/g, '\\_');
+  }
+
+  _validateNumericList(list) {
+    return list.filter(val => /^\d+$/.test(String(val).trim())).map(val => String(val).trim());
+  }
+
+  _validateDate(dateStr) {
+    if (!dateStr) return null;
+    const clean = String(dateStr).trim();
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(clean)) return clean;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) {
+      const [y, m, d] = clean.split('-');
+      return `${d}/${m}/${y}`;
+    }
+    return null;
+  }
+
   /**
    * Validate that a value is strictly numeric (integer).
    */
@@ -184,11 +204,12 @@ class SankhyaService {
     const terms = term.toUpperCase().split(/\s+/).filter(t => t.length > 0);
     const termConditions = terms.map(t => {
       const safe = this._sanitize(t);
+      const safeLike = this._sanitizeLike(t);
       const isNumeric = this._isNumericId(t);
       const conditions = [
-        `DESCRPROD LIKE '%${safe}%'`,
-        `REFERENCIA LIKE '%${safe}%'`,
-        `MARCA LIKE '%${safe}%'`
+        `DESCRPROD LIKE '%${safeLike}%'`,
+        `REFERENCIA LIKE '%${safeLike}%'`,
+        `MARCA LIKE '%${safeLike}%'`
       ];
 
       if (isNumeric) {
@@ -910,8 +931,9 @@ class SankhyaService {
     const BATCH_SIZE = 500;
 
     for (let i = 0; i < codParcList.length; i += BATCH_SIZE) {
-      const batch = codParcList.slice(i, i + BATCH_SIZE);
-      const inClause = batch.join(',');
+      const validBatch = this._validateNumericList(codParcList.slice(i, i + BATCH_SIZE));
+      if (validBatch.length === 0) continue;
+      const inClause = validBatch.join(',');
 
       try {
         const sql = `SELECT CODPARC, NOMEPARC FROM TGFPAR WHERE CODPARC IN (${inClause})`;
@@ -940,7 +962,7 @@ class SankhyaService {
     if (!term || term.length < 2) return [];
 
     try {
-      const safeTerm = this._sanitize(term).toUpperCase();
+      const safeTerm = this._sanitizeLike(term).toUpperCase();
       const isNumeric = this._isNumericId(term.trim());
 
       const where = isNumeric
@@ -987,7 +1009,8 @@ class SankhyaService {
     if (!codProdList || codProdList.length === 0) return {};
 
     // Remove duplicates
-    const uniqueCodes = [...new Set(codProdList)];
+    const uniqueCodes = this._validateNumericList([...new Set(codProdList)]);
+    if (uniqueCodes.length === 0) return {};
     const inClause = uniqueCodes.join(',');
 
     try {
@@ -1104,7 +1127,8 @@ class SankhyaService {
     const t0 = Date.now();
 
     for (let i = 0; i < codProdList.length; i += BATCH_SIZE) {
-      const batch = codProdList.slice(i, i + BATCH_SIZE);
+      const batch = this._validateNumericList(codProdList.slice(i, i + BATCH_SIZE));
+      if (batch.length === 0) continue;
       const inClause = batch.join(',');
 
       const sql = `SELECT CODPROD, DESCRPROD, REFERENCIA, MARCA, CODGRUPOPROD, CODPARCFORN, REFFORN
@@ -1140,7 +1164,9 @@ class SankhyaService {
    * Fallback: CRUD pagination for product descriptions.
    */
   async _getProductDescriptionsFullCRUD(codProdList, map) {
-    const inClause = codProdList.join(',');
+    const validList = this._validateNumericList(codProdList);
+    if (validList.length === 0) return;
+    const inClause = validList.join(',');
     let page = 0;
 
     while (true) {
@@ -1313,7 +1339,8 @@ class SankhyaService {
     const excludeClause = EXCLUDED_LOCALS.join(',');
 
     for (let i = 0; i < codProdList.length; i += BATCH_SIZE) {
-      const batch = codProdList.slice(i, i + BATCH_SIZE);
+      const batch = this._validateNumericList(codProdList.slice(i, i + BATCH_SIZE));
+      if (batch.length === 0) continue;
       const inClause = batch.join(',');
 
       const sql = `SELECT EST.CODPROD, SUM(EST.ESTOQUE) AS TOTAL_ESTOQUE
@@ -1346,8 +1373,12 @@ class SankhyaService {
    * @param {string} endDate - dd/MM/yyyy
    */
   async getSalesInvoices(startDate, endDate) {
-    const safeStart = this._sanitize(startDate);
-    const safeEnd = this._sanitize(endDate);
+    const safeStart = this._validateDate(startDate);
+    const safeEnd = this._validateDate(endDate);
+    if (!safeStart || !safeEnd) {
+      console.error('Invalid date format:', startDate, endDate);
+      return [];
+    }
     // TOP codes matching the Portal de Vendas filters (sales operations only)
     const SALES_TOPS = '1971,1972,1974,1975,1976,1978,1979,1982';
     // Vlr Total Bruto = sum of items (VLRTOT + VLRDESC) without IPI, ICMS-ST or freight
@@ -1388,7 +1419,10 @@ class SankhyaService {
    * Fallback: Get sales invoices via CRUD pagination (slower).
    */
   async _getSalesInvoicesCRUD(startDate, endDate) {
-    const where = `STATUSNOTA = 'L' AND CODTIPOPER IN (1971,1972,1974,1975,1976,1978,1979,1982) AND DTNEG BETWEEN '${startDate}' AND '${endDate}'`;
+    const safeStart = this._validateDate(startDate);
+    const safeEnd = this._validateDate(endDate);
+    if (!safeStart || !safeEnd) return [];
+    const where = `STATUSNOTA = 'L' AND CODTIPOPER IN (1971,1972,1974,1975,1976,1978,1979,1982) AND DTNEG BETWEEN '${safeStart}' AND '${safeEnd}'`;
     let allInvoices = [];
     let page = 0;
 
@@ -1442,7 +1476,8 @@ class SankhyaService {
     const t0 = Date.now();
 
     for (let i = 0; i < nunotas.length; i += BATCH_SIZE) {
-      const batch = nunotas.slice(i, i + BATCH_SIZE);
+      const batch = this._validateNumericList(nunotas.slice(i, i + BATCH_SIZE));
+      if (batch.length === 0) continue;
       const inClause = batch.join(',');
 
       const sql = `SELECT ITE.NUNOTA, ITE.CODPROD, ITE.QTDNEG, ITE.VLRTOT
@@ -1480,7 +1515,9 @@ class SankhyaService {
 
     for (let i = 0; i < nunotas.length; i += BATCH_SIZE) {
       const batch = nunotas.slice(i, i + BATCH_SIZE);
-      const inClause = batch.join(',');
+      const validBatch = this._validateNumericList(batch);
+      if (validBatch.length === 0) continue;
+      const inClause = validBatch.join(',');
 
       let page = 0;
       while (true) {

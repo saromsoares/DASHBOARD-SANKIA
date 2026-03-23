@@ -6,3 +6,15 @@ const api = axios.create({
 })
 
 export default api
+
+/**
+ * Invalidate backend cache keys (forces fresh data on next fetch).
+ * @param {string[]} keys - Cache key prefixes to invalidate
+ */
+export async function invalidateBackendCache(keys) {
+  try {
+    await api.post('/invalidate-cache', { keys })
+  } catch (err) {
+    console.warn('Cache invalidation failed:', err.message)
+  }
+}

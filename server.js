@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const sankhyaService = require('./sankhyaService');
 const cache = require('./cache');
@@ -10,8 +12,51 @@ dotenv.config();
 
 const app = express();
 
-// CORS - allow Vite dev server and production
-app.use(cors());
+// Security headers
+app.use(helmet({
+    contentSecurityPolicy: false, // disabled for SPA
+    crossOriginEmbedderPolicy: false,
+}));
+
+// CORS - restrict to known origins
+const ALLOWED_ORIGINS = [
+    'http://localhost:5173',  // Vite dev server
+    'http://localhost:3000',  // Production/self
+    process.env.FRONTEND_URL, // Custom frontend URL
+].filter(Boolean);
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (server-to-server, curl, etc.)
+        if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Blocked by CORS'));
+        }
+    },
+    credentials: true,
+}));
+
+// Rate limiting
+const apiLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 120, // 120 requests per minute per IP
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Muitas requisicoes, tente novamente em instantes.' },
+});
+app.use('/api/', apiLimiter);
+
+// API Key authentication (optional - set DASHBOARD_API_KEY in .env to enable)
+const API_KEY = process.env.DASHBOARD_API_KEY;
+if (API_KEY) {
+    app.use('/api/', (req, res, next) => {
+        const key = req.headers['x-api-key'] || req.query.apikey;
+        if (key !== API_KEY) {
+            return res.status(401).json({ error: 'API key invalida ou ausente.' });
+        }
+        next();
+    });
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -120,8 +165,8 @@ app.post('/api/preco', async (req, res) => {
 
 // --- Dashboard API Routes ---
 
-const CACHE_30M = 30 * 60 * 1000;
-const CACHE_15M = 15 * 60 * 1000;
+const CACHE_5M = 5 * 60 * 1000;
+const CACHE_10M = 10 * 60 * 1000;
 
 // Helper: build Sankhya date string dd/MM/yyyy
 function toSankhyaDate(dateStr) {
@@ -167,7 +212,7 @@ app.get('/api/dashboard/products', async (req, res) => {
 
         const products = await sankhyaService.getAllActiveProductsFull();
         const result = { products, count: products.length };
-        cache.set(cacheKey, result, CACHE_30M);
+        cache.set(cacheKey, result, CACHE_10M);
         res.json(result);
     } catch (error) {
         console.error('Dashboard products error:', error.message);
@@ -180,9 +225,9 @@ app.get('/api/dashboard/products', async (req, res) => {
  */
 app.get('/api/dashboard/stock', async (req, res) => {
     try {
-        const codprods = (req.query.codprods || '').split(',').filter(Boolean);
+        const codprods = (req.query.codprods || '').split(',').filter(Boolean).filter(v => /^\d+$/.test(v));
         if (codprods.length === 0) {
-            return res.status(400).json({ error: 'Parâmetro codprods obrigatório.' });
+            return res.status(400).json({ error: 'Parâmetro codprods obrigatório (valores numericos).' });
         }
         const stockMap = await sankhyaService.getBulkStockCRUD(codprods);
         const stock = {};
@@ -211,7 +256,7 @@ app.get('/api/dashboard/sales-summary', async (req, res) => {
         const invoices = await sankhyaService.getSalesInvoices(startDate, endDate);
         if (invoices.length === 0) {
             const result = { averages: {}, months, totalInvoices: 0 };
-            cache.set(cacheKey, result, CACHE_15M);
+            cache.set(cacheKey, result, CACHE_5M);
             return res.json(result);
         }
 
@@ -232,7 +277,7 @@ app.get('/api/dashboard/sales-summary', async (req, res) => {
         });
 
         const result = { averages, months, totalInvoices: invoices.length };
-        cache.set(cacheKey, result, CACHE_15M);
+        cache.set(cacheKey, result, CACHE_5M);
         res.json(result);
     } catch (error) {
         console.error('Dashboard sales-summary error:', error.message);
@@ -306,7 +351,7 @@ app.get('/api/dashboard/purchase-suggestions', async (req, res) => {
         });
 
         const result = { suggestions, total: suggestions.length };
-        cache.set(cacheKey, result, CACHE_15M);
+        cache.set(cacheKey, result, CACHE_5M);
         res.json(result);
     } catch (error) {
         console.error('Dashboard purchase-suggestions error:', error.message);
@@ -459,7 +504,7 @@ app.get('/api/dashboard/sales-data', async (req, res) => {
             startDate: start,
             endDate: end,
         };
-        cache.set(cacheKey, result, CACHE_15M);
+        cache.set(cacheKey, result, CACHE_5M);
         res.json(result);
     } catch (error) {
         console.error('Dashboard sales-data error:', error.message, error.stack);
@@ -499,7 +544,7 @@ app.get('/api/dashboard/top-products-asx', async (req, res) => {
 
         const data = await sankhyaService.getTopProductsASX();
         const result = { loading: false, ...data };
-        cache.set(cacheKey, result, CACHE_15M);
+        cache.set(cacheKey, result, CACHE_5M);
         res.json(result);
     } catch (error) {
         console.error('Dashboard top-products-asx error:', error.message);
@@ -756,7 +801,7 @@ async function warmUpPurchaseManagement() {
         console.log(`[WarmUp] ${invoices6m.length} invoices in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
 
         if (invoices6m.length === 0) {
-            cache.set('purchase_management', { asx: [], absolux: [], totalAsx: 0, totalAbsolux: 0 }, CACHE_30M);
+            cache.set('purchase_management', { asx: [], absolux: [], totalAsx: 0, totalAbsolux: 0 }, CACHE_10M);
             console.log('[WarmUp] No invoices found, cached empty result.');
             return;
         }
@@ -930,39 +975,19 @@ async function warmUpPurchaseManagement() {
     }
 }
 
-// Schedule warm-up at fixed times: 08:30, 13:30, 16:30
+// Schedule warm-up every 3 hours (more frequent than old 3x/day)
 function scheduleWarmUp() {
-    const SCHEDULE = [
-        { hour: 8, minute: 30 },
-        { hour: 13, minute: 30 },
-        { hour: 16, minute: 30 },
-    ];
+    const INTERVAL_MS = 3 * 60 * 60 * 1000; // 3 hours
 
     function scheduleNext() {
-        const now = new Date();
-        let next = null;
-
-        for (const s of SCHEDULE) {
-            const candidate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), s.hour, s.minute, 0);
-            if (candidate > now) {
-                if (!next || candidate < next) next = candidate;
-            }
-        }
-
-        // If no more today, schedule first one tomorrow
-        if (!next) {
-            const first = SCHEDULE.reduce((a, b) => a.hour < b.hour || (a.hour === b.hour && a.minute < b.minute) ? a : b);
-            next = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, first.hour, first.minute, 0);
-        }
-
-        const delay = next.getTime() - now.getTime();
-        const timeStr = next.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        console.log(`[Scheduler] Proxima atualizacao de compras: ${timeStr} (em ${Math.round(delay / 60000)} min)`);
+        const nextTime = new Date(Date.now() + INTERVAL_MS);
+        const timeStr = nextTime.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        console.log(`[Scheduler] Proxima atualizacao de compras: ${timeStr} (em ${Math.round(INTERVAL_MS / 60000)} min)`);
 
         setTimeout(() => {
             console.log(`[Scheduler] Iniciando atualizacao agendada (${new Date().toLocaleTimeString('pt-BR')})`);
             warmUpPurchaseManagement().then(() => scheduleNext());
-        }, delay);
+        }, INTERVAL_MS);
     }
 
     // Run immediately on startup if no cache exists, then schedule
@@ -980,6 +1005,34 @@ app.get('/api/dashboard/refresh', async (req, res) => {
     console.log('[Refresh] Manual warm-up triggered');
     res.json({ status: 'refreshing', message: 'Warm-up iniciado em background' });
     warmUpPurchaseManagement().catch(err => console.error('[Refresh] Warm-up error:', err.message));
+});
+
+// Invalidate specific cache keys (for manual refresh from frontend)
+app.post('/api/dashboard/invalidate-cache', (req, res) => {
+    const { keys } = req.body;
+    if (!keys || !Array.isArray(keys)) {
+        return res.status(400).json({ error: 'Envie { keys: ["key1", "key2"] }' });
+    }
+    const allowed = ['products_all', 'sales_summary', 'purchase_suggestions', 'sales_data', 'top_products_asx', 'pending_billing', 'purchase_management'];
+    let invalidated = 0;
+    keys.forEach(key => {
+        // Allow prefix matching (e.g., "sales_data" invalidates "sales_data_01/01/2025_31/01/2025")
+        if (allowed.some(a => key.startsWith(a))) {
+            cache.invalidate(key);
+            invalidated++;
+        }
+    });
+    // Also clear any cache entries that start with provided keys
+    if (cache.store) {
+        for (const cacheKey of cache.store.keys()) {
+            if (keys.some(k => cacheKey.startsWith(k))) {
+                cache.invalidate(cacheKey);
+                invalidated++;
+            }
+        }
+    }
+    console.log(`[Cache] Invalidated ${invalidated} entries for keys: ${keys.join(', ')}`);
+    res.json({ ok: true, invalidated });
 });
 
 // Start Server

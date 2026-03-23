@@ -10,6 +10,7 @@ import {
 import { usePurchaseManagement } from '../api/dashboard'
 import StockIndicator from '../components/dashboard/StockIndicator'
 import { formatNumber } from '../lib/formatters'
+import RefreshButton from '../components/RefreshButton'
 
 const STATUS_MAP = {
   critico: { label: 'Critico', color: 'red' },
@@ -161,6 +162,7 @@ export default function SugestaoCompraPage() {
           <h2 className="text-lg sm:text-xl font-bold text-gray-800">Sugestao de Compra</h2>
           <p className="text-[10px] sm:text-xs text-gray-500 mt-1">Produtos com estoque para menos de 6 meses - considere estoque + transito</p>
         </div>
+        <RefreshButton queryKeys={['purchase-management']} />
       </div>
 
       {/* KPI Cards */}
