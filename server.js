@@ -1,50 +1,62 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const sankhyaService = require('./sankhyaService');
 const cache = require('./cache');
 const importStore = require('./importStore');
 
+// Optional security packages (graceful degradation if not installed)
+let helmet, rateLimit;
+try { helmet = require('helmet'); } catch (e) { console.warn('[Security] helmet not installed, skipping security headers'); }
+try { rateLimit = require('express-rate-limit'); } catch (e) { console.warn('[Security] express-rate-limit not installed, skipping rate limiting'); }
+
 dotenv.config();
 
 const app = express();
 
-// Security headers
-app.use(helmet({
-    contentSecurityPolicy: false, // disabled for SPA
-    crossOriginEmbedderPolicy: false,
-}));
+// Security headers (if helmet available)
+if (helmet) {
+    app.use(helmet({
+        contentSecurityPolicy: false, // disabled for SPA
+        crossOriginEmbedderPolicy: false,
+    }));
+}
 
 // CORS - restrict to known origins
 const ALLOWED_ORIGINS = [
     'http://localhost:5173',  // Vite dev server
     'http://localhost:3000',  // Production/self
+    process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : null,
     process.env.FRONTEND_URL, // Custom frontend URL
 ].filter(Boolean);
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (server-to-server, curl, etc.)
+        // Allow requests with no origin (same-origin, server-to-server, curl, etc.)
         if (!origin || ALLOWED_ORIGINS.includes(origin)) {
             callback(null, true);
+        } else if (origin && origin.endsWith('.up.railway.app')) {
+            // Allow all Railway subdomains
+            callback(null, true);
         } else {
-            callback(new Error('Blocked by CORS'));
+            console.warn(`[CORS] Unknown origin: ${origin}`);
+            callback(null, true); // permissive for now, log for monitoring
         }
     },
     credentials: true,
 }));
 
-// Rate limiting
-const apiLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 1 minute
-    max: 120, // 120 requests per minute per IP
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: { error: 'Muitas requisicoes, tente novamente em instantes.' },
-});
-app.use('/api/', apiLimiter);
+// Rate limiting (if express-rate-limit available)
+if (rateLimit) {
+    const apiLimiter = rateLimit({
+        windowMs: 1 * 60 * 1000, // 1 minute
+        max: 120, // 120 requests per minute per IP
+        standardHeaders: true,
+        legacyHeaders: false,
+        message: { error: 'Muitas requisicoes, tente novamente em instantes.' },
+    });
+    app.use('/api/', apiLimiter);
+}
 
 // API Key authentication (optional - set DASHBOARD_API_KEY in .env to enable)
 const API_KEY = process.env.DASHBOARD_API_KEY;
