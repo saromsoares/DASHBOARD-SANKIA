@@ -8,7 +8,7 @@ import {
   flexRender,
 } from '@tanstack/react-table'
 import { useQueryClient, useMutation } from '@tanstack/react-query'
-import { useImportacoes, useSearchProductsAsx } from '../api/dashboard'
+import { useImportacoes, useSearchProductsAsx, usePurchaseManagement } from '../api/dashboard'
 import { formatNumber } from '../lib/formatters'
 import api from '../api/client'
 import RefreshButton from '../components/RefreshButton'
@@ -300,6 +300,7 @@ function ConfirmarChegadaModal({ item, onConfirm, onClose }) {
 
 export default function ImportacaoPage() {
   const { data: importacoes = [], isLoading } = useImportacoes()
+  const { data: purchaseData } = usePurchaseManagement()
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
   const [statusFilter, setStatusFilter] = useState('all')
@@ -369,13 +370,22 @@ export default function ImportacaoPage() {
     return { emTransito: emTransito.length, totalQtd, produtos, atrasados, recebidos }
   }, [importacoes])
 
+  // Mapa de estoque e media de vendas 6m do purchase-management
+  const productInfoMap = useMemo(() => {
+    const map = {}
+    const allProducts = [...(purchaseData?.asx || []), ...(purchaseData?.absolux || [])]
+    allProducts.forEach(p => {
+      map[p.codprod] = { stock: p.stock || 0, avg6m: p.avg6m || 0, duracao: p.duracao }
+    })
+    return map
+  }, [purchaseData])
+
   const columns = useMemo(() => [
     { accessorKey: 'codprod', header: 'Codigo', size: 70 },
-    { accessorKey: 'descrprod', header: 'Produto', size: 250 },
-    { accessorKey: 'referencia', header: 'Ref', size: 90 },
+    { accessorKey: 'descrprod', header: 'Produto', size: 220 },
     {
       accessorKey: 'quantidade',
-      header: 'Qtd',
+      header: 'Qtd Transito',
       size: 90,
       cell: ({ row }) => {
         const total = row.original.quantidade
@@ -390,10 +400,32 @@ export default function ImportacaoPage() {
       },
     },
     {
-      accessorKey: 'fornecedor',
-      header: 'Fornecedor',
-      size: 140,
-      cell: ({ getValue }) => getValue() || <span className="text-gray-300">-</span>,
+      id: 'estoque',
+      header: 'Estoque Atual',
+      size: 100,
+      accessorFn: (row) => productInfoMap[row.codprod]?.stock ?? 0,
+      cell: ({ row }) => {
+        const info = productInfoMap[row.original.codprod]
+        if (!info) return <span className="text-gray-300">-</span>
+        return <span className="font-semibold">{formatNumber(info.stock)}</span>
+      },
+    },
+    {
+      id: 'duracao',
+      header: 'Duracao Estoque',
+      size: 120,
+      accessorFn: (row) => productInfoMap[row.codprod]?.duracao ?? 999,
+      cell: ({ row }) => {
+        const info = productInfoMap[row.original.codprod]
+        if (!info || info.avg6m === 0) return <span className="text-gray-400 text-xs">Sem vendas</span>
+        const dur = info.duracao
+        if (dur === null) return <span className="text-gray-400 text-xs">Sem vendas</span>
+        let color = 'text-green-600'
+        if (dur < 1) color = 'text-red-600'
+        else if (dur < 3) color = 'text-yellow-600'
+        else if (dur < 6) color = 'text-orange-500'
+        return <span className={`font-semibold ${color}`}>{dur.toFixed(1)} meses</span>
+      },
     },
     {
       accessorKey: 'numeroPedido',
