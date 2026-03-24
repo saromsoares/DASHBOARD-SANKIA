@@ -1379,11 +1379,11 @@ class SankhyaService {
       console.error('Invalid date format:', startDate, endDate);
       return [];
     }
-    // TOP codes matching the Portal de Vendas filters (sales operations only)
-    const SALES_TOPS = '1971,1972,1974,1975,1976,1978,1979,1982';
-    // Vlr Total Bruto = sum of items (VLRTOT + VLRDESC) without IPI, ICMS-ST or freight
+    // TOPs de faturamento conforme Portal de Vendas: 1972, 1974, 1975
+    const SALES_TOPS = '1972,1974,1975';
+    // VLRNOTA = valor total da nota conforme Portal de Vendas
     const sql = `SELECT CAB.NUNOTA, TO_CHAR(CAB.DTNEG, 'DD/MM/YYYY') AS DTNEG,
-        NVL((SELECT SUM(NVL(ITE.VLRTOT,0) + NVL(ITE.VLRDESC,0)) FROM TGFITE ITE WHERE ITE.NUNOTA = CAB.NUNOTA), 0) AS VLRBRUTO,
+        NVL(CAB.VLRNOTA, 0) AS VLRNOTA,
         CAB.CODVEND, CAB.CODPARC, PAR.NOMEPARC
       FROM TGFCAB CAB
       LEFT JOIN TGFPAR PAR ON PAR.CODPARC = CAB.CODPARC
@@ -1422,7 +1422,7 @@ class SankhyaService {
     const safeStart = this._validateDate(startDate);
     const safeEnd = this._validateDate(endDate);
     if (!safeStart || !safeEnd) return [];
-    const where = `STATUSNOTA = 'L' AND CODTIPOPER IN (1971,1972,1974,1975,1976,1978,1979,1982) AND DTNEG BETWEEN '${safeStart}' AND '${safeEnd}'`;
+    const where = `STATUSNOTA = 'L' AND CODTIPOPER IN (1972,1974,1975) AND DTNEG BETWEEN '${safeStart}' AND '${safeEnd}'`;
     let allInvoices = [];
     let page = 0;
 
@@ -1695,7 +1695,7 @@ class SankhyaService {
       FROM TGFITE ITE
       INNER JOIN TGFCAB CAB ON CAB.NUNOTA = ITE.NUNOTA
       INNER JOIN TGFPRO PRO ON PRO.CODPROD = ITE.CODPROD
-      WHERE CAB.STATUSNOTA = 'L' AND CAB.CODTIPOPER IN (1971,1972,1974,1975,1976,1978,1979,1982)
+      WHERE CAB.STATUSNOTA = 'L' AND CAB.CODTIPOPER IN (1972,1974,1975)
         AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
         AND PRO.CODGRUPOPROD LIKE '9901%'
       GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA, PRO.REFFORN
@@ -1712,7 +1712,7 @@ class SankhyaService {
       FROM TGFITE ITE
       INNER JOIN TGFCAB CAB ON CAB.NUNOTA = ITE.NUNOTA
       INNER JOIN TGFPRO PRO ON PRO.CODPROD = ITE.CODPROD
-      WHERE CAB.STATUSNOTA = 'L' AND CAB.CODTIPOPER IN (1971,1972,1974,1975,1976,1978,1979,1982)
+      WHERE CAB.STATUSNOTA = 'L' AND CAB.CODTIPOPER IN (1972,1974,1975)
         AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
         AND PRO.CODGRUPOPROD LIKE '9901%'
       GROUP BY ITE.CODPROD, PRO.DESCRPROD, PRO.REFERENCIA, PRO.REFFORN
