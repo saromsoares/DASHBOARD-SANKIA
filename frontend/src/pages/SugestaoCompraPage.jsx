@@ -58,22 +58,15 @@ export default function SugestaoCompraPage() {
   }, [allProducts, needField])
 
   const columns = useMemo(() => [
-    { accessorKey: 'codprod', header: 'Cod', size: 60 },
     {
       accessorKey: 'descrprod',
       header: 'Produto',
-      size: 250,
+      size: 320,
       cell: ({ getValue }) => (
-        <span className="truncate block max-w-[250px]" title={getValue()}>{getValue()}</span>
+        <span className="whitespace-normal break-words leading-tight">{getValue()}</span>
       ),
     },
     { accessorKey: 'referencia', header: 'Ref', size: 80 },
-    {
-      accessorKey: 'refforn',
-      header: 'Ref Forn',
-      size: 100,
-      cell: ({ getValue }) => getValue() || <span className="text-gray-300">-</span>,
-    },
     {
       accessorKey: 'stock',
       header: 'Estoque',
