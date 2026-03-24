@@ -609,11 +609,12 @@ app.get('/api/dashboard/pending-billing', async (req, res) => {
         const cached = cache.get(cacheKey);
         if (cached) return res.json(cached);
 
-        // Portal de Vendas: Tipo de Operacao = Pedidos de Venda
-        // TOPs: 1963=ASX NF-E, 1964=ABSOLUX NF-E, 1965=ASX NFC-E, 1966=ABSOLUX NFC-E
+        // Portal de Vendas: Tipo de Operacao = Pedidos de Venda (NF-E apenas)
+        // TOPs: 1963=ASX Pedido NF-E, 1964=ABSOLUX Pedido NF-E
+        // Exclui NFC-E (1965, 1966) = vendas de balcao/consumidor que nao sao "Pedidos de Venda"
         // VLRNOTA = valor total do pedido conforme exibido no Portal de Vendas
         // STATUSNOTA='A' = pedidos pendentes (abertos, aguardando faturamento)
-        const PENDING_TOPS = '1963,1964,1965,1966';
+        const PENDING_TOPS = '1963,1964';
         const sql = `SELECT CAB.NUNOTA, CAB.NUMNOTA, TO_CHAR(CAB.DTNEG, 'DD/MM/YYYY') AS DTNEG,
             CAB.CODTIPOPER, CAB.CODPARC, PAR.NOMEPARC,
             NVL(CAB.VLRNOTA, 0) AS VLRNOTA,
@@ -647,6 +648,30 @@ app.get('/api/dashboard/pending-billing', async (req, res) => {
     } catch (error) {
         console.error('Pending billing error:', error.message);
         res.status(500).json({ error: 'Erro ao buscar faturamento pendente.' });
+    }
+});
+
+// --- Diagnostico temporario: breakdown por TOP ---
+app.get('/api/dashboard/pending-diag', async (req, res) => {
+    try {
+        const sql = `SELECT CAB.CODTIPOPER, TOP.DESCROPER,
+            COUNT(*) AS QTD, SUM(NVL(CAB.VLRNOTA, 0)) AS TOTAL
+            FROM TGFCAB CAB
+            LEFT JOIN TGFTOP TOP ON TOP.CODTIPOPER = CAB.CODTIPOPER AND TOP.DHALTER = (SELECT MAX(T2.DHALTER) FROM TGFTOP T2 WHERE T2.CODTIPOPER = CAB.CODTIPOPER)
+            WHERE CAB.TIPMOV = 'P' AND CAB.STATUSNOTA = 'A'
+            AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
+            GROUP BY CAB.CODTIPOPER, TOP.DESCROPER
+            ORDER BY TOTAL DESC`;
+        const result = await sankhyaService.executeSQL(sql);
+        const rows = (result.rows || []).map(row => ({
+            codtipoper: String(row[0]),
+            descricao: row[1] || '',
+            qtd: parseInt(row[2] || 0),
+            total: parseFloat(row[3] || 0),
+        }));
+        res.json({ breakdown: rows, grandTotal: rows.reduce((s, r) => s + r.total, 0) });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
