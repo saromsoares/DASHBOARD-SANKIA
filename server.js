@@ -609,9 +609,11 @@ app.get('/api/dashboard/pending-billing', async (req, res) => {
         const cached = cache.get(cacheKey);
         if (cached) return res.json(cached);
 
-        // Portal de Vendas: Tipo de Operacao = Pedidos de Venda (TIPMOV='P')
+        // Portal de Vendas: Tipo de Operacao = Pedidos de Venda
+        // TOPs: 1963=ASX NF-E, 1964=ABSOLUX NF-E, 1965=ASX NFC-E, 1966=ABSOLUX NFC-E
         // VLRNOTA = valor total do pedido conforme exibido no Portal de Vendas
         // STATUSNOTA='A' = pedidos pendentes (abertos, aguardando faturamento)
+        const PENDING_TOPS = '1963,1964,1965,1966';
         const sql = `SELECT CAB.NUNOTA, CAB.NUMNOTA, TO_CHAR(CAB.DTNEG, 'DD/MM/YYYY') AS DTNEG,
             CAB.CODTIPOPER, CAB.CODPARC, PAR.NOMEPARC,
             NVL(CAB.VLRNOTA, 0) AS VLRNOTA,
@@ -620,6 +622,7 @@ app.get('/api/dashboard/pending-billing', async (req, res) => {
             LEFT JOIN TGFPAR PAR ON PAR.CODPARC = CAB.CODPARC
             LEFT JOIN TGFVEN VEN ON VEN.CODVEND = CAB.CODVEND
             WHERE CAB.TIPMOV = 'P' AND CAB.STATUSNOTA = 'A'
+            AND CAB.CODTIPOPER IN (${PENDING_TOPS})
             AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
             ORDER BY VLRNOTA DESC`;
 
