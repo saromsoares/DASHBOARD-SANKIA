@@ -19,7 +19,7 @@ function getDefaultDates() {
 
 export default function FaturamentoPage() {
   const { data: pending, isLoading: loadingPending, isFetching } = usePendingBilling()
-  const { startDate, endDate } = useMemo(getDefaultDates, [])
+  const { startDate, endDate } = getDefaultDates()
   const { data: salesData, isLoading: loadingSales } = useSalesData(startDate, endDate)
 
   const [globalFilter, setGlobalFilter] = useState('')

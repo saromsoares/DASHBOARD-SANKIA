@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import { useSalesData, useTopProductsAsx } from '../api/dashboard'
 import { toISODate } from '../lib/formatters'
 import RefreshButton from '../components/RefreshButton'
@@ -14,7 +13,8 @@ function getDefaultDates() {
 }
 
 export default function DashboardPage() {
-  const { startDate, endDate } = useMemo(getDefaultDates, [])
+  // Recalcula datas a cada render para sempre usar "hoje" como endDate
+  const { startDate, endDate } = getDefaultDates()
 
   const { data: salesData, isLoading: loadingSales, isError: salesError } = useSalesData(startDate, endDate)
   const { data: topProducts, isLoading: loadingTopProducts } = useTopProductsAsx()

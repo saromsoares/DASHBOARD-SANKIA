@@ -52,11 +52,7 @@ export function useTopProductsAsx() {
   return useQuery({
     queryKey: ['top-products-asx'],
     queryFn: () => api.get('/top-products-asx').then(r => r.data),
-    refetchInterval: (query) => {
-      const data = query.state.data
-      if (!data || data.loading) return 15 * 1000
-      return 10 * 60 * 1000
-    },
+    refetchInterval: 5 * 60 * 1000, // 5 min - same as backend cache
   })
 }
 
@@ -87,7 +83,7 @@ export function useSalesData(startDate, endDate) {
     queryKey: ['sales-data', startDate, endDate],
     queryFn: () => api.get(`/sales-data?startDate=${startDate}&endDate=${endDate}`).then(r => r.data),
     enabled: !!startDate && !!endDate,
-    refetchInterval: 300 * 1000,
+    refetchInterval: 5 * 60 * 1000, // 5 min
   })
 }
 
