@@ -23,7 +23,7 @@ export default function FaturamentoPage() {
   const { data: salesData, isLoading: loadingSales } = useSalesData(startDate, endDate)
 
   const [globalFilter, setGlobalFilter] = useState('')
-  const [sorting, setSorting] = useState([{ id: 'vlrbruto', desc: true }])
+  const [sorting, setSorting] = useState([{ id: 'vlrnota', desc: true }])
 
   const orders = pending?.orders || []
   const totalPending = pending?.totalValue || 0
@@ -58,8 +58,8 @@ export default function FaturamentoPage() {
       cell: ({ getValue }) => getValue() || '-',
     },
     {
-      accessorKey: 'vlrbruto',
-      header: 'Valor Bruto',
+      accessorKey: 'vlrnota',
+      header: 'Valor Total',
       size: 120,
       cell: ({ getValue }) => (
         <span className="font-semibold text-gray-800">{formatBRL(getValue())}</span>

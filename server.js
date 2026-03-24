@@ -609,21 +609,19 @@ app.get('/api/dashboard/pending-billing', async (req, res) => {
         const cached = cache.get(cacheKey);
         if (cached) return res.json(cached);
 
-        // TOPs: pedidos de venda ASX (1963=NF-E, 1965=NFC-E) e ABSOLUX (1964=NF-E, 1966=NFC-E)
-        // Excludes 1968 (orçamento de venda)
-        const PENDING_TOPS = '1963,1964,1965,1966';
-        // Vlr Total Bruto = SUM of items (VLRTOT + VLRDESC) without IPI, ICMS-ST or freight
+        // Portal de Vendas: Tipo de Operacao = Pedidos de Venda (TIPMOV='P')
+        // VLRNOTA = valor total do pedido conforme exibido no Portal de Vendas
+        // STATUSNOTA='A' = pedidos pendentes (abertos, aguardando faturamento)
         const sql = `SELECT CAB.NUNOTA, CAB.NUMNOTA, TO_CHAR(CAB.DTNEG, 'DD/MM/YYYY') AS DTNEG,
             CAB.CODTIPOPER, CAB.CODPARC, PAR.NOMEPARC,
-            NVL((SELECT SUM(NVL(ITE.VLRTOT,0) + NVL(ITE.VLRDESC,0)) FROM TGFITE ITE WHERE ITE.NUNOTA = CAB.NUNOTA), 0) AS VLRBRUTO,
+            NVL(CAB.VLRNOTA, 0) AS VLRNOTA,
             CAB.CODVEND, VEN.APELIDO AS NOMEVEND, CAB.STATUSNOTA
             FROM TGFCAB CAB
             LEFT JOIN TGFPAR PAR ON PAR.CODPARC = CAB.CODPARC
             LEFT JOIN TGFVEN VEN ON VEN.CODVEND = CAB.CODVEND
             WHERE CAB.TIPMOV = 'P' AND CAB.STATUSNOTA = 'A'
-            AND CAB.CODTIPOPER IN (${PENDING_TOPS})
             AND CAB.DTNEG >= TRUNC(SYSDATE, 'MM')
-            ORDER BY VLRBRUTO DESC`;
+            ORDER BY VLRNOTA DESC`;
 
         const result = await sankhyaService.executeSQL(sql);
         const rows = (result.rows || []).map(row => ({
@@ -633,13 +631,13 @@ app.get('/api/dashboard/pending-billing', async (req, res) => {
             codtipoper: String(row[3]),
             codparc: String(row[4]),
             nomeparc: row[5] || '',
-            vlrbruto: parseFloat(row[6] || 0),
+            vlrnota: parseFloat(row[6] || 0),
             codvend: String(row[7] || '0'),
             nomevend: row[8] || '',
             statusnota: row[9] || '',
         }));
 
-        const totalValue = rows.reduce((sum, r) => sum + r.vlrbruto, 0);
+        const totalValue = rows.reduce((sum, r) => sum + r.vlrnota, 0);
         const data = { orders: rows, totalOrders: rows.length, totalValue };
         cache.set(cacheKey, data, 5 * 60 * 1000); // 5 min cache
         res.json(data);
