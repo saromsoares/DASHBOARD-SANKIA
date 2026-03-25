@@ -114,25 +114,67 @@ function AddLeadForm({ vendedores, onAdd }) {
   )
 }
 
-function LeadRow({ lead, vendedor, onUpdate, onDelete }) {
+function EditableCell({ value, field, leadId, onUpdate, placeholder }) {
   const [editing, setEditing] = useState(false)
-  const [obs, setObs] = useState(lead.observacao || '')
+  const [text, setText] = useState(value || '')
 
+  const handleSave = () => {
+    if (text !== (value || '')) {
+      onUpdate(leadId, { [field]: text })
+    }
+    setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <div className="flex gap-1">
+        <input
+          type="text"
+          value={text}
+          onChange={e => setText(e.target.value)}
+          className="flex-1 border border-gray-300 rounded px-2 py-1 text-xs min-w-[80px]"
+          autoFocus
+          placeholder={placeholder}
+          onKeyDown={e => {
+            if (e.key === 'Enter') handleSave()
+            if (e.key === 'Escape') { setText(value || ''); setEditing(false) }
+          }}
+          onBlur={handleSave}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <span
+      className="cursor-pointer hover:text-blue-600 hover:bg-blue-50 rounded px-1 py-0.5 -mx-1"
+      onClick={() => setEditing(true)}
+      title="Clique para editar"
+    >
+      {value || <span className="text-gray-300">{placeholder || '-'}</span>}
+    </span>
+  )
+}
+
+function LeadRow({ lead, vendedor, onUpdate, onDelete }) {
   const handleStatusChange = (newStatus) => {
     onUpdate(lead.id, { status: newStatus })
   }
 
-  const handleSaveObs = () => {
-    onUpdate(lead.id, { observacao: obs })
-    setEditing(false)
-  }
-
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50">
-      <td className="px-4 py-3 text-sm font-medium text-gray-900">{lead.clienteNome}</td>
-      <td className="px-4 py-3 text-sm text-gray-600">{lead.cidadeEstado || '-'}</td>
-      <td className="px-4 py-3 text-sm text-gray-600">{lead.clienteTelefone || '-'}</td>
-      <td className="px-4 py-3 text-sm text-gray-600">{lead.clienteEmail || '-'}</td>
+      <td className="px-4 py-3 text-sm font-medium text-gray-900">
+        <EditableCell value={lead.clienteNome} field="clienteNome" leadId={lead.id} onUpdate={onUpdate} placeholder="Nome" />
+      </td>
+      <td className="px-4 py-3 text-sm text-gray-600">
+        <EditableCell value={lead.cidadeEstado} field="cidadeEstado" leadId={lead.id} onUpdate={onUpdate} placeholder="Cidade - UF" />
+      </td>
+      <td className="px-4 py-3 text-sm text-gray-600">
+        <EditableCell value={lead.clienteTelefone} field="clienteTelefone" leadId={lead.id} onUpdate={onUpdate} placeholder="Telefone" />
+      </td>
+      <td className="px-4 py-3 text-sm text-gray-600">
+        <EditableCell value={lead.clienteEmail} field="clienteEmail" leadId={lead.id} onUpdate={onUpdate} placeholder="Email" />
+      </td>
       <td className="px-4 py-3">
         <select
           value={lead.status}
@@ -145,27 +187,7 @@ function LeadRow({ lead, vendedor, onUpdate, onDelete }) {
         </select>
       </td>
       <td className="px-4 py-3 text-sm text-gray-600">
-        {editing ? (
-          <div className="flex gap-1">
-            <input
-              type="text"
-              value={obs}
-              onChange={e => setObs(e.target.value)}
-              className="flex-1 border border-gray-300 rounded px-2 py-1 text-xs"
-              autoFocus
-              onKeyDown={e => e.key === 'Enter' && handleSaveObs()}
-            />
-            <button onClick={handleSaveObs} className="text-xs text-blue-600 hover:text-blue-800">OK</button>
-          </div>
-        ) : (
-          <span
-            className="cursor-pointer hover:text-blue-600"
-            onClick={() => setEditing(true)}
-            title="Clique para editar"
-          >
-            {lead.observacao || '-'}
-          </span>
-        )}
+        <EditableCell value={lead.observacao} field="observacao" leadId={lead.id} onUpdate={onUpdate} placeholder="Obs..." />
       </td>
       <td className="px-4 py-3 text-xs text-gray-400">
         {new Date(lead.criadoEm).toLocaleDateString('pt-BR')}
