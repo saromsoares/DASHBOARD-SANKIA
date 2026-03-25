@@ -40,6 +40,20 @@ function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
+// One-time migration: add cidadeEstado to Andre's existing leads
+function migrateAndreLeads() {
+    const entries = readAll();
+    let changed = false;
+    entries.forEach(e => {
+        if (e.vendedorId === 'andre' && !e.cidadeEstado) {
+            e.cidadeEstado = 'Porto Velho - RO';
+            changed = true;
+        }
+    });
+    if (changed) writeAll(entries);
+}
+migrateAndreLeads();
+
 function getAll() {
     return readAll();
 }
@@ -54,6 +68,7 @@ function add(entry) {
         id: generateId(),
         vendedorId: entry.vendedorId,
         clienteNome: entry.clienteNome || '',
+        cidadeEstado: entry.cidadeEstado || '',
         clienteTelefone: entry.clienteTelefone || '',
         clienteEmail: entry.clienteEmail || '',
         observacao: entry.observacao || '',
@@ -70,7 +85,7 @@ function update(id, updates) {
     const entries = readAll();
     const idx = entries.findIndex(e => e.id === id);
     if (idx === -1) return null;
-    const allowed = ['clienteNome', 'clienteTelefone', 'clienteEmail', 'observacao', 'status', 'vendedorId'];
+    const allowed = ['clienteNome', 'cidadeEstado', 'clienteTelefone', 'clienteEmail', 'observacao', 'status', 'vendedorId'];
     allowed.forEach(key => {
         if (updates[key] !== undefined) {
             entries[idx][key] = updates[key];

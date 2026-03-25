@@ -32,6 +32,7 @@ function StatusBadge({ status }) {
 function AddLeadForm({ vendedores, onAdd }) {
   const [vendedorId, setVendedorId] = useState('')
   const [clienteNome, setClienteNome] = useState('')
+  const [cidadeEstado, setCidadeEstado] = useState('')
   const [clienteTelefone, setClienteTelefone] = useState('')
   const [clienteEmail, setClienteEmail] = useState('')
   const [observacao, setObservacao] = useState('')
@@ -39,8 +40,9 @@ function AddLeadForm({ vendedores, onAdd }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!vendedorId || !clienteNome.trim()) return
-    onAdd({ vendedorId, clienteNome: clienteNome.trim(), clienteTelefone, clienteEmail, observacao })
+    onAdd({ vendedorId, clienteNome: clienteNome.trim(), cidadeEstado, clienteTelefone, clienteEmail, observacao })
     setClienteNome('')
+    setCidadeEstado('')
     setClienteTelefone('')
     setClienteEmail('')
     setObservacao('')
@@ -49,7 +51,7 @@ function AddLeadForm({ vendedores, onAdd }) {
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
       <h3 className="text-sm font-semibold text-gray-700 mb-3">Adicionar Lead</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
         <select
           value={vendedorId}
           onChange={e => setVendedorId(e.target.value)}
@@ -70,6 +72,13 @@ function AddLeadForm({ vendedores, onAdd }) {
           onChange={e => setClienteNome(e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           required
+        />
+        <input
+          type="text"
+          placeholder="Cidade - UF"
+          value={cidadeEstado}
+          onChange={e => setCidadeEstado(e.target.value)}
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
         <input
           type="text"
@@ -121,6 +130,7 @@ function LeadRow({ lead, vendedor, onUpdate, onDelete }) {
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50">
       <td className="px-4 py-3 text-sm font-medium text-gray-900">{lead.clienteNome}</td>
+      <td className="px-4 py-3 text-sm text-gray-600">{lead.cidadeEstado || '-'}</td>
       <td className="px-4 py-3 text-sm text-gray-600">{lead.clienteTelefone || '-'}</td>
       <td className="px-4 py-3 text-sm text-gray-600">{lead.clienteEmail || '-'}</td>
       <td className="px-4 py-3">
@@ -356,6 +366,7 @@ export default function ProspeccaoPage() {
                 <thead>
                   <tr className="text-left text-xs text-gray-500 uppercase border-b border-gray-100">
                     <th className="px-4 py-2 font-medium">Cliente</th>
+                    <th className="px-4 py-2 font-medium">Cidade/UF</th>
                     <th className="px-4 py-2 font-medium">Telefone</th>
                     <th className="px-4 py-2 font-medium">Email</th>
                     <th className="px-4 py-2 font-medium">Status</th>
