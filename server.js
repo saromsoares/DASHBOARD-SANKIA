@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const sankhyaService = require('./sankhyaService');
 const cache = require('./cache');
 const importStore = require('./importStore');
+const prospeccaoStore = require('./prospeccaoStore');
 
 // Optional security packages (graceful degradation if not installed)
 let helmet, rateLimit;
@@ -758,6 +759,82 @@ app.delete('/api/dashboard/importacoes/:id', (req, res) => {
     } catch (error) {
         console.error('Importacoes DELETE error:', error.message);
         res.status(500).json({ error: 'Erro ao cancelar importacao.' });
+    }
+});
+
+// ==================== PROSPECCAO ROUTES ====================
+
+/**
+ * GET /api/dashboard/prospeccao/vendedores
+ * Returns list of sales reps.
+ */
+app.get('/api/dashboard/prospeccao/vendedores', (req, res) => {
+    try {
+        res.json(prospeccaoStore.getVendedores());
+    } catch (error) {
+        console.error('Prospeccao vendedores GET error:', error.message);
+        res.status(500).json({ error: 'Erro ao buscar vendedores.' });
+    }
+});
+
+/**
+ * GET /api/dashboard/prospeccao
+ * Returns all leads.
+ */
+app.get('/api/dashboard/prospeccao', (req, res) => {
+    try {
+        res.json(prospeccaoStore.getAll());
+    } catch (error) {
+        console.error('Prospeccao GET error:', error.message);
+        res.status(500).json({ error: 'Erro ao buscar leads.' });
+    }
+});
+
+/**
+ * POST /api/dashboard/prospeccao
+ * Add a new lead.
+ */
+app.post('/api/dashboard/prospeccao', (req, res) => {
+    try {
+        const { vendedorId, clienteNome } = req.body;
+        if (!vendedorId || !clienteNome || !clienteNome.trim()) {
+            return res.status(400).json({ error: 'vendedorId e clienteNome sao obrigatorios.' });
+        }
+        const entry = prospeccaoStore.add(req.body);
+        res.status(201).json(entry);
+    } catch (error) {
+        console.error('Prospeccao POST error:', error.message);
+        res.status(500).json({ error: 'Erro ao adicionar lead.' });
+    }
+});
+
+/**
+ * PUT /api/dashboard/prospeccao/:id
+ * Update a lead (status, info, etc).
+ */
+app.put('/api/dashboard/prospeccao/:id', (req, res) => {
+    try {
+        const updated = prospeccaoStore.update(req.params.id, req.body);
+        if (!updated) return res.status(404).json({ error: 'Lead nao encontrado.' });
+        res.json(updated);
+    } catch (error) {
+        console.error('Prospeccao PUT error:', error.message);
+        res.status(500).json({ error: 'Erro ao atualizar lead.' });
+    }
+});
+
+/**
+ * DELETE /api/dashboard/prospeccao/:id
+ * Remove a lead.
+ */
+app.delete('/api/dashboard/prospeccao/:id', (req, res) => {
+    try {
+        const removed = prospeccaoStore.remove(req.params.id);
+        if (!removed) return res.status(404).json({ error: 'Lead nao encontrado.' });
+        res.json({ ok: true });
+    } catch (error) {
+        console.error('Prospeccao DELETE error:', error.message);
+        res.status(500).json({ error: 'Erro ao remover lead.' });
     }
 });
 

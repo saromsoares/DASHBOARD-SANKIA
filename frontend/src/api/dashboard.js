@@ -103,6 +103,22 @@ export function useImportacoes() {
   })
 }
 
+export function useProspeccaoVendedores() {
+  return useQuery({
+    queryKey: ['prospeccao-vendedores'],
+    queryFn: () => api.get('/prospeccao/vendedores').then(r => r.data),
+    staleTime: 24 * 60 * 60 * 1000,
+  })
+}
+
+export function useProspeccao() {
+  return useQuery({
+    queryKey: ['prospeccao'],
+    queryFn: () => api.get('/prospeccao').then(r => r.data),
+    refetchInterval: 60 * 1000,
+  })
+}
+
 export function useSearchProductsAsx(term) {
   return useQuery({
     queryKey: ['search-products-asx', term],

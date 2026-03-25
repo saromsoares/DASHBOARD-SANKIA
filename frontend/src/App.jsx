@@ -6,6 +6,7 @@ import FaturamentoPage from './pages/FaturamentoPage'
 import ComprasPage from './pages/ComprasPage'
 import SugestaoCompraPage from './pages/SugestaoCompraPage'
 import ImportacaoPage from './pages/ImportacaoPage'
+import ProspeccaoPage from './pages/ProspeccaoPage'
 
 function App() {
   const [currentPage, setCurrentPage] = useState('dashboard')
@@ -18,6 +19,7 @@ function App() {
       {currentPage === 'compras' && <ComprasPage />}
       {currentPage === 'sugestao' && <SugestaoCompraPage />}
       {currentPage === 'importacao' && <ImportacaoPage />}
+      {currentPage === 'prospeccao' && <ProspeccaoPage />}
     </Layout>
   )
 }

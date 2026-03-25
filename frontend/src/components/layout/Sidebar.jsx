@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { key: 'compras', label: 'Compras', icon: '📦' },
   { key: 'sugestao', label: 'Sugestao Compra', icon: '🛒' },
   { key: 'importacao', label: 'Importacao', icon: '🚢' },
+  { key: 'prospeccao', label: 'Prospeccao', icon: '🎯' },
 ]
 
 export default function Sidebar({ currentPage, onNavigate }) {
