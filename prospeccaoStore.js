@@ -1,7 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-
-const STORE_PATH = path.join(__dirname, 'data', 'prospeccao.json');
+const supabase = require('./supabaseClient');
 
 const VENDEDORES = [
     { id: 'mara', nome: 'Mara', equipe: 'Estrategia' },
@@ -13,95 +10,110 @@ const VENDEDORES = [
     { id: 'andre', nome: 'Andre', equipe: 'Norte' },
 ];
 
-function ensureDir() {
-    const dir = path.dirname(STORE_PATH);
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-    }
-}
-
-function readAll() {
-    ensureDir();
-    if (!fs.existsSync(STORE_PATH)) return [];
-    try {
-        const raw = fs.readFileSync(STORE_PATH, 'utf-8');
-        return JSON.parse(raw);
-    } catch {
-        return [];
-    }
-}
-
-function writeAll(entries) {
-    ensureDir();
-    fs.writeFileSync(STORE_PATH, JSON.stringify(entries, null, 2), 'utf-8');
-}
-
 function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-}
-
-// One-time migration: add cidadeEstado to Andre's existing leads
-function migrateAndreLeads() {
-    const entries = readAll();
-    let changed = false;
-    entries.forEach(e => {
-        if (e.vendedorId === 'andre' && !e.cidadeEstado) {
-            e.cidadeEstado = 'Porto Velho - RO';
-            changed = true;
-        }
-    });
-    if (changed) writeAll(entries);
-}
-migrateAndreLeads();
-
-function getAll() {
-    return readAll();
 }
 
 function getVendedores() {
     return VENDEDORES;
 }
 
-function add(entry) {
-    const entries = readAll();
-    const newEntry = {
+async function getAll() {
+    const { data, error } = await supabase
+        .from('prospeccao')
+        .select('*')
+        .order('criado_em', { ascending: false });
+    if (error) throw new Error(error.message);
+    // Map snake_case DB columns to camelCase for frontend compatibility
+    return (data || []).map(row => ({
+        id: row.id,
+        vendedorId: row.vendedor_id,
+        clienteNome: row.cliente_nome,
+        cidadeEstado: row.cidade_estado,
+        clienteTelefone: row.cliente_telefone,
+        clienteEmail: row.cliente_email,
+        observacao: row.observacao,
+        status: row.status,
+        criadoEm: row.criado_em,
+        atualizadoEm: row.atualizado_em,
+    }));
+}
+
+async function add(entry) {
+    const row = {
         id: generateId(),
-        vendedorId: entry.vendedorId,
-        clienteNome: entry.clienteNome || '',
-        cidadeEstado: entry.cidadeEstado || '',
-        clienteTelefone: entry.clienteTelefone || '',
-        clienteEmail: entry.clienteEmail || '',
+        vendedor_id: entry.vendedorId,
+        cliente_nome: entry.clienteNome || '',
+        cidade_estado: entry.cidadeEstado || '',
+        cliente_telefone: entry.clienteTelefone || '',
+        cliente_email: entry.clienteEmail || '',
         observacao: entry.observacao || '',
         status: 'pendente',
-        criadoEm: new Date().toISOString(),
-        atualizadoEm: new Date().toISOString(),
     };
-    entries.push(newEntry);
-    writeAll(entries);
-    return newEntry;
+    const { data, error } = await supabase
+        .from('prospeccao')
+        .insert(row)
+        .select()
+        .single();
+    if (error) throw new Error(error.message);
+    return {
+        id: data.id,
+        vendedorId: data.vendedor_id,
+        clienteNome: data.cliente_nome,
+        cidadeEstado: data.cidade_estado,
+        clienteTelefone: data.cliente_telefone,
+        clienteEmail: data.cliente_email,
+        observacao: data.observacao,
+        status: data.status,
+        criadoEm: data.criado_em,
+        atualizadoEm: data.atualizado_em,
+    };
 }
 
-function update(id, updates) {
-    const entries = readAll();
-    const idx = entries.findIndex(e => e.id === id);
-    if (idx === -1) return null;
-    const allowed = ['clienteNome', 'cidadeEstado', 'clienteTelefone', 'clienteEmail', 'observacao', 'status', 'vendedorId'];
-    allowed.forEach(key => {
-        if (updates[key] !== undefined) {
-            entries[idx][key] = updates[key];
+async function update(id, updates) {
+    const dbUpdates = { atualizado_em: new Date().toISOString() };
+    const fieldMap = {
+        vendedorId: 'vendedor_id',
+        clienteNome: 'cliente_nome',
+        cidadeEstado: 'cidade_estado',
+        clienteTelefone: 'cliente_telefone',
+        clienteEmail: 'cliente_email',
+        observacao: 'observacao',
+        status: 'status',
+    };
+    Object.entries(fieldMap).forEach(([camel, snake]) => {
+        if (updates[camel] !== undefined) {
+            dbUpdates[snake] = updates[camel];
         }
     });
-    entries[idx].atualizadoEm = new Date().toISOString();
-    writeAll(entries);
-    return entries[idx];
+    const { data, error } = await supabase
+        .from('prospeccao')
+        .update(dbUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+    if (error) throw new Error(error.message);
+    if (!data) return null;
+    return {
+        id: data.id,
+        vendedorId: data.vendedor_id,
+        clienteNome: data.cliente_nome,
+        cidadeEstado: data.cidade_estado,
+        clienteTelefone: data.cliente_telefone,
+        clienteEmail: data.cliente_email,
+        observacao: data.observacao,
+        status: data.status,
+        criadoEm: data.criado_em,
+        atualizadoEm: data.atualizado_em,
+    };
 }
 
-function remove(id) {
-    const entries = readAll();
-    const idx = entries.findIndex(e => e.id === id);
-    if (idx === -1) return false;
-    entries.splice(idx, 1);
-    writeAll(entries);
+async function remove(id) {
+    const { error } = await supabase
+        .from('prospeccao')
+        .delete()
+        .eq('id', id);
+    if (error) throw new Error(error.message);
     return true;
 }
 

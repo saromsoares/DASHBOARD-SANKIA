@@ -11,7 +11,7 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install --production
-COPY server.js sankhyaService.js cache.js importStore.js prospeccaoStore.js ./
+COPY server.js sankhyaService.js cache.js importStore.js prospeccaoStore.js supabaseClient.js ./
 COPY data/ ./data/
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 EXPOSE 8080

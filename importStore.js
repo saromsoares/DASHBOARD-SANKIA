@@ -1,126 +1,150 @@
-const fs = require('fs');
-const path = require('path');
-
-const STORE_PATH = path.join(__dirname, 'data', 'importacoes.json');
-
-function ensureDir() {
-    const dir = path.dirname(STORE_PATH);
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-    }
-}
-
-function readAll() {
-    ensureDir();
-    if (!fs.existsSync(STORE_PATH)) return [];
-    try {
-        const raw = fs.readFileSync(STORE_PATH, 'utf-8');
-        return JSON.parse(raw);
-    } catch {
-        return [];
-    }
-}
-
-function writeAll(entries) {
-    ensureDir();
-    fs.writeFileSync(STORE_PATH, JSON.stringify(entries, null, 2), 'utf-8');
-}
+const supabase = require('./supabaseClient');
 
 function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 }
 
-function getAll() {
-    return readAll().filter(e => e.status !== 'cancelado');
+function rowToEntry(row) {
+    return {
+        id: row.id,
+        codprod: row.codprod,
+        descrprod: row.descrprod,
+        referencia: row.referencia,
+        quantidade: row.quantidade,
+        qtdRecebida: row.qtd_recebida,
+        dataCompra: row.data_compra,
+        previsaoChegada: row.previsao_chegada,
+        numeroPedido: row.numero_pedido,
+        fornecedor: row.fornecedor,
+        observacao: row.observacao,
+        status: row.status,
+        criadoEm: row.criado_em,
+        atualizadoEm: row.atualizado_em,
+    };
 }
 
-function getAllIncludingCancelled() {
-    return readAll();
+async function getAll() {
+    const { data, error } = await supabase
+        .from('importacoes')
+        .select('*')
+        .neq('status', 'cancelado')
+        .order('criado_em', { ascending: false });
+    if (error) throw new Error(error.message);
+    return (data || []).map(rowToEntry);
 }
 
-function getEmTransito() {
-    return readAll().filter(e => e.status === 'em_transito');
+async function getAllIncludingCancelled() {
+    const { data, error } = await supabase
+        .from('importacoes')
+        .select('*')
+        .order('criado_em', { ascending: false });
+    if (error) throw new Error(error.message);
+    return (data || []).map(rowToEntry);
 }
 
-function add(entry) {
-    const entries = readAll();
-    const newEntry = {
+async function getEmTransito() {
+    const { data, error } = await supabase
+        .from('importacoes')
+        .select('*')
+        .eq('status', 'em_transito');
+    if (error) throw new Error(error.message);
+    return (data || []).map(rowToEntry);
+}
+
+async function add(entry) {
+    const row = {
         id: generateId(),
         codprod: String(entry.codprod),
         descrprod: entry.descrprod || '',
         referencia: entry.referencia || '',
         quantidade: Number(entry.quantidade) || 0,
-        dataCompra: entry.dataCompra || new Date().toISOString().slice(0, 10),
-        previsaoChegada: entry.previsaoChegada || '',
-        numeroPedido: entry.numeroPedido || '',
+        qtd_recebida: 0,
+        data_compra: entry.dataCompra || new Date().toISOString().slice(0, 10),
+        previsao_chegada: entry.previsaoChegada || null,
+        numero_pedido: entry.numeroPedido || '',
         fornecedor: entry.fornecedor || '',
         observacao: entry.observacao || '',
         status: 'em_transito',
-        criadoEm: new Date().toISOString(),
-        atualizadoEm: new Date().toISOString(),
     };
-    entries.push(newEntry);
-    writeAll(entries);
-    return newEntry;
+    const { data, error } = await supabase
+        .from('importacoes')
+        .insert(row)
+        .select()
+        .single();
+    if (error) throw new Error(error.message);
+    return rowToEntry(data);
 }
 
-function update(id, updates) {
-    const entries = readAll();
-    const idx = entries.findIndex(e => e.id === id);
-    if (idx === -1) return null;
-    const allowed = ['quantidade', 'dataCompra', 'previsaoChegada', 'numeroPedido', 'fornecedor', 'observacao', 'status'];
-    allowed.forEach(key => {
-        if (updates[key] !== undefined) {
-            entries[idx][key] = key === 'quantidade' ? Number(updates[key]) : updates[key];
+async function update(id, updates) {
+    const dbUpdates = { atualizado_em: new Date().toISOString() };
+    const fieldMap = {
+        quantidade: 'quantidade',
+        dataCompra: 'data_compra',
+        previsaoChegada: 'previsao_chegada',
+        numeroPedido: 'numero_pedido',
+        fornecedor: 'fornecedor',
+        observacao: 'observacao',
+        status: 'status',
+    };
+    Object.entries(fieldMap).forEach(([camel, snake]) => {
+        if (updates[camel] !== undefined) {
+            dbUpdates[snake] = camel === 'quantidade' ? Number(updates[camel]) : updates[camel];
         }
     });
-    entries[idx].atualizadoEm = new Date().toISOString();
-    writeAll(entries);
-    return entries[idx];
+    const { data, error } = await supabase
+        .from('importacoes')
+        .update(dbUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+    if (error) throw new Error(error.message);
+    if (!data) return null;
+    return rowToEntry(data);
 }
 
-function remove(id) {
-    const entries = readAll();
-    const idx = entries.findIndex(e => e.id === id);
-    if (idx === -1) return false;
-    entries[idx].status = 'cancelado';
-    entries[idx].atualizadoEm = new Date().toISOString();
-    writeAll(entries);
-    return true;
+async function remove(id) {
+    const { data, error } = await supabase
+        .from('importacoes')
+        .update({ status: 'cancelado', atualizado_em: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+    if (error) throw new Error(error.message);
+    return !!data;
 }
 
-function marcarRecebido(id, qtdRecebida) {
-    const entries = readAll();
-    const idx = entries.findIndex(e => e.id === id);
-    if (idx === -1) return null;
+async function marcarRecebido(id, qtdRecebida) {
+    // First get current entry
+    const { data: current, error: fetchErr } = await supabase
+        .from('importacoes')
+        .select('*')
+        .eq('id', id)
+        .single();
+    if (fetchErr || !current) return null;
 
-    const entry = entries[idx];
-    const recebido = Number(qtdRecebida) || entry.quantidade;
-    const prevRecebido = entry.qtdRecebida || 0;
+    const recebido = Number(qtdRecebida) || current.quantidade;
+    const prevRecebido = current.qtd_recebida || 0;
     const totalRecebido = prevRecebido + recebido;
-    const restante = entry.quantidade - totalRecebido;
+    const restante = current.quantidade - totalRecebido;
 
-    entry.qtdRecebida = totalRecebido;
-    entry.atualizadoEm = new Date().toISOString();
+    const upd = {
+        qtd_recebida: restante <= 0 ? current.quantidade : totalRecebido,
+        status: restante <= 0 ? 'recebido' : 'em_transito',
+        atualizado_em: new Date().toISOString(),
+    };
 
-    if (restante <= 0) {
-        entry.status = 'recebido';
-        entry.qtdRecebida = entry.quantidade;
-    } else {
-        // Partial: keep em_transito, update quantity remaining
-        entry.status = 'em_transito';
-    }
-
-    writeAll(entries);
-    return entry;
+    const { data, error } = await supabase
+        .from('importacoes')
+        .update(upd)
+        .eq('id', id)
+        .select()
+        .single();
+    if (error) throw new Error(error.message);
+    return rowToEntry(data);
 }
 
-/**
- * Returns a map of codprod -> total quantity in transit (em_transito only).
- * Used to adjust stock duration calculations.
- */
-function getTransitMap() {
-    const emTransito = getEmTransito();
+async function getTransitMap() {
+    const emTransito = await getEmTransito();
     const map = {};
     emTransito.forEach(e => {
         const restante = e.quantidade - (e.qtdRecebida || 0);

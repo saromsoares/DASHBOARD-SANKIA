@@ -682,9 +682,9 @@ app.get('/api/dashboard/pending-diag', async (req, res) => {
  * GET /api/dashboard/importacoes
  * Returns all import entries (excluding cancelled).
  */
-app.get('/api/dashboard/importacoes', (req, res) => {
+app.get('/api/dashboard/importacoes', async (req, res) => {
     try {
-        const entries = importStore.getAll();
+        const entries = await importStore.getAll();
         res.json(entries);
     } catch (error) {
         console.error('Importacoes GET error:', error.message);
@@ -696,14 +696,13 @@ app.get('/api/dashboard/importacoes', (req, res) => {
  * POST /api/dashboard/importacoes
  * Add a new import entry (product in transit).
  */
-app.post('/api/dashboard/importacoes', (req, res) => {
+app.post('/api/dashboard/importacoes', async (req, res) => {
     try {
         const { codprod, quantidade } = req.body;
         if (!codprod || !quantidade || quantidade <= 0) {
             return res.status(400).json({ error: 'codprod e quantidade (>0) sao obrigatorios.' });
         }
-        const entry = importStore.add(req.body);
-        // Invalidate purchase_management cache so transit data is recalculated
+        const entry = await importStore.add(req.body);
         cache.invalidate('purchase_management');
         res.status(201).json(entry);
     } catch (error) {
@@ -716,9 +715,9 @@ app.post('/api/dashboard/importacoes', (req, res) => {
  * PUT /api/dashboard/importacoes/:id
  * Update an import entry.
  */
-app.put('/api/dashboard/importacoes/:id', (req, res) => {
+app.put('/api/dashboard/importacoes/:id', async (req, res) => {
     try {
-        const updated = importStore.update(req.params.id, req.body);
+        const updated = await importStore.update(req.params.id, req.body);
         if (!updated) return res.status(404).json({ error: 'Importacao nao encontrada.' });
         cache.invalidate('purchase_management');
         res.json(updated);
@@ -733,10 +732,10 @@ app.put('/api/dashboard/importacoes/:id', (req, res) => {
  * Mark an import as received (supports partial quantity).
  * Body: { qtdRecebida: number } (optional - defaults to full quantity)
  */
-app.put('/api/dashboard/importacoes/:id/recebido', (req, res) => {
+app.put('/api/dashboard/importacoes/:id/recebido', async (req, res) => {
     try {
         const qtdRecebida = req.body?.qtdRecebida;
-        const updated = importStore.marcarRecebido(req.params.id, qtdRecebida);
+        const updated = await importStore.marcarRecebido(req.params.id, qtdRecebida);
         if (!updated) return res.status(404).json({ error: 'Importacao nao encontrada.' });
         cache.invalidate('purchase_management');
         res.json(updated);
@@ -750,9 +749,9 @@ app.put('/api/dashboard/importacoes/:id/recebido', (req, res) => {
  * DELETE /api/dashboard/importacoes/:id
  * Cancel an import entry (soft delete).
  */
-app.delete('/api/dashboard/importacoes/:id', (req, res) => {
+app.delete('/api/dashboard/importacoes/:id', async (req, res) => {
     try {
-        const removed = importStore.remove(req.params.id);
+        const removed = await importStore.remove(req.params.id);
         if (!removed) return res.status(404).json({ error: 'Importacao nao encontrada.' });
         cache.invalidate('purchase_management');
         res.json({ ok: true });
@@ -781,9 +780,10 @@ app.get('/api/dashboard/prospeccao/vendedores', (req, res) => {
  * GET /api/dashboard/prospeccao
  * Returns all leads.
  */
-app.get('/api/dashboard/prospeccao', (req, res) => {
+app.get('/api/dashboard/prospeccao', async (req, res) => {
     try {
-        res.json(prospeccaoStore.getAll());
+        const entries = await prospeccaoStore.getAll();
+        res.json(entries);
     } catch (error) {
         console.error('Prospeccao GET error:', error.message);
         res.status(500).json({ error: 'Erro ao buscar leads.' });
@@ -794,13 +794,13 @@ app.get('/api/dashboard/prospeccao', (req, res) => {
  * POST /api/dashboard/prospeccao
  * Add a new lead.
  */
-app.post('/api/dashboard/prospeccao', (req, res) => {
+app.post('/api/dashboard/prospeccao', async (req, res) => {
     try {
         const { vendedorId, clienteNome } = req.body;
         if (!vendedorId || !clienteNome || !clienteNome.trim()) {
             return res.status(400).json({ error: 'vendedorId e clienteNome sao obrigatorios.' });
         }
-        const entry = prospeccaoStore.add(req.body);
+        const entry = await prospeccaoStore.add(req.body);
         res.status(201).json(entry);
     } catch (error) {
         console.error('Prospeccao POST error:', error.message);
@@ -812,9 +812,9 @@ app.post('/api/dashboard/prospeccao', (req, res) => {
  * PUT /api/dashboard/prospeccao/:id
  * Update a lead (status, info, etc).
  */
-app.put('/api/dashboard/prospeccao/:id', (req, res) => {
+app.put('/api/dashboard/prospeccao/:id', async (req, res) => {
     try {
-        const updated = prospeccaoStore.update(req.params.id, req.body);
+        const updated = await prospeccaoStore.update(req.params.id, req.body);
         if (!updated) return res.status(404).json({ error: 'Lead nao encontrado.' });
         res.json(updated);
     } catch (error) {
@@ -827,9 +827,9 @@ app.put('/api/dashboard/prospeccao/:id', (req, res) => {
  * DELETE /api/dashboard/prospeccao/:id
  * Remove a lead.
  */
-app.delete('/api/dashboard/prospeccao/:id', (req, res) => {
+app.delete('/api/dashboard/prospeccao/:id', async (req, res) => {
     try {
-        const removed = prospeccaoStore.remove(req.params.id);
+        const removed = await prospeccaoStore.remove(req.params.id);
         if (!removed) return res.status(404).json({ error: 'Lead nao encontrado.' });
         res.json({ ok: true });
     } catch (error) {
@@ -974,7 +974,7 @@ async function warmUpPurchaseManagement() {
         console.log(`[WarmUp] Supplier names for ${allParcCodes.size} partners in ${((Date.now() - t5) / 1000).toFixed(1)}s`);
 
         // Load transit quantities from importacoes
-        const transitMap = importStore.getTransitMap();
+        const transitMap = await importStore.getTransitMap();
         console.log(`[WarmUp] Transit items: ${Object.keys(transitMap).length} products with ${Object.values(transitMap).reduce((a, b) => a + b, 0)} units in transit`);
 
         const asx = [];
