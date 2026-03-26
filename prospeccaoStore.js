@@ -8,6 +8,7 @@ const VENDEDORES = [
     { id: 'pablo', nome: 'Pablo', equipe: '' },
     { id: 'adriano', nome: 'Adriano', equipe: '' },
     { id: 'andre', nome: 'Andre', equipe: 'Norte' },
+    { id: 'jamile', nome: 'Jamile', equipe: '' },
 ];
 
 function generateId() {
